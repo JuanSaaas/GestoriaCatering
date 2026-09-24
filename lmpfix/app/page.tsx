@@ -11,7 +11,7 @@ export default function HomePage() {
       <Hero />
 
       <section className="border-b border-[var(--line)]">
-        <Reveal className="max-w-[820px] mx-auto px-6 md:px-10 py-12 md:py-16 text-center">
+        <Reveal className="max-w-[820px] mx-auto px-6 md:px-10 py-16 md:py-24 text-center">
           <span className="block text-xs uppercase tracking-[0.2em] text-gold mb-6">Nuestra filosofía</span>
           <p className="font-serif text-2xl md:text-[2rem] leading-snug text-ink">
             No servimos platos, servimos momentos. Cada menú se diseña para que la mesa
@@ -20,15 +20,15 @@ export default function HomePage() {
         </Reveal>
       </section>
 
-      <section id="propuesta" className="grid grid-cols-1 md:grid-cols-[1fr_1.05fr] items-stretch">
-        <div className="bg-[#1a1512] min-h-[320px] md:min-h-[560px] flex items-center justify-center">
+      <section id="propuesta" className="grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] items-center">
+        <div className="bg-[#1a1512] flex items-center justify-center px-6 md:px-10 py-10 md:py-14">
           <img
             src="/hero-photo.jpg"
             alt="Mesa preparada para un evento de La Mesa Perfecta"
-            className="w-full h-full object-cover object-center"
+            className="w-full max-w-[560px] h-[300px] md:h-[460px] object-cover object-center"
           />
         </div>
-        <div className="flex items-center px-6 md:px-14 py-12 md:py-14 bg-paper-2">
+        <div className="flex items-center px-6 md:px-14 py-16 md:py-20 bg-paper-2">
           <Reveal>
             <span className="block text-xs uppercase tracking-[0.2em] text-gold mb-5">Nuestra propuesta</span>
             <h2 className="font-serif text-3xl md:text-4xl mb-5 leading-tight">Del primer boceto a la última copa</h2>
@@ -62,7 +62,7 @@ export default function HomePage() {
       <ServicesCarousel />
 
       <section id="contacto" className="border-t border-[var(--line)] bg-paper-2">
-        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-12 md:py-16 grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] gap-10 md:gap-12">
+        <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-16 md:py-20 grid grid-cols-1 md:grid-cols-[0.9fr_1.1fr] gap-14">
           <Reveal>
             <span className="block text-xs uppercase tracking-[0.2em] text-gold mb-4">Contacto</span>
             <h2 className="font-serif text-3xl md:text-4xl mb-5 max-w-[12ch]">Cuéntanos tu evento</h2>
@@ -82,7 +82,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="max-w-[1200px] mx-auto px-6 md:px-10 py-10 flex flex-col md:flex-row items-center justify-between gap-5">
+      <footer className="max-w-[1200px] mx-auto px-6 md:px-10 py-12 flex flex-col md:flex-row items-center justify-between gap-6">
         <img src="/logo-full.png" alt="La Mesa Perfecta" className="h-20 md:h-24 w-auto max-w-[260px] object-contain" />
         <div className="text-center md:text-right text-ink-soft text-sm">
           <div>© 2026 La Mesa Perfecta — Gestoría de eventos y catering S.L.</div>

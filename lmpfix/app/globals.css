@@ -9,7 +9,7 @@
 /* Al saltar a un ancla (#contacto...) el menú fijo no tapa el título */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 78px;
+  scroll-padding-top: 88px;
 }
 
 body {
