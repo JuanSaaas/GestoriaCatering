@@ -6,6 +6,12 @@
   --line: rgba(36, 27, 22, 0.14);
 }
 
+/* Al saltar a un ancla (#contacto...) el menú fijo no tapa el título */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 88px;
+}
+
 body {
   background-color: #f7f1e4;
   color: #241b16;

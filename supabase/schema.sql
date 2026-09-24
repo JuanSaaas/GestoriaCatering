@@ -2,10 +2,10 @@
 -- La Mesa Perfecta — Esquema de Supabase
 -- Ejecuta este script completo en Supabase → SQL Editor → New query
 --
--- 6 tablas:
--- - En uso activo por la app: clientes, oportunidades, tareas, notas.
--- - Preparadas para el futuro (sin interfaz todavía, pero listas para
---   cuando añadas login de comerciales): usuarios, historial_estados.
+-- 7 tablas:
+-- - En uso activo por la app: clientes, oportunidades, tareas, notas,
+--   empresas y usuarios (empleados asignables a cada oportunidad).
+-- - Preparada para el futuro: historial_estados.
 --   historial_estados ya se rellena sola mediante un trigger.
 -- ============================================================
 
@@ -32,13 +32,26 @@ create table if not exists usuarios (
   rol         text not null default 'comercial'
 );
 
+-- Empresas (cuentas) a las que se asocian las oportunidades.
+create table if not exists empresas (
+  id          uuid primary key default gen_random_uuid(),
+  created_at  timestamptz not null default now(),
+  nombre      text not null unique,
+  cif         text,
+  sector      text,
+  ciudad      text,
+  email       text,
+  telefono    text
+);
+
 create table if not exists oportunidades (
   id                    uuid primary key default gen_random_uuid(),
   created_at            timestamptz not null default now(),
   updated_at            timestamptz not null default now(),
 
   cliente_id            uuid not null references clientes(id) on delete cascade,
-  comercial_id          uuid references usuarios(id) on delete set null,
+  comercial_id          uuid references usuarios(id) on delete set null, -- empleado responsable
+  empresa_id            uuid references empresas(id) on delete set null,  -- empresa asociada
 
   tipo_evento           text not null check (
                           tipo_evento in ('boda','corporativo','comunion','cumpleanos','otro')
@@ -130,6 +143,7 @@ create trigger trg_log_cambio_estado
 
 alter table clientes enable row level security;
 alter table usuarios enable row level security;
+alter table empresas enable row level security;
 alter table oportunidades enable row level security;
 alter table tareas enable row level security;
 alter table notas enable row level security;
@@ -137,6 +151,7 @@ alter table historial_estados enable row level security;
 
 create policy "acceso completo clientes" on clientes for all using (true) with check (true);
 create policy "acceso completo usuarios" on usuarios for all using (true) with check (true);
+create policy "acceso completo empresas" on empresas for all using (true) with check (true);
 create policy "acceso completo oportunidades" on oportunidades for all using (true) with check (true);
 create policy "acceso completo tareas" on tareas for all using (true) with check (true);
 create policy "acceso completo notas" on notas for all using (true) with check (true);

@@ -1,5 +1,6 @@
 erDiagram
   CLIENTES ||--o{ OPORTUNIDADES : solicita
+  EMPRESAS ||--o{ OPORTUNIDADES : asociada_a
   USUARIOS ||--o{ OPORTUNIDADES : lleva
   USUARIOS ||--o{ TAREAS : asignada_a
   USUARIOS ||--o{ HISTORIAL_ESTADOS : registra
@@ -21,10 +22,20 @@ erDiagram
     string email
     string rol
   }
+  EMPRESAS {
+    uuid id PK
+    string nombre
+    string cif
+    string sector
+    string ciudad
+    string email
+    string telefono
+  }
   OPORTUNIDADES {
     uuid id PK
     uuid cliente_id FK
     uuid comercial_id FK
+    uuid empresa_id FK
     string tipo_evento
     string tipo_evento_otro
     date fecha_evento

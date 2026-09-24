@@ -4,8 +4,9 @@ import ContactForm from '@/components/ContactForm';
 export default function HomePage() {
   return (
     <main className="bg-paper text-ink">
-      {/* Header */}
-      <header className="max-w-[1200px] mx-auto px-6 md:px-10 py-6 flex justify-between items-center">
+      {/* Header: fijo arriba al hacer scroll */}
+      <div className="sticky top-0 z-40 bg-paper/90 backdrop-blur-md border-b border-[var(--line)]">
+      <header className="max-w-[1200px] mx-auto px-6 md:px-10 py-4 flex justify-between items-center">
         <div className="flex items-center gap-3">
           <img src="/logo-icon.png" alt="" className="h-9 w-auto" />
           <span className="font-serif italic text-lg md:text-xl whitespace-nowrap">La Mesa Perfecta</span>
@@ -22,6 +23,7 @@ export default function HomePage() {
           </Link>
         </nav>
       </header>
+      </div>
 
       {/* Hero: imagen de marca a sangre completa */}
       <img

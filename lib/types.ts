@@ -10,12 +10,26 @@ export type EstadoOportunidad =
   | 'ganado'
   | 'perdido';
 
+// Empleado del equipo (tabla `usuarios`): es quien lleva cada oportunidad.
 export interface Usuario {
   id: string;
   created_at: string;
   nombre: string;
   email: string;
   rol: string;
+}
+
+export type Empleado = Usuario;
+
+export interface Empresa {
+  id: string;
+  created_at: string;
+  nombre: string;
+  cif: string | null;
+  sector: string | null;
+  ciudad: string | null;
+  email: string | null;
+  telefono: string | null;
 }
 
 export interface Cliente {
@@ -33,7 +47,8 @@ export interface Oportunidad {
   created_at: string;
   updated_at: string;
   cliente_id: string;
-  comercial_id: string | null;
+  comercial_id: string | null; // empleado responsable
+  empresa_id: string | null; // empresa asociada
   tipo_evento: TipoEvento;
   tipo_evento_otro: string | null;
   fecha_evento: string | null;
@@ -42,8 +57,11 @@ export interface Oportunidad {
   mensaje: string | null;
   estado: EstadoOportunidad;
   origen: string;
-  // Viene de un JOIN (select('*, cliente:clientes(*)')), no es una columna propia
+  // Vienen de un JOIN (select('*, cliente:clientes(*), empresa:empresas(*), comercial:usuarios(*)')),
+  // no son columnas propias de la tabla.
   cliente: Cliente;
+  empresa: Empresa | null;
+  comercial: Empleado | null;
 }
 
 export interface Tarea {
@@ -91,3 +109,7 @@ export const TIPO_EVENTO_LABEL: Record<TipoEvento, string> = {
   cumpleanos: 'Cumpleaños',
   otro: 'Otro',
 };
+
+// Consulta estándar de oportunidades con su cliente, empresa y empleado asociados
+export const OPORTUNIDAD_SELECT =
+  '*, cliente:clientes(*), empresa:empresas(*), comercial:usuarios(*)';
