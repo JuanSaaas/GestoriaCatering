@@ -1,0 +1,15 @@
+'use client';
+import { useEffect, useMemo, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import type { Cliente } from '@/lib/types';
+import CrmShell from '@/components/CrmShell';
+import { Icon, inputCls } from '@/components/ui';
+
+export default function ContactosPage(){
+ const [items,setItems]=useState<Cliente[]>([]); const [q,setQ]=useState(''); const [live,setLive]=useState(false);
+ async function load(){const {data}=await supabase.from('clientes').select('*, empresa_rel:empresas(*)').order('created_at',{ascending:false}); setItems((data as Cliente[])||[])}
+ useEffect(()=>{load(); const c=supabase.channel('crm-clientes').on('postgres_changes',{event:'*',schema:'public',table:'clientes'},load).subscribe(s=>s==='SUBSCRIBED'&&setLive(true)); return()=>{supabase.removeChannel(c)}},[]);
+ const shown=useMemo(()=>items.filter(x=>!q||`${x.nombre} ${x.email} ${x.telefono||''} ${x.empresa||''}`.toLowerCase().includes(q.toLowerCase())),[items,q]);
+ return <CrmShell live={live}><div className="p-6 lg:p-8 max-w-7xl"><div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-7"><div><div className="text-xs uppercase tracking-[.18em] text-neutral-400 font-semibold">Base de datos</div><h1 className="text-3xl font-semibold tracking-tight mt-1">Contactos</h1><p className="text-sm text-neutral-500 mt-1">{items.length} contactos sincronizados desde Supabase.</p></div><div className="relative w-full md:w-80"><Icon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400"/><input className={`${inputCls} pl-9`} value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar contacto…"/></div></div>
+ <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm"><div className="hidden md:grid grid-cols-[1.4fr_1.4fr_1fr_1fr_.7fr] gap-4 px-5 py-3 bg-neutral-50 border-b text-[10px] uppercase tracking-wider font-semibold text-neutral-400"><span>Contacto</span><span>Email</span><span>Teléfono</span><span>Empresa</span><span>Tipo</span></div>{shown.map(x=><div key={x.id} className="grid md:grid-cols-[1.4fr_1.4fr_1fr_1fr_.7fr] gap-2 md:gap-4 px-5 py-4 border-b last:border-0 border-neutral-100 items-center hover:bg-neutral-50/70 transition"><div className="flex items-center gap-3"><span className="w-9 h-9 rounded-full bg-neutral-100 flex items-center justify-center text-xs font-bold">{x.nombre.split(' ').map(v=>v[0]).slice(0,2).join('').toUpperCase()}</span><div><div className="font-medium text-sm">{x.nombre}</div><div className="text-xs text-neutral-400 md:hidden">{x.email}</div></div></div><div className="hidden md:block text-sm text-neutral-600 truncate">{x.email}</div><div className="text-sm text-neutral-500">{x.telefono||'—'}</div><div className="text-sm text-neutral-500">{x.empresa_rel?.nombre||x.empresa||'—'}</div><div><span className="inline-flex rounded-full bg-neutral-100 px-2.5 py-1 text-[11px] font-medium capitalize">{x.tipo_cliente}</span></div></div>)}{shown.length===0&&<div className="py-16 text-center text-sm text-neutral-400">No hay contactos que coincidan.</div>}</div></div></CrmShell>
+}

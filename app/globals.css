@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --line: rgba(36, 27, 22, 0.14);
+}
+
+/* Al saltar a un ancla (#contacto...) el menú fijo no tapa el título */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 78px;
+}
+
+body {
+  background-color: #f7f1e4;
+  color: #241b16;
+}
+
+.crm-shell {
+  --crm-primary: #ffffff;
+  --crm-secondary: #0a0a0a;
+  --crm-warning: #dc2626;
+  --crm-wait: #eab308;
+  --crm-success: #16a34a;
+  --crm-info: #2563eb;
+  background: var(--crm-primary);
+  color: var(--crm-secondary);
+}
