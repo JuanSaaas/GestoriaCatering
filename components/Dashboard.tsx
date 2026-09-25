@@ -34,7 +34,7 @@ function Gauge({ value, goal }: { value: number; goal: number }) {
               y2={y2}
               strokeWidth={3}
               strokeLinecap="round"
-              stroke={i < litTicks ? '#0A0A0A' : '#E5E5E5'}
+              stroke={i < litTicks ? '#7a1f2b' : '#E5E5E5'}
             />
           );
         })}
@@ -147,7 +147,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
             <div key={ciudad} className="flex items-center gap-3 text-sm">
               <span className="w-24 shrink-0 truncate text-neutral-600">{ciudad}</span>
               <div className="flex-1 h-2 rounded-full bg-neutral-100 overflow-hidden">
-                <div className="h-full bg-black rounded-full" style={{ width: `${(n / maxCiudad) * 100}%` }} />
+                <div className="h-full bg-[var(--crm-accent)] rounded-full" style={{ width: `${(n / maxCiudad) * 100}%` }} />
               </div>
               <span className="w-6 text-right tabular-nums text-neutral-500 shrink-0">{n}</span>
             </div>

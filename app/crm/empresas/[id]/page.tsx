@@ -83,7 +83,7 @@ export default function EmpresaPerfilPage() {
           <div>
             <h1 className="text-2xl font-semibold">{empresa.nombre || 'Empresa'}</h1>
             <p className="text-sm text-neutral-500">
-              {contactos.length} empleado{contactos.length === 1 ? '' : 's'} · {ops.length} oportunidad
+              {contactos.length} contacto{contactos.length === 1 ? '' : 's'} · {ops.length} oportunidad
               {ops.length === 1 ? '' : 'es'}
             </p>
           </div>
@@ -144,13 +144,13 @@ export default function EmpresaPerfilPage() {
           </div>
         </form>
 
-        <h2 className="text-lg font-semibold mb-3">Empleados que nos han contactado</h2>
+        <h2 className="text-lg font-semibold mb-3">Contactos</h2>
         <div className="space-y-2 mb-10">
           {contactos.map((c) => (
             <Link
               key={c.id}
-              href={`/crm/empleados/${c.id}`}
-              className="flex items-center gap-3 p-3 rounded-lg border border-neutral-200 hover:border-black"
+              href={`/crm/contactos/${c.id}`}
+              className="flex items-center gap-3 p-3 rounded-lg border border-neutral-200 hover:border-[var(--crm-accent)]"
             >
               <Avatar nombre={c.nombre} />
               <div>
@@ -159,7 +159,7 @@ export default function EmpresaPerfilPage() {
               </div>
             </Link>
           ))}
-          {contactos.length === 0 && <p className="text-sm text-neutral-500">Aún no hay empleados ligados a esta empresa.</p>}
+          {contactos.length === 0 && <p className="text-sm text-neutral-500">Aún no hay contactos ligados a esta empresa.</p>}
         </div>
 
         <h2 className="text-lg font-semibold mb-3">Oportunidades</h2>

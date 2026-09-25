@@ -21,15 +21,15 @@ export default function HomePage() {
       </section>
 
       <section id="propuesta" className="grid grid-cols-1 md:grid-cols-[1fr_1.05fr] items-stretch">
-        <div className="bg-[#1a1512] min-h-[320px] md:min-h-[560px] flex items-center justify-center">
+        <div className="bg-[#1a1512] h-[320px] md:h-auto md:min-h-[480px]">
           <img
             src="/hero-photo.jpg"
             alt="Mesa preparada para un evento de La Mesa Perfecta"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-[50%_30%]"
           />
         </div>
         <div className="flex items-center px-6 md:px-14 py-12 md:py-14 bg-paper-2">
-          <Reveal>
+          <Reveal className="max-w-[560px]">
             <span className="block text-xs uppercase tracking-[0.2em] text-gold mb-5">Nuestra propuesta</span>
             <h2 className="font-serif text-3xl md:text-4xl mb-5 leading-tight">Del primer boceto a la última copa</h2>
             <p className="text-ink-soft mb-4 leading-relaxed">

@@ -54,7 +54,7 @@ export default function CrmPage() {
     const channel = supabase
       .channel('crm-oportunidades')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'oportunidades' }, () => loadAll())
-      .subscribe((status) => {
+      .subscribe((status: string) => {
         if (status === 'SUBSCRIBED') setLive(true);
       });
 
@@ -121,7 +121,7 @@ export default function CrmPage() {
       <div className="px-6 pt-6 pb-5">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold">Tablero de oportunidades</h1>
+            <h1 className="text-2xl font-semibold">Oportunidades</h1>
             <p className="text-sm text-neutral-500 mt-0.5">
               Arrastra las tarjetas entre columnas, como en Trello.{' '}
               {visibles.length === oportunidades.length

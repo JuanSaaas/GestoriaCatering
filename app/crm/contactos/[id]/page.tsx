@@ -69,8 +69,8 @@ export default function EmpleadoPerfilPage() {
   return (
     <CrmShell>
       <div className="px-6 py-6 max-w-4xl">
-        <Link href="/crm/empleados" className="text-sm text-neutral-500 hover:text-black">
-          ← Empleados
+        <Link href="/crm/contactos" className="text-sm text-neutral-500 hover:text-black">
+          ← Contactos
         </Link>
 
         <div className="flex items-center gap-4 mt-4 mb-8">

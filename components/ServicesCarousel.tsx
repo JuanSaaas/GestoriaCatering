@@ -49,26 +49,21 @@ const SERVICIOS = [
 
 export default function ServicesCarousel() {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
 
+  // Cambia de slide sola cada 6.5s. Cada interacción manual (flechas o
+  // selector) reinicia este intervalo para no saltar justo después de elegir.
   useEffect(() => {
-    if (paused) return;
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % SERVICIOS.length);
     }, 6500);
     return () => window.clearInterval(id);
-  }, [paused]);
+  }, [index]);
 
   const go = (dir: number) => setIndex((i) => (i + dir + SERVICIOS.length) % SERVICIOS.length);
   const actual = SERVICIOS[index];
 
   return (
-    <section
-      id="servicios"
-      className="relative"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
+    <section id="servicios" className="relative">
       <div className="max-w-[1200px] mx-auto px-6 md:px-10 pt-12 md:pt-14 pb-6">
         <span className="block text-xs uppercase tracking-[0.2em] text-gold mb-3">Lo que preparamos</span>
         <h2 className="font-serif text-3xl md:text-4xl">Servicios</h2>

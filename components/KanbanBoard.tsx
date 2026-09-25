@@ -27,7 +27,7 @@ export default function KanbanBoard({
           <div
             key={est.key}
             className={`rounded-xl min-w-[264px] flex-1 max-w-[340px] border transition-colors ${
-              activa ? 'bg-black/[0.06] border-black/40' : 'bg-neutral-100 border-transparent'
+              activa ? 'bg-[var(--crm-accent-soft)] border-[var(--crm-accent)]/40' : 'bg-neutral-100 border-transparent'
             }`}
             onDragOver={(e) => {
               e.preventDefault();

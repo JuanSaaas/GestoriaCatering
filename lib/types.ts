@@ -99,11 +99,11 @@ export interface HistorialEstado {
 }
 
 export const ESTADOS: { key: EstadoOportunidad; label: string; color: string }[] = [
-  { key: 'nuevo', label: 'En espera', color: '#EAB308' },
-  { key: 'contactado', label: 'Contactado', color: '#0A0A0A' },
-  { key: 'presupuesto_enviado', label: 'Presupuesto enviado', color: '#2563EB' },
-  { key: 'negociacion', label: 'Negociación', color: '#DC2626' },
-  { key: 'ganado', label: 'Ganado', color: '#16A34A' },
+  { key: 'nuevo', label: 'En espera', color: '#B3781A' },
+  { key: 'contactado', label: 'Contactado', color: '#35618F' },
+  { key: 'presupuesto_enviado', label: 'Presupuesto enviado', color: '#7A1F2B' },
+  { key: 'negociacion', label: 'Negociación', color: '#8A5A1E' },
+  { key: 'ganado', label: 'Ganado', color: '#2F7D4F' },
   { key: 'perdido', label: 'Perdido', color: '#737373' },
 ];
 

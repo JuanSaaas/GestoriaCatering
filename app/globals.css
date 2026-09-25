@@ -19,11 +19,13 @@ body {
 
 .crm-shell {
   --crm-primary: #ffffff;
-  --crm-secondary: #0a0a0a;
-  --crm-warning: #dc2626;
-  --crm-wait: #eab308;
-  --crm-success: #16a34a;
-  --crm-info: #2563eb;
-  background: var(--crm-primary);
+  --crm-secondary: #1c1410;
+  --crm-accent: #7a1f2b;
+  --crm-accent-soft: #7a1f2b14;
+  --crm-warning: #b3261e;
+  --crm-wait: #b3781a;
+  --crm-success: #2f7d4f;
+  --crm-info: #35618f;
+  background: #f7f4f0;
   color: var(--crm-secondary);
 }

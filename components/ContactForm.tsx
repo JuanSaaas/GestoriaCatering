@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import type { TipoCliente, TipoEvento } from '@/lib/types';
+import type { TipoEvento } from '@/lib/types';
 
 type Status = 'idle' | 'sending' | 'ok' | 'error';
 
+// Para estos tipos de evento el campo "empresa" no tiene sentido (son celebraciones
+// personales), así que no se muestra. Para el resto (corporativo, otro) sí aparece.
+const EVENTOS_SIN_EMPRESA: TipoEvento[] = ['boda', 'comunion', 'cumpleanos'];
+
 export default function ContactForm() {
-  const [tipoCliente, setTipoCliente] = useState<TipoCliente>('particular');
   const [tipoEvento, setTipoEvento] = useState<TipoEvento>('boda');
   const [status, setStatus] = useState<Status>('idle');
+  const mostrarEmpresa = !EVENTOS_SIN_EMPRESA.includes(tipoEvento);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -18,8 +22,10 @@ export default function ContactForm() {
     const form = e.currentTarget;
     const data = new FormData(form);
 
-    const empresaNombre =
-      tipoCliente === 'empresa' ? String(data.get('empresa') || '').trim() : '';
+    const eventoActual = data.get('tipoEvento') as TipoEvento;
+    const empresaNombre = !EVENTOS_SIN_EMPRESA.includes(eventoActual)
+      ? String(data.get('empresa') || '').trim()
+      : '';
 
     let empresaId: string | null = null;
     if (empresaNombre) {
@@ -41,7 +47,7 @@ export default function ContactForm() {
     }
 
     const clientePayload = {
-      tipo_cliente: tipoCliente,
+      tipo_cliente: empresaNombre ? 'empresa' : 'particular',
       nombre: String(data.get('nombre') || '').trim(),
       empresa: empresaNombre || null,
       empresa_id: empresaId,
@@ -94,7 +100,6 @@ export default function ContactForm() {
     } else {
       setStatus('ok');
       form.reset();
-      setTipoCliente('particular');
       setTipoEvento('boda');
     }
   }
@@ -105,38 +110,13 @@ export default function ContactForm() {
 
   return (
     <div className="bg-paper-2 p-8 md:p-10">
-      <div className="flex gap-2.5 mb-7">
-        <button
-          type="button"
-          onClick={() => setTipoCliente('particular')}
-          className={`flex-1 py-2.5 text-sm border transition-colors ${
-            tipoCliente === 'particular'
-              ? 'bg-ink text-paper border-ink'
-              : 'bg-transparent text-ink-soft border-[var(--line)]'
-          }`}
-        >
-          Soy particular
-        </button>
-        <button
-          type="button"
-          onClick={() => setTipoCliente('empresa')}
-          className={`flex-1 py-2.5 text-sm border transition-colors ${
-            tipoCliente === 'empresa'
-              ? 'bg-ink text-paper border-ink'
-              : 'bg-transparent text-ink-soft border-[var(--line)]'
-          }`}
-        >
-          Somos una empresa
-        </button>
-      </div>
-
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-5">
           <div>
             <label className={labelClass} htmlFor="nombre">Nombre y apellidos</label>
             <input className={inputClass} id="nombre" name="nombre" type="text" required />
           </div>
-          {tipoCliente === 'empresa' && (
+          {mostrarEmpresa && (
             <div>
               <label className={labelClass} htmlFor="empresa">Nombre de la empresa</label>
               <input className={inputClass} id="empresa" name="empresa" type="text" />
