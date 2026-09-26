@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import type { Oportunidad, Tarea, Nota, Empresa, Empleado } from '@/lib/types';
-import { ESTADOS } from '@/lib/types';
+import { ESTADOS, FRANJA_HORARIA_LABEL, ORIGEN_CONTACTO_LABEL } from '@/lib/types';
 import AssignmentFields from './AssignmentFields';
 import { Avatar, Icon, Section, btnGhost, btnPrimary, eventoLabel, fmtDate, fmtMoney, inputCls, tituloOportunidad } from './ui';
 
@@ -191,11 +191,20 @@ export default function OpportunityModal({
             <dl className="grid grid-cols-2 gap-x-5 gap-y-3.5">
               {dato('Tipo de evento', eventoLabel(oportunidad))}
               {dato('Fecha del evento', fmtDate(oportunidad.fecha_evento))}
+              {dato('Franja horaria', oportunidad.franja_horaria ? FRANJA_HORARIA_LABEL[oportunidad.franja_horaria] : '—')}
+              {dato('Ubicación del evento', oportunidad.ubicacion_evento || '—')}
               {dato('Nº de invitados', oportunidad.num_invitados || '—')}
               {dato('Presupuesto estimado', <span className="font-semibold">{fmtMoney(oportunidad.presupuesto_estimado)}</span>)}
               {dato('Email', <a href={`mailto:${c.email}`} className="text-black hover:underline">{c.email}</a>)}
               {dato('Teléfono', c.telefono ? <a href={`tel:${c.telefono}`} className="text-black hover:underline">{c.telefono}</a> : '—')}
+              {dato('Cómo nos conoció', oportunidad.como_nos_conocio ? (ORIGEN_CONTACTO_LABEL[oportunidad.como_nos_conocio] || oportunidad.como_nos_conocio) : '—')}
             </dl>
+            {oportunidad.restricciones && (
+              <div className="mt-4">
+                <dt className="text-xs text-ink-soft mb-1">Restricciones alimentarias / alergias</dt>
+                <dd className="text-sm bg-surface border border-line px-3.5 py-2.5 rounded-lg">{oportunidad.restricciones}</dd>
+              </div>
+            )}
             {oportunidad.mensaje && (
               <div className="mt-4 bg-surface border border-line px-3.5 py-3 rounded-lg text-sm text-ink-soft whitespace-pre-line">
                 {oportunidad.mensaje}

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import type { TipoEvento } from '@/lib/types';
+import type { TipoEvento, FranjaHoraria } from '@/lib/types';
+import { FRANJA_HORARIA_LABEL, ORIGEN_CONTACTO_LABEL } from '@/lib/types';
 
 type Status = 'idle' | 'sending' | 'ok' | 'error';
 
@@ -84,15 +85,28 @@ export default function ContactForm() {
           ? String(data.get('tipoEventoOtro') || '').trim()
           : null,
       fecha_evento: (data.get('fechaEvento') as string) || null,
+      franja_horaria: (data.get('franjaHoraria') as string) || null,
+      ubicacion_evento: String(data.get('ubicacionEvento') || '').trim() || null,
       num_invitados: data.get('numInvitados') ? Number(data.get('numInvitados')) : null,
       presupuesto_estimado: data.get('presupuesto') ? Number(data.get('presupuesto')) : null,
+      restricciones: String(data.get('restricciones') || '').trim() || null,
+      como_nos_conocio: (data.get('comoNosConocio') as string) || null,
       mensaje: String(data.get('mensaje') || '').trim(),
       estado: 'nuevo' as const,
       origen: 'formulario_web',
       empresa_id: empresaId,
     };
 
-    const { error } = await supabase.from('oportunidades').insert(oportunidadPayload);
+    let { error } = await supabase.from('oportunidades').insert(oportunidadPayload);
+
+    if (error) {
+      // Si la migración de columnas nuevas (franja, ubicación, restricciones,
+      // origen) aún no se ha aplicado en Supabase, reintentamos sin ellas para
+      // no bloquear el envío del formulario por completo.
+      const { franja_horaria, ubicacion_evento, restricciones, como_nos_conocio, ...basico } = oportunidadPayload;
+      const retry = await supabase.from('oportunidades').insert(basico);
+      error = retry.error;
+    }
 
     if (error) {
       console.error(error);
@@ -175,6 +189,28 @@ export default function ContactForm() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-5">
           <div>
+            <label className={labelClass} htmlFor="franjaHoraria">Franja horaria</label>
+            <select className={inputClass} id="franjaHoraria" name="franjaHoraria" defaultValue="">
+              <option value="" disabled>Selecciona una opción</option>
+              {(Object.keys(FRANJA_HORARIA_LABEL) as FranjaHoraria[]).map((k) => (
+                <option key={k} value={k}>{FRANJA_HORARIA_LABEL[k]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="ubicacionEvento">Ubicación del evento</label>
+            <input
+              className={inputClass}
+              id="ubicacionEvento"
+              name="ubicacionEvento"
+              type="text"
+              placeholder="Ciudad, finca, dirección…"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-5">
+          <div>
             <label className={labelClass} htmlFor="numInvitados">Nº aprox. de invitados</label>
             <input className={inputClass} id="numInvitados" name="numInvitados" type="number" min={1} />
           </div>
@@ -184,14 +220,35 @@ export default function ContactForm() {
           </div>
         </div>
 
+        <div className="mb-5">
+          <label className={labelClass} htmlFor="restricciones">Restricciones alimentarias o alergias</label>
+          <input
+            className={inputClass}
+            id="restricciones"
+            name="restricciones"
+            type="text"
+            placeholder="Celiaquía, vegano, alergias a frutos secos…"
+          />
+        </div>
+
         <div className="mb-7">
           <label className={labelClass} htmlFor="mensaje">Cuéntanos más</label>
           <textarea
             className={`${inputClass} min-h-[80px] resize-y`}
             id="mensaje"
             name="mensaje"
-            placeholder="Estilo del evento, restricciones alimentarias, ubicación..."
+            placeholder="Estilo del evento, ubicación, ideas que tengas en mente..."
           />
+        </div>
+
+        <div className="mb-7">
+          <label className={labelClass} htmlFor="comoNosConocio">¿Cómo nos has conocido?</label>
+          <select className={inputClass} id="comoNosConocio" name="comoNosConocio" defaultValue="">
+            <option value="" disabled>Selecciona una opción</option>
+            {Object.entries(ORIGEN_CONTACTO_LABEL).map(([k, label]) => (
+              <option key={k} value={k}>{label}</option>
+            ))}
+          </select>
         </div>
 
         <button

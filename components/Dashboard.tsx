@@ -1,7 +1,7 @@
 'use client';
 
 import type { Empresa, Oportunidad } from '@/lib/types';
-import { ESTADOS } from '@/lib/types';
+import { ESTADOS, TIPO_EVENTO_LABEL } from '@/lib/types';
 import { fmtMoney, Icon } from './ui';
 
 const OBJETIVO_PIPELINE = 60000;
@@ -111,13 +111,14 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
     color: e.color,
   }));
 
-  const porCiudad = new Map<string, number>();
-  for (const e of empresas) {
-    const ciudad = (e.ciudad || 'Sin ciudad').trim() || 'Sin ciudad';
-    porCiudad.set(ciudad, (porCiudad.get(ciudad) || 0) + 1);
-  }
-  const ranking = [...porCiudad.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
-  const maxCiudad = ranking.length ? ranking[0][1] : 1;
+  // Cuántas oportunidades abiertas hay de cada tipo de evento, para ver qué
+  // formato de celebración está tirando más del pipeline ahora mismo.
+  const porTipoEvento = Object.keys(TIPO_EVENTO_LABEL).map((key) => ({
+    key,
+    label: TIPO_EVENTO_LABEL[key as keyof typeof TIPO_EVENTO_LABEL],
+    n: abiertas.filter((o) => o.tipo_evento === key).length,
+  }));
+  const maxTipo = Math.max(1, ...porTipoEvento.map((t) => t.n));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-6 mb-2">
@@ -139,20 +140,20 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
 
       <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card">
         <div className="flex items-center gap-2 text-sm font-medium text-neutral-500 mb-4">
-          <Icon name="pin" className="w-4 h-4" />
-          Empresas por ciudad
+          <Icon name="calendar" className="w-4 h-4" />
+          Oportunidades por tipo de evento
         </div>
         <div className="space-y-2.5">
-          {ranking.map(([ciudad, n]) => (
-            <div key={ciudad} className="flex items-center gap-3 text-sm">
-              <span className="w-24 shrink-0 truncate text-neutral-600">{ciudad}</span>
+          {porTipoEvento.map((t) => (
+            <div key={t.key} className="flex items-center gap-3 text-sm">
+              <span className="w-24 shrink-0 truncate text-neutral-600">{t.label}</span>
               <div className="flex-1 h-2 rounded-full bg-neutral-100 overflow-hidden">
-                <div className="h-full bg-[var(--crm-accent)] rounded-full" style={{ width: `${(n / maxCiudad) * 100}%` }} />
+                <div className="h-full bg-[var(--crm-accent)] rounded-full" style={{ width: `${(t.n / maxTipo) * 100}%` }} />
               </div>
-              <span className="w-6 text-right tabular-nums text-neutral-500 shrink-0">{n}</span>
+              <span className="w-6 text-right tabular-nums text-neutral-500 shrink-0">{t.n}</span>
             </div>
           ))}
-          {ranking.length === 0 && <p className="text-sm text-neutral-500">Todavía no hay empresas con ciudad.</p>}
+          {abiertas.length === 0 && <p className="text-sm text-neutral-500">Todavía no hay oportunidades abiertas.</p>}
         </div>
       </div>
     </div>

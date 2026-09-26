@@ -47,6 +47,8 @@ export interface Cliente {
   empresa_rel?: Empresa | null;
 }
 
+export type FranjaHoraria = 'mediodia' | 'tarde' | 'noche' | 'todo_el_dia';
+
 export interface Oportunidad {
   id: string;
   created_at: string;
@@ -57,8 +59,12 @@ export interface Oportunidad {
   tipo_evento: TipoEvento;
   tipo_evento_otro: string | null;
   fecha_evento: string | null;
+  franja_horaria: FranjaHoraria | null;
+  ubicacion_evento: string | null;
   num_invitados: number | null;
   presupuesto_estimado: number | null;
+  restricciones: string | null;
+  como_nos_conocio: string | null;
   mensaje: string | null;
   estado: EstadoOportunidad;
   origen: string;
@@ -112,6 +118,22 @@ export const TIPO_EVENTO_LABEL: Record<TipoEvento, string> = {
   corporativo: 'Corporativo',
   comunion: 'Comunión',
   cumpleanos: 'Cumpleaños',
+  otro: 'Otro',
+};
+
+export const FRANJA_HORARIA_LABEL: Record<FranjaHoraria, string> = {
+  mediodia: 'Mediodía',
+  tarde: 'Tarde',
+  noche: 'Noche',
+  todo_el_dia: 'Todo el día',
+};
+
+export const ORIGEN_CONTACTO_LABEL: Record<string, string> = {
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  google: 'Buscador (Google)',
+  recomendacion: 'Recomendación de alguien',
+  evento_anterior: 'Ya nos conocía de otro evento',
   otro: 'Otro',
 };
 

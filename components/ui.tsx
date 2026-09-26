@@ -46,6 +46,7 @@ const PATHS = {
   pin: ['M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z', 'M12 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z'],
   download: ['M12 3v12', 'M7 10l5 5 5-5', 'M4 19h16'],
   archive: ['M3 6h18', 'M5 6v13a1 1 0 001 1h12a1 1 0 001-1V6', 'M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2', 'M10 12h4'],
+  logout: ['M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4', 'M16 17l5-5-5-5', 'M21 12H9'],
 } as const;
 
 export type IconName = keyof typeof PATHS;
