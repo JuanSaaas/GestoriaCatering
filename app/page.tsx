@@ -20,10 +20,10 @@ export default function HomePage() {
         </Reveal>
       </section>
 
-      <section id="propuesta" className="grid grid-cols-1 md:grid-cols-[1fr_1.05fr] items-stretch">
-        <div className="bg-[#1a1512] h-[320px] md:h-auto">
+      <section id="propuesta" className="grid grid-cols-1 md:grid-cols-[42%_58%] items-start bg-paper-2">
+        <div className="bg-[#1a1512] h-[320px] md:h-full">
           <img
-            src="/hero-photo.jpg"
+            src="/salon-eventos.png"
             alt="Mesa preparada para un evento de La Mesa Perfecta"
             className="w-full h-full object-cover object-[50%_30%]"
           />
