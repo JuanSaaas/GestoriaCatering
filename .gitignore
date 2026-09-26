@@ -6,3 +6,5 @@ npm-debug.log*
 
 # CRM secrets
 .env.local
+
+.env.local

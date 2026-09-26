@@ -47,6 +47,72 @@ function Gauge({ value, goal }: { value: number; goal: number }) {
   );
 }
 
+function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
+  const max = Math.max(1, ...data.map((d) => d.value));
+  const n = Math.max(1, data.length);
+  const points = data
+    .map((d, i) => {
+      const x = ((i + 0.5) / n) * 100;
+      const height = d.value > 0 ? Math.max(5, (d.value / max) * 86) : 1.5;
+      const y = 100 - height;
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <div>
+      <div className="relative h-36">
+        <div className="absolute inset-0 flex items-end gap-3">
+          {data.map((d) => {
+            const height = d.value > 0 ? Math.max(5, (d.value / max) * 86) : 1.5;
+            return (
+              <div key={d.label} className="relative flex-1 h-full flex items-end justify-center">
+                <div
+                  className="relative w-full max-w-[36px] bg-[var(--crm-accent)] rounded-t-md transition-all"
+                  style={{ height: `${height}%` }}
+                >
+                  <span className="absolute left-1/2 -translate-x-1/2 -top-5 text-[11px] text-neutral-500 tabular-nums">
+                    {d.value}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <svg
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute inset-0 w-full h-full overflow-visible"
+          aria-hidden="true"
+        >
+          <polyline
+            points={points}
+            fill="none"
+            stroke="#1c1410"
+            strokeWidth="0.8"
+            vectorEffect="non-scaling-stroke"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {data.map((d, i) => {
+            const x = ((i + 0.5) / n) * 100;
+            const height = d.value > 0 ? Math.max(5, (d.value / max) * 86) : 1.5;
+            const y = 100 - height;
+            return <circle key={d.label} cx={x} cy={y} r="1.15" fill="#1c1410" vectorEffect="non-scaling-stroke" />;
+          })}
+        </svg>
+      </div>
+      <div className="flex gap-3 mt-2">
+        {data.map((d) => (
+          <span key={d.label} className="flex-1 text-center text-xs text-neutral-500 capitalize">
+            {d.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 function Donut({ segments, total }: { segments: { label: string; value: number; color: string }[]; total: number }) {
   const size = 132;
   const stroke = 16;
@@ -104,6 +170,11 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
   const abiertas = oportunidades.filter((o) => !['ganado', 'perdido'].includes(o.estado));
   const pipeline = abiertas.reduce((s, o) => s + (Number(o.presupuesto_estimado) || 0), 0);
 
+  // Contadores basados en solicitudes reales (oportunidades creadas).
+  const contactosSolicitantes = new Set(oportunidades.map((o) => o.cliente_id).filter(Boolean)).size;
+  const empresasSolicitantes = new Set(oportunidades.map((o) => o.empresa_id).filter(Boolean)).size;
+  const oportunidadesTotales = oportunidades.length;
+
   const estadosAbiertos = ESTADOS.filter((e) => e.key !== 'ganado' && e.key !== 'perdido');
   const segments = estadosAbiertos.map((e) => ({
     label: e.label,
@@ -119,6 +190,24 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
     n: abiertas.filter((o) => o.tipo_evento === key).length,
   }));
   const maxTipo = Math.max(1, ...porTipoEvento.map((t) => t.n));
+
+  // Evolución de altas de oportunidades en los últimos 6 meses, para ver
+  // si el ritmo de entrada de nuevo negocio sube o baja.
+  const meses = Array.from({ length: 6 }).map((_, i) => {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - (5 - i));
+    return d;
+  });
+  const evolucionMensual = meses.map((d) => {
+    const label = d.toLocaleDateString('es-ES', { month: 'short' }).replace('.', '');
+    const value = oportunidades.filter((o) => {
+      if (!o.created_at) return false;
+      const od = new Date(o.created_at);
+      return od.getFullYear() === d.getFullYear() && od.getMonth() === d.getMonth();
+    }).length;
+    return { label, value };
+  });
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-6 mb-2">
@@ -154,6 +243,48 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
             </div>
           ))}
           {abiertas.length === 0 && <p className="text-sm text-neutral-500">Todavía no hay oportunidades abiertas.</p>}
+        </div>
+      </div>
+
+      <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-4 items-stretch">
+        <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card min-w-0">
+          <div className="flex items-center gap-2 text-sm font-medium text-neutral-500 mb-4">
+            <Icon name="trend" className="w-4 h-4" />
+            Nuevas oportunidades por mes
+          </div>
+          <MonthlyBars data={evolucionMensual} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-3">
+          <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+            <div>
+              <div className="text-xs font-medium text-neutral-500 mb-1">Contactos solicitantes</div>
+              <div className="text-3xl font-semibold tabular-nums">{contactosSolicitantes}</div>
+            </div>
+            <span className="w-10 h-10 rounded-lg bg-[var(--crm-accent-soft)] text-[var(--crm-accent)] flex items-center justify-center shrink-0">
+              <Icon name="user" className="w-5 h-5" />
+            </span>
+          </div>
+
+          <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+            <div>
+              <div className="text-xs font-medium text-neutral-500 mb-1">Empresas solicitantes</div>
+              <div className="text-3xl font-semibold tabular-nums">{empresasSolicitantes}</div>
+            </div>
+            <span className="w-10 h-10 rounded-lg bg-[var(--crm-accent-soft)] text-[var(--crm-accent)] flex items-center justify-center shrink-0">
+              <Icon name="building" className="w-5 h-5" />
+            </span>
+          </div>
+
+          <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+            <div>
+              <div className="text-xs font-medium text-neutral-500 mb-1">Oportunidades totales</div>
+              <div className="text-3xl font-semibold tabular-nums">{oportunidadesTotales}</div>
+            </div>
+            <span className="w-10 h-10 rounded-lg bg-[var(--crm-accent-soft)] text-[var(--crm-accent)] flex items-center justify-center shrink-0">
+              <Icon name="trend" className="w-5 h-5" />
+            </span>
+          </div>
         </div>
       </div>
     </div>

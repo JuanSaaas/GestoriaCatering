@@ -1,15 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const supabaseKey = (
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)?.trim();
 
-const supabaseKey =
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string;
+if (!supabaseUrl) {
+  throw new Error(
+    'Falta NEXT_PUBLIC_SUPABASE_URL. Crea .env.local en la raíz del proyecto y añade la Project URL de Supabase.'
+  );
+}
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn(
-    'Faltan las credenciales de Supabase. Revisa tu archivo .env.local'
+if (!supabaseKey) {
+  throw new Error(
+    'Falta la clave pública de Supabase. Añade NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (recomendado) o NEXT_PUBLIC_SUPABASE_ANON_KEY en .env.local.'
   );
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
-

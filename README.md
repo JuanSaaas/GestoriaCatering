@@ -75,7 +75,7 @@ Diagrama completo en `docs/er-diagram.png`:
 3. Rellena los dos valores:
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=TU_CLAVE_ANON_AQUI
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=TU_CLAVE_PUBLISHABLE_AQUI
    ```
 
 ### 4. Instalar y arrancar en local
@@ -94,7 +94,7 @@ suscripción en tiempo real.
 La forma más sencilla es **Vercel** (mismo creador que Next.js):
 1. Sube el proyecto a un repositorio de GitHub.
 2. Impórtalo en [vercel.com](https://vercel.com/new).
-3. Añade las mismas variables de entorno (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) en la configuración del proyecto en Vercel.
+3. Añade las mismas variables de entorno (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) en la configuración del proyecto en Vercel.
 4. Deploy. Vercel detecta Next.js automáticamente.
 
 ## Nota sobre seguridad (para la memoria del proyecto)
