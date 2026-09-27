@@ -63,13 +63,13 @@ export default function ServicesCarousel() {
   const actual = SERVICIOS[index];
 
   return (
-    <section id="servicios" className="relative">
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 pt-12 md:pt-14 pb-6">
-        <span className="block text-xs uppercase tracking-[0.2em] text-gold mb-3">Lo que preparamos</span>
-        <h2 className="font-serif text-3xl md:text-4xl">Servicios</h2>
+    <section className="relative h-full flex flex-col bg-ink overflow-hidden">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-10 pt-8 md:pt-10 pb-4 shrink-0">
+        <span className="block text-xs uppercase tracking-[0.2em] text-gold-light mb-2">Lo que preparamos</span>
+        <h2 className="font-serif text-2xl md:text-3xl text-paper">Servicios</h2>
       </div>
 
-      <div className="relative min-h-[68svh] md:min-h-[72svh] overflow-hidden bg-ink">
+      <div className="relative flex-1 min-h-0 overflow-hidden">
         {SERVICIOS.map((s, i) => (
           <div
             key={s.n}
@@ -85,20 +85,20 @@ export default function ServicesCarousel() {
           </div>
         ))}
 
-        <div className="relative z-10 min-h-[68svh] md:min-h-[72svh] flex items-center">
-          <div className="max-w-[1200px] mx-auto w-full px-6 md:px-10 py-14 md:py-0">
-            <span className="font-serif text-gold-light text-3xl">{actual.n}</span>
-            <h3 className="font-serif text-3xl md:text-5xl text-paper mt-3 mb-5 max-w-[16ch]">{actual.title}</h3>
-            <p className="text-paper/85 max-w-[46ch] text-base md:text-lg leading-relaxed">{actual.text}</p>
+        <div className="relative z-10 h-full flex items-center">
+          <div className="max-w-[1200px] mx-auto w-full px-6 md:px-10">
+            <span className="font-serif text-gold-light text-2xl md:text-3xl">{actual.n}</span>
+            <h3 className="font-serif text-2xl md:text-4xl text-paper mt-2 mb-3 md:mb-4 max-w-[16ch]">{actual.title}</h3>
+            <p className="text-paper/85 max-w-[46ch] text-sm md:text-base leading-relaxed hidden sm:block">{actual.text}</p>
           </div>
         </div>
 
-        <div className="absolute bottom-6 right-6 md:right-10 z-10 flex items-center gap-3">
+        <div className="absolute bottom-4 right-6 md:right-10 z-10 flex items-center gap-3">
           <button
             type="button"
             aria-label="Servicio anterior"
             onClick={() => go(-1)}
-            className="w-11 h-11 border border-white/40 text-white hover:bg-white hover:text-ink transition-colors"
+            className="w-9 h-9 md:w-11 md:h-11 border border-white/40 text-white hover:bg-white hover:text-ink transition-colors"
           >
             ←
           </button>
@@ -106,21 +106,21 @@ export default function ServicesCarousel() {
             type="button"
             aria-label="Servicio siguiente"
             onClick={() => go(1)}
-            className="w-11 h-11 border border-white/40 text-white hover:bg-white hover:text-ink transition-colors"
+            className="w-9 h-9 md:w-11 md:h-11 border border-white/40 text-white hover:bg-white hover:text-ink transition-colors"
           >
             →
           </button>
         </div>
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-6 flex gap-2 overflow-x-auto">
+      <div className="max-w-[1200px] mx-auto px-6 md:px-10 py-3 md:py-4 flex gap-2 overflow-x-auto shrink-0 w-full">
         {SERVICIOS.map((s, i) => (
           <button
             key={s.n}
             type="button"
             onClick={() => setIndex(i)}
-            className={`shrink-0 text-left text-xs md:text-sm px-3 py-2 border transition-colors ${
-              i === index ? 'border-ink bg-ink text-paper' : 'border-[var(--line)] text-ink-soft hover:border-ink'
+            className={`shrink-0 text-left text-xs px-2.5 py-1.5 md:px-3 md:py-2 border transition-colors ${
+              i === index ? 'border-paper bg-paper text-ink' : 'border-white/25 text-paper/70 hover:border-white/60'
             }`}
           >
             {s.title}
