@@ -1,11 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
-import { Chart, registerables } from 'chart.js';
-import { UserIcon, BuildingOffice2Icon, ChartBarIcon } from '@heroicons/react/24/outline';
-
-Chart.register(...registerables);
-
 import type { Empresa, Oportunidad } from '@/lib/types';
 import { ESTADOS, TIPO_EVENTO_LABEL } from '@/lib/types';
 import { fmtMoney, Icon } from './ui';
@@ -13,9 +7,8 @@ import { fmtMoney, Icon } from './ui';
 const OBJETIVO_PIPELINE = 60000;
 
 // Paleta corta y viva, inspirada en dashboards modernos tipo Chart.js.
-const CHART_COLORS = ['#2563EB', '#4F46E5', '#0891B2', '#7C3AED'] as const;
-const MONEY_CHART_COLOR = '#526A8A';
-
+const CHART_COLORS = ['#FF1744', '#2563EB', '#7C3AED'] as const;
+const CHART_SOFT = ['#FFE4EA', '#E8F0FF', '#F0E8FF'] as const;
 
 function Gauge({ value, goal }: { value: number; goal: number }) {
   const pct = Math.max(0, Math.min(1, goal > 0 ? value / goal : 0));
@@ -24,7 +17,7 @@ function Gauge({ value, goal }: { value: number; goal: number }) {
 
   return (
     <div className="flex flex-col items-center">
-      <svg viewBox="0 0 200 110" className="w-full max-w-[300px]">
+      <svg viewBox="0 0 200 110" className="w-full max-w-[220px]">
         {Array.from({ length: totalTicks }).map((_, i) => {
           const angle = -180 + (i / (totalTicks - 1)) * 180;
           const rad = (angle * Math.PI) / 180;
@@ -45,7 +38,7 @@ function Gauge({ value, goal }: { value: number; goal: number }) {
               y2={y2}
               strokeWidth={3}
               strokeLinecap="round"
-              stroke={i < litTicks ? MONEY_CHART_COLOR : '#ECECEC'}
+              stroke={i < litTicks ? CHART_COLORS[i % CHART_COLORS.length] : '#ECECEC'}
             />
           );
         })}
@@ -59,135 +52,98 @@ function Gauge({ value, goal }: { value: number; goal: number }) {
 }
 
 function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const chart = new Chart(canvasRef.current, {
-      type: 'bar',
-      data: {
-        labels: data.map((d) => d.label),
-        datasets: [
-          {
-            label: 'Nuevas oportunidades',
-            data: data.map((d) => d.value),
-            backgroundColor: 'rgba(37, 99, 235, 0.72)',
-            borderColor: '#2563EB',
-            borderWidth: 1,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-          title: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (context) => `${context.parsed.y} oportunidades`,
-            },
-          },
-        },
-        scales: {
-          y: {
-            beginAtZero: true,
-            min: 0,
-            ticks: { precision: 0 },
-          },
-        },
-      },
-    });
-
-    return () => chart.destroy();
-  }, [data]);
+  const max = Math.max(1, ...data.map((d) => d.value));
+  const n = Math.max(1, data.length);
+  const points = data.map((d, i) => {
+    const x = ((i + 0.5) / n) * 100;
+    const height = d.value > 0 ? Math.max(6, (d.value / max) * 78) : 2;
+    return `${x},${92 - height}`;
+  }).join(' ');
 
   return (
-    <div className="relative h-[250px] w-full">
-      <canvas ref={canvasRef} />
-    </div>
-  );
-}
-
-function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
-  const max = Math.max(1, ...data.map((d) => d.n));
-  return (
-    <div className="space-y-3 py-1">
-      {data.map((d, i) => (
-        <div key={d.label} className="grid grid-cols-[92px_1fr_24px] items-center gap-3 group">
-          <span className="text-xs text-neutral-600 truncate">{d.label}</span>
-          <div className="h-3 rounded-full bg-neutral-100 overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-200 group-hover:brightness-95"
-              style={{ width: `${d.n === 0 ? 0 : Math.max(7, (d.n / max) * 100)}%`, backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
-            />
-          </div>
-          <span className="text-xs text-neutral-500 tabular-nums text-right">{d.n}</span>
+    <div className="pt-1">
+      <div className="relative h-40 rounded-xl overflow-hidden bg-gradient-to-b from-neutral-50/80 to-white">
+        <div className="absolute inset-x-0 top-[22%] border-t border-dashed border-neutral-200" />
+        <div className="absolute inset-x-0 top-[52%] border-t border-dashed border-neutral-200" />
+        <div className="absolute inset-x-0 top-[82%] border-t border-dashed border-neutral-200" />
+        <div className="absolute inset-0 flex items-end gap-4 px-2 pb-[8%]">
+          {data.map((d, i) => {
+            const height = d.value > 0 ? Math.max(6, (d.value / max) * 78) : 2;
+            const color = CHART_COLORS[i % CHART_COLORS.length];
+            return (
+              <div key={d.label} className="group relative flex-1 h-full flex items-end justify-center">
+                <div
+                  className="relative w-full max-w-[34px] rounded-t-xl shadow-sm transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-md"
+                  style={{ height: `${height}%`, backgroundColor: color }}
+                >
+                  <span className="absolute left-1/2 -translate-x-1/2 -top-6 rounded-md bg-neutral-900 px-2 py-0.5 text-[10px] font-semibold text-white tabular-nums opacity-90">
+                    {d.value}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      ))}
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 w-full h-full overflow-visible" aria-hidden="true">
+          <polyline points={points} fill="none" stroke={CHART_COLORS[1]} strokeWidth="1.4" vectorEffect="non-scaling-stroke" strokeLinecap="round" strokeLinejoin="round" opacity="0.8" />
+          {data.map((d, i) => {
+            const x = ((i + 0.5) / n) * 100;
+            const height = d.value > 0 ? Math.max(6, (d.value / max) * 78) : 2;
+            return <circle key={d.label} cx={x} cy={92 - height} r="1.4" fill="white" stroke={CHART_COLORS[1]} strokeWidth="0.8" vectorEffect="non-scaling-stroke" />;
+          })}
+        </svg>
+      </div>
+      <div className="flex gap-4 mt-2 px-2">
+        {data.map((d) => <span key={d.label} className="flex-1 text-center text-xs font-medium text-neutral-500 capitalize">{d.label}</span>)}
+      </div>
     </div>
   );
 }
-function StatusDonut({ segments, total }: { segments: { label: string; value: number; color: string }[]; total: number }) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    if (!canvasRef.current) return;
-
-    const chart = new Chart(canvasRef.current, {
-      type: 'doughnut',
-      data: {
-        labels: segments.map((s) => s.label),
-        datasets: [
-          {
-            data: segments.map((s) => s.value),
-            backgroundColor: segments.map((s) => s.color),
-            borderColor: '#FFFFFF',
-            borderWidth: 2,
-            hoverOffset: 5,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: '62%',
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                const value = Number(context.raw) || 0;
-                const pct = total > 0 ? Math.round((value / total) * 100) : 0;
-                return `${context.label}: ${value} · ${pct}%`;
-              },
-            },
-          },
-        },
-        animation: { duration: 650 },
-      },
-    });
-
-    return () => chart.destroy();
-  }, [segments, total]);
+function Donut({ segments, total }: { segments: { label: string; value: number; color: string }[]; total: number }) {
+  const size = 132;
+  const stroke = 16;
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const chartTotal = segments.reduce((sum, s) => sum + s.value, 0);
+  let offset = 0;
 
   return (
-    <div className="flex items-center gap-7 min-h-[190px]">
-      <div className="relative h-[190px] w-[190px] shrink-0">
-        <canvas ref={canvasRef} />
-      </div>
+    <div className="flex items-center gap-5">
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90 shrink-0">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F0F0F0" strokeWidth={stroke} />
+        {segments.map((s) => {
+          const frac = chartTotal > 0 ? s.value / chartTotal : 0;
+          const dash = frac * c;
+          const circle = (
+            <circle
+              key={s.label}
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke={s.color}
+              strokeWidth={stroke}
+              strokeDasharray={`${dash} ${c - dash}`}
+              strokeDashoffset={-offset}
+              strokeLinecap="round"
+            />
+          );
+          offset += dash;
+          return circle;
+        })}
+        <circle cx={size / 2} cy={size / 2} r={r - stroke / 2 - 2} fill="white" />
+      </svg>
       <div className="min-w-0 flex-1">
-        <div className="text-3xl font-semibold tabular-nums leading-none mb-4">{total}</div>
-        <div className="space-y-2">
+        <div className="text-2xl font-semibold tabular-nums leading-none mb-3">{total}</div>
+        <div className="space-y-1.5">
           {segments.map((s) => (
-            <div key={s.label} className="flex items-center justify-between gap-4 text-xs">
-              <span className="flex items-center gap-2 text-neutral-600 min-w-0 truncate">
-                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+            <div key={s.label} className="flex items-center justify-between gap-3 text-xs">
+              <span className="flex items-center gap-1.5 text-neutral-600 min-w-0 truncate">
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
                 {s.label}
               </span>
               <span className="tabular-nums text-neutral-500 shrink-0">
-                {s.value} · {total > 0 ? Math.round((s.value / total) * 100) : 0}%
+                {s.value} · {chartTotal > 0 ? Math.round((s.value / chartTotal) * 100) : 0}%
               </span>
             </div>
           ))}
@@ -221,6 +177,8 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
     label: TIPO_EVENTO_LABEL[key as keyof typeof TIPO_EVENTO_LABEL],
     n: abiertas.filter((o) => o.tipo_evento === key).length,
   }));
+  const maxTipo = Math.max(1, ...porTipoEvento.map((t) => t.n));
+  const tipoColors = CHART_COLORS;
 
   // Evolución de altas de oportunidades en los últimos 6 meses, para ver
   // si el ritmo de entrada de nuevo negocio sube o baja.
@@ -255,7 +213,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
           <Icon name="layers" className="w-4 h-4" />
           Reparto por estado
         </div>
-        <StatusDonut segments={segments} total={abiertas.length} />
+        <Donut segments={segments} total={abiertas.length} />
       </div>
 
       <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card">
@@ -263,11 +221,18 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
           <Icon name="calendar" className="w-4 h-4" />
           Oportunidades por tipo de evento
         </div>
-        {abiertas.length > 0 ? (
-          <EventTypeBars data={porTipoEvento} />
-        ) : (
-          <p className="text-sm text-neutral-500">Todavía no hay oportunidades abiertas.</p>
-        )}
+        <div className="space-y-2.5">
+          {porTipoEvento.map((t, index) => (
+            <div key={t.key} className="flex items-center gap-3 text-sm">
+              <span className="w-24 shrink-0 truncate text-neutral-600">{t.label}</span>
+              <div className="flex-1 h-2.5 rounded-full bg-neutral-100 overflow-hidden">
+                <div className="h-full rounded-full shadow-sm transition-all duration-300" style={{ width: `${(t.n / maxTipo) * 100}%`, backgroundColor: tipoColors[index % tipoColors.length] }} />
+              </div>
+              <span className="w-6 text-right tabular-nums text-neutral-500 shrink-0">{t.n}</span>
+            </div>
+          ))}
+          {abiertas.length === 0 && <p className="text-sm text-neutral-500">Todavía no hay oportunidades abiertas.</p>}
+        </div>
       </div>
 
       <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-4 items-stretch">
@@ -285,7 +250,9 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
               <div className="text-xs font-medium text-neutral-500 mb-1">Contactos solicitantes</div>
               <div className="text-3xl font-semibold tabular-nums">{contactosSolicitantes}</div>
             </div>
-            <UserIcon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
+            <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: CHART_SOFT[0], color: CHART_COLORS[0] }}>
+              <Icon name="user" className="w-5 h-5" />
+            </span>
           </div>
 
           <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
@@ -293,7 +260,9 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
               <div className="text-xs font-medium text-neutral-500 mb-1">Empresas solicitantes</div>
               <div className="text-3xl font-semibold tabular-nums">{empresasSolicitantes}</div>
             </div>
-            <BuildingOffice2Icon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
+            <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: CHART_SOFT[1], color: CHART_COLORS[1] }}>
+              <Icon name="building" className="w-5 h-5" />
+            </span>
           </div>
 
           <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
@@ -301,7 +270,9 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
               <div className="text-xs font-medium text-neutral-500 mb-1">Oportunidades totales</div>
               <div className="text-3xl font-semibold tabular-nums">{oportunidadesTotales}</div>
             </div>
-            <ChartBarIcon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
+            <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: CHART_SOFT[2], color: CHART_COLORS[2] }}>
+              <Icon name="trend" className="w-5 h-5" />
+            </span>
           </div>
         </div>
       </div>

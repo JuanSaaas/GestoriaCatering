@@ -105,12 +105,12 @@ export interface HistorialEstado {
 }
 
 export const ESTADOS: { key: EstadoOportunidad; label: string; color: string }[] = [
-  { key: 'nuevo', label: 'En espera', color: '#2563EB' },
-  { key: 'contactado', label: 'Contactado', color: '#4F46E5' },
-  { key: 'presupuesto_enviado', label: 'Presupuesto enviado', color: '#7C3AED' },
-  { key: 'negociacion', label: 'Negociación', color: '#0891B2' },
-  { key: 'ganado', label: 'Ganado', color: '#16A34A' },
-  { key: 'perdido', label: 'Perdido', color: '#DC2626' },
+  { key: 'nuevo', label: 'En espera', color: '#DDA122' },
+  { key: 'contactado', label: 'Contactado', color: '#2B6B9A' },
+  { key: 'presupuesto_enviado', label: 'Presupuesto enviado', color: '#9A2A20' },
+  { key: 'negociacion', label: 'Negociación', color: '#4B7A0B' },
+  { key: 'ganado', label: 'Ganado', color: '#2F7D4F' },
+  { key: 'perdido', label: 'Perdido', color: '#737373' },
 ];
 
 export const TIPO_EVENTO_LABEL: Record<TipoEvento, string> = {

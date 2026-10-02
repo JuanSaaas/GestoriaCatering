@@ -17,7 +17,7 @@ export default function StatsBar({ oportunidades }: { oportunidades: Oportunidad
     { n: total, l: 'Oportunidades', sub: `${abiertas.length} abiertas`, icon: 'layers', tone: '#0A0A0A' },
     { n: fmtMoney(valorPipeline), l: 'Valor en pipeline', sub: 'Oportunidades abiertas', icon: 'trend', tone: '#2563EB' },
     { n: ganadas.length, l: 'Eventos ganados', sub: fmtMoney(valorGanado), icon: 'check', tone: '#16A34A' },
-    { n: `${tasa}%`, l: 'Tasa de conversión', sub: `${cerradas} cerradas`, icon: 'percent', tone: '#4F46E5' },
+    { n: `${tasa}%`, l: 'Tasa de conversión', sub: `${cerradas} cerradas`, icon: 'percent', tone: '#DC2626' },
   ];
 
   return (

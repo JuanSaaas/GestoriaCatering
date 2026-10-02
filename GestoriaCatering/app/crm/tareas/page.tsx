@@ -1,0 +1,14 @@
+'use client';
+import { useEffect, useMemo, useState } from 'react';
+import { supabase } from '@/lib/supabaseClient';
+import CrmShell from '@/components/CrmShell';
+import type { Tarea } from '@/lib/types';
+
+export default function TareasPage(){
+ const [items,setItems]=useState<Tarea[]>([]); const [title,setTitle]=useState(''); const [date,setDate]=useState(''); const [live,setLive]=useState(false);
+ async function load(){const {data}=await supabase.from('tareas').select('*').order('completada').order('fecha_limite',{ascending:true});setItems((data as Tarea[])||[])}
+ useEffect(()=>{load();const c=supabase.channel('crm-tareas-page').on('postgres_changes',{event:'*',schema:'public',table:'tareas'},load).subscribe(s=>s==='SUBSCRIBED'&&setLive(true));return()=>{supabase.removeChannel(c)}},[]);
+ async function toggle(t:Tarea){await supabase.from('tareas').update({completada:!t.completada}).eq('id',t.id);load()}
+ const pendientes=useMemo(()=>items.filter(x=>!x.completada),[items]);
+ return <CrmShell live={live}><div className="p-6 lg:p-8 max-w-5xl"><div className="mb-7"><div className="text-xs uppercase tracking-[.18em] text-neutral-400 font-semibold">Productividad</div><h1 className="text-3xl font-semibold tracking-tight mt-1">Tareas</h1><p className="text-sm text-neutral-500 mt-1">{pendientes.length} pendientes · {items.length-pendientes.length} completadas</p></div><div className="grid lg:grid-cols-[1fr_280px] gap-6"><div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">{items.map(t=><button key={t.id} onClick={()=>toggle(t)} className="w-full text-left flex items-center gap-4 px-5 py-4 border-b last:border-0 hover:bg-neutral-50 transition"><span className={`w-5 h-5 rounded-md border flex items-center justify-center text-xs ${t.completada?'bg-neutral-950 text-white border-neutral-950':'border-neutral-300'}`}>{t.completada?'✓':''}</span><div className="flex-1"><div className={`text-sm font-medium ${t.completada?'line-through text-neutral-400':''}`}>{t.titulo}</div><div className="text-xs text-neutral-400 mt-1">{t.fecha_limite?`Fecha límite · ${new Date(t.fecha_limite+'T12:00:00').toLocaleDateString('es-ES')}`:'Sin fecha límite'}</div></div></button>)}{!items.length&&<div className="py-16 text-center text-sm text-neutral-400">No hay tareas todavía.</div>}</div><div className="bg-[#101112] text-white rounded-2xl p-5 h-fit"><div className="text-xs uppercase tracking-wider text-white/40">Vista rápida</div><div className="text-4xl font-semibold mt-3">{pendientes.length}</div><div className="text-sm text-white/55 mt-1">tareas por completar</div><div className="h-px bg-white/10 my-5"/><p className="text-xs leading-relaxed text-white/40">Las tareas creadas dentro de cada oportunidad aparecen aquí automáticamente y se sincronizan con Supabase.</p></div></div></div></CrmShell>
+}

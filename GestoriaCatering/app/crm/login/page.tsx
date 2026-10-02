@@ -40,7 +40,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="crm-shell min-h-screen flex items-center justify-center bg-[#2563EB] px-4">
+    <div className="crm-shell min-h-screen flex items-center justify-center bg-[#1c1410] px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center gap-2.5 mb-8">
           <img src="/logo-icon.png" alt="" className="h-12 w-auto" />

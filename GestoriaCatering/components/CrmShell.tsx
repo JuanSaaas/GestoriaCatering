@@ -46,8 +46,8 @@ export default function CrmShell({
           onClick={() => setMobileOpen(false)}
           className={`flex items-center gap-2.5 h-10 px-3 rounded-lg text-sm font-medium transition ${
             isActive(item.href)
-              ? 'relative bg-white text-black shadow-sm ring-1 ring-neutral-200 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-[3px] before:rounded-full before:bg-black'
-              : 'text-neutral-600 hover:bg-neutral-100 hover:text-black'
+              ? 'bg-[var(--crm-accent)] text-white'
+              : 'text-neutral-600 hover:bg-[var(--crm-accent-soft)] hover:text-[var(--crm-accent)]'
           }`}
         >
           <Icon name={item.icon} className="w-4 h-4 shrink-0" />
@@ -61,11 +61,11 @@ export default function CrmShell({
     <div className="crm-shell min-h-screen bg-neutral-50 text-black md:flex">
       {/* Sidebar desktop */}
       <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 md:left-0 bg-white border-r border-neutral-200 z-40">
-        <div className="flex items-center gap-2.5 px-5 h-16 shrink-0 bg-white border-b border-neutral-100">
+        <div className="flex items-center gap-2.5 px-5 h-16 shrink-0 bg-[#1c1410]">
           <img src="/logo-icon.png" alt="" className="h-7 w-auto" />
           <div className="leading-tight min-w-0">
-            <div className="font-serif italic text-base truncate text-[#1c1410]">La Mesa Perfecta</div>
-            <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-neutral-500">CRM</span>
+            <div className="font-serif italic text-base truncate text-white">La Mesa Perfecta</div>
+            <span className="text-[10px] font-semibold tracking-widest uppercase text-white/50">CRM</span>
           </div>
         </div>
         <div className="px-3 pt-4 pb-2">
@@ -88,7 +88,7 @@ export default function CrmShell({
           )}
           <button
             onClick={handleLogout}
-            className="w-full inline-flex items-center justify-center gap-1.5 h-9 px-4 mt-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition"
+            className="w-full inline-flex items-center justify-center gap-1.5 h-9 px-4 mt-2 rounded-lg text-neutral-500 text-sm font-medium hover:bg-neutral-100 hover:text-black transition"
           >
             <Icon name="logout" className="w-4 h-4" /> Cerrar sesión
           </button>
@@ -96,21 +96,21 @@ export default function CrmShell({
       </aside>
 
       {/* Header + drawer móvil */}
-      <div className="md:hidden sticky top-0 z-40 bg-white border-b border-neutral-200">
+      <div className="md:hidden sticky top-0 z-40 bg-[#1c1410]">
         <div className="flex items-center justify-between gap-3 px-4 h-14">
           <button
             onClick={() => setMobileOpen(true)}
-            className="p-2 -ml-2 rounded-lg hover:bg-[var(--crm-accent-soft)] text-[#1c1410]"
+            className="p-2 -ml-2 rounded-lg hover:bg-white/10 text-white"
             aria-label="Abrir menú"
           >
             <Icon name="layers" className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2 text-[#1c1410]">
+          <div className="flex items-center gap-2 text-white">
             <img src="/logo-icon.png" alt="" className="h-6 w-auto" />
             <span className="font-serif italic text-base">La Mesa Perfecta</span>
           </div>
           {onNew ? (
-            <button onClick={onNew} className="p-2 -mr-2 rounded-lg hover:bg-[var(--crm-accent-soft)] text-[var(--crm-accent)]" aria-label="Nueva oportunidad">
+            <button onClick={onNew} className="p-2 -mr-2 rounded-lg hover:bg-white/10 text-white" aria-label="Nueva oportunidad">
               <Icon name="plus" className="w-5 h-5" />
             </button>
           ) : (
@@ -135,7 +135,7 @@ export default function CrmShell({
             <div className="p-3 border-t border-neutral-200 shrink-0">
               <button
                 onClick={handleLogout}
-                className="w-full inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition"
+                className="w-full inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg text-neutral-500 text-sm font-medium hover:bg-neutral-100 hover:text-black transition"
               >
                 <Icon name="logout" className="w-4 h-4" /> Cerrar sesión
               </button>

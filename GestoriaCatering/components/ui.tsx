@@ -72,7 +72,7 @@ export function Icon({ name, className = 'w-4 h-4' }: { name: IconName; classNam
 
 /* ---------- Avatar con iniciales ---------- */
 
-const AVATAR_COLORS = ['#1F2937', '#2563EB', '#4F46E5', '#0891B2'];
+const AVATAR_COLORS = ['#0A0A0A', '#DC2626', '#EAB308', '#2563EB', '#16A34A', '#525252'];
 
 function iniciales(nombre: string) {
   const parts = nombre.trim().split(/\s+/).filter(Boolean);

@@ -20,20 +20,18 @@ body {
 .crm-shell {
   --crm-primary: #ffffff;
   --crm-secondary: #1c1410;
-  --crm-accent: #2563EB;
-  --crm-accent-soft: #2563EB16;
-  --crm-blue: #1D4ED8;
-  --crm-blue-soft: #2563EB12;
-  --crm-amber: #F59E0B;
-  --crm-amber-soft: #F59E0B18;
-  --crm-lime: #84CC16;
-  --crm-olive: #65A30D;
-  --crm-warning: #F97316;
-  --crm-wait: #F59E0B;
-  --crm-success: #16A34A;
-  --crm-info: #2563EB;
-  background: #F7F8FA;
+  --crm-accent: #9a2a20;
+  --crm-accent-soft: #9a2a2014;
+  --crm-blue: #2b6b9a;
+  --crm-blue-soft: #2b6b9a16;
+  --crm-amber: #dda122;
+  --crm-amber-soft: #dda1221f;
+  --crm-lime: #b7ef3c;
+  --crm-olive: #4b7a0b;
+  --crm-warning: #d84a2e;
+  --crm-wait: #dda122;
+  --crm-success: #2f7d4f;
+  --crm-info: #2b6b9a;
+  background: #f8f7f4;
   color: var(--crm-secondary);
 }
-
-
