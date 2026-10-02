@@ -116,14 +116,14 @@ function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
     <div className="space-y-3 py-1">
       {data.map((d, i) => (
         <div key={d.label} className="grid grid-cols-[92px_1fr_24px] items-center gap-3 group">
-          <span className="text-xs text-neutral-600 truncate">{d.label}</span>
-          <div className="h-3 rounded-full bg-neutral-100 overflow-hidden">
+          <span className="text-sm font-medium text-neutral-700 truncate">{d.label}</span>
+          <div className="h-3 bg-neutral-100 overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-200 group-hover:brightness-95"
+              className="h-full transition-all duration-200 group-hover:brightness-95"
               style={{ width: `${d.n === 0 ? 0 : Math.max(7, (d.n / max) * 100)}%`, backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
             />
           </div>
-          <span className="text-xs text-neutral-500 tabular-nums text-right">{d.n}</span>
+          <span className="text-sm font-medium text-neutral-600 tabular-nums text-right">{d.n}</span>
         </div>
       ))}
     </div>
@@ -178,10 +178,10 @@ function StatusDonut({ segments, total }: { segments: { label: string; value: nu
         <canvas ref={canvasRef} />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-3xl font-semibold tabular-nums leading-none mb-4">{total}</div>
+        <div className="text-2xl font-semibold tabular-nums leading-none mb-4">{total}</div>
         <div className="space-y-2">
           {segments.map((s) => (
-            <div key={s.label} className="flex items-center justify-between gap-4 text-xs">
+            <div key={s.label} className="flex items-center justify-between gap-4 text-sm">
               <span className="flex items-center gap-2 text-neutral-600 min-w-0 truncate">
                 <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
                 {s.label}
@@ -243,7 +243,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-6 mb-2">
       <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex flex-col items-center">
-        <div className="w-full flex items-center gap-2 text-sm font-medium text-neutral-500 mb-2">
+        <div className="w-full flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2">
           <Icon name="gauge" className="w-4 h-4" />
           Objetivo de pipeline
         </div>
@@ -251,7 +251,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
       </div>
 
       <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card">
-        <div className="flex items-center gap-2 text-sm font-medium text-neutral-500 mb-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="layers" className="w-4 h-4" />
           Reparto por estado
         </div>
@@ -259,7 +259,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
       </div>
 
       <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card">
-        <div className="flex items-center gap-2 text-sm font-medium text-neutral-500 mb-4">
+        <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="calendar" className="w-4 h-4" />
           Oportunidades por tipo de evento
         </div>
@@ -272,7 +272,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
 
       <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-4 items-stretch">
         <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card min-w-0">
-          <div className="flex items-center gap-2 text-sm font-medium text-neutral-500 mb-4">
+          <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
             <Icon name="trend" className="w-4 h-4" />
             Nuevas oportunidades por mes
           </div>
@@ -282,24 +282,24 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
         <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-3">
           <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
             <div>
-              <div className="text-xs font-medium text-neutral-500 mb-1">Contactos solicitantes</div>
-              <div className="text-3xl font-semibold tabular-nums">{contactosSolicitantes}</div>
+              <div className="text-sm font-medium text-neutral-700 mb-1">Contactos solicitantes</div>
+              <div className="text-2xl font-semibold tabular-nums">{contactosSolicitantes}</div>
             </div>
             <UserIcon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
           </div>
 
           <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
             <div>
-              <div className="text-xs font-medium text-neutral-500 mb-1">Empresas solicitantes</div>
-              <div className="text-3xl font-semibold tabular-nums">{empresasSolicitantes}</div>
+              <div className="text-sm font-medium text-neutral-700 mb-1">Empresas solicitantes</div>
+              <div className="text-2xl font-semibold tabular-nums">{empresasSolicitantes}</div>
             </div>
             <BuildingOffice2Icon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
           </div>
 
           <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
             <div>
-              <div className="text-xs font-medium text-neutral-500 mb-1">Oportunidades totales</div>
-              <div className="text-3xl font-semibold tabular-nums">{oportunidadesTotales}</div>
+              <div className="text-sm font-medium text-neutral-700 mb-1">Oportunidades totales</div>
+              <div className="text-2xl font-semibold tabular-nums">{oportunidadesTotales}</div>
             </div>
             <ChartBarIcon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
           </div>

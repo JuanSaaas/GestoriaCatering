@@ -43,8 +43,8 @@ export default function DashboardStats({
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 px-6">
       {stats.map((s) => (
         <div key={s.l} className="bg-white border border-neutral-200 rounded-xl p-4 shadow-card">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 mb-2">
-            <Icon name={s.icon} className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2">
+            <Icon name={s.icon} className="w-4 h-4 shrink-0" />
             {s.l}
           </div>
           <div className="text-xl font-semibold tabular-nums truncate">{s.n}</div>
