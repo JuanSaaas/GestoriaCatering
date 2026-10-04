@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import type { Cliente, Empresa, Oportunidad } from '@/lib/types';
-import { ESTADOS, OPORTUNIDAD_SELECT } from '@/lib/types';
+import { ESTADOS } from '@/lib/types';
+import { loadCrmDirectory } from '@/lib/crmDirectory';
 import CrmShell from '@/components/CrmShell';
 import CompanyLogo from '@/components/CompanyLogo';
 import { Avatar, btnPrimary, eventoLabel, fmtDate, fmtMoney, inputCls, labelCls } from '@/components/ui';
@@ -16,17 +17,28 @@ export default function EmpleadoPerfilPage() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [ops, setOps] = useState<Oportunidad[]>([]);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [supportsCompanyId, setSupportsCompanyId] = useState(false);
+  const [supportsRole, setSupportsRole] = useState(false);
 
   async function load() {
-    const id = params.id;
-    const [{ data: cli }, { data: emp }, { data: oportunidades }] = await Promise.all([
-      supabase.from('clientes').select('*').eq('id', id).single(),
-      supabase.from('empresas').select('*').order('nombre'),
-      supabase.from('oportunidades').select(OPORTUNIDAD_SELECT).eq('cliente_id', id).order('created_at', { ascending: false }),
-    ]);
-    setContacto(cli as Cliente);
-    setEmpresas((emp as Empresa[]) || []);
-    setOps((oportunidades as unknown as Oportunidad[]) || []);
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await loadCrmDirectory();
+      const cli = data.contactos.find((c) => c.id === params.id);
+      if (!cli) throw new Error('No se encontró este contacto.');
+      setContacto(cli);
+      setEmpresas(data.empresas);
+      setOps(data.oportunidades.filter((o) => o.cliente_id === cli.id));
+      setSupportsCompanyId(data.supportsContactCompanyId);
+      setSupportsRole(data.supportsContactRole);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'No se pudo cargar el contacto.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -45,20 +57,23 @@ export default function EmpleadoPerfilPage() {
         nombre: contacto.nombre,
         email: contacto.email,
         telefono: contacto.telefono,
-        cargo: contacto.cargo,
-        empresa_id: contacto.empresa_id,
-        empresa: emp?.nombre || contacto.empresa,
-        tipo_cliente: contacto.empresa_id ? 'empresa' : contacto.tipo_cliente,
+        ...(supportsRole ? { cargo: contacto.cargo } : {}),
+        ...(supportsCompanyId ? { empresa_id: contacto.empresa_id } : {}),
+        empresa: emp?.nombre || null,
+        tipo_cliente: contacto.empresa_id ? 'empresa' : 'particular',
       })
       .eq('id', contacto.id);
     setSaving(false);
     if (error) alert('No se pudo guardar el perfil.');
   }
 
-  if (!contacto) {
+  if (loading || loadError || !contacto) {
     return (
       <CrmShell>
-        <div className="p-8 text-sm text-neutral-500">Cargando perfil…</div>
+        <div className="p-8 text-sm text-neutral-500">
+          {loading ? 'Cargando perfil...' : loadError || 'No se encontró este contacto.'}
+          {!loading && <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>}
+        </div>
       </CrmShell>
     );
   }
@@ -105,10 +120,10 @@ export default function EmpleadoPerfilPage() {
             <label className={labelCls}>Nombre</label>
             <input className={inputCls} value={contacto.nombre} onChange={(e) => patch({ nombre: e.target.value })} />
           </div>
-          <div>
+          {supportsRole && <div>
             <label className={labelCls}>Cargo</label>
             <input className={inputCls} placeholder="p. ej. Directora de eventos" value={contacto.cargo || ''} onChange={(e) => patch({ cargo: e.target.value })} />
-          </div>
+          </div>}
           <div>
             <label className={labelCls}>Email</label>
             <input className={inputCls} value={contacto.email} onChange={(e) => patch({ email: e.target.value })} />

@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 import type { Cliente, Empresa, Oportunidad } from '@/lib/types';
-import { ESTADOS, OPORTUNIDAD_SELECT } from '@/lib/types';
+import { ESTADOS } from '@/lib/types';
+import { loadCrmDirectory } from '@/lib/crmDirectory';
 import CrmShell from '@/components/CrmShell';
 import CompanyLogo from '@/components/CompanyLogo';
 import { Avatar, btnPrimary, eventoLabel, fmtMoney, inputCls, labelCls } from '@/components/ui';
@@ -16,17 +17,24 @@ export default function EmpresaPerfilPage() {
   const [contactos, setContactos] = useState<Cliente[]>([]);
   const [ops, setOps] = useState<Oportunidad[]>([]);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   async function load() {
-    const id = params.id;
-    const [{ data: emp }, { data: cli }, { data: oportunidades }] = await Promise.all([
-      supabase.from('empresas').select('*').eq('id', id).single(),
-      supabase.from('clientes').select('*').eq('empresa_id', id).order('nombre'),
-      supabase.from('oportunidades').select(OPORTUNIDAD_SELECT).eq('empresa_id', id).order('created_at', { ascending: false }),
-    ]);
-    setEmpresa(emp as Empresa);
-    setContactos((cli as Cliente[]) || []);
-    setOps((oportunidades as unknown as Oportunidad[]) || []);
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await loadCrmDirectory();
+      const emp = data.empresas.find((e) => e.id === params.id);
+      if (!emp) throw new Error('No se encontró esta empresa.');
+      setEmpresa(emp);
+      setContactos(data.contactos.filter((c) => c.empresa_id === emp.id));
+      setOps(data.oportunidades.filter((o) => o.empresa_id === emp.id));
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'No se pudo cargar el perfil.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -55,10 +63,13 @@ export default function EmpresaPerfilPage() {
     if (error) alert('No se pudo guardar.');
   }
 
-  if (!empresa) {
+  if (loading || loadError || !empresa) {
     return (
       <CrmShell>
-        <div className="p-8 text-sm text-neutral-500">Cargando perfil…</div>
+        <div className="p-8 text-sm text-neutral-500">
+          {loading ? 'Cargando perfil...' : loadError || 'No se encontró esta empresa.'}
+          {!loading && <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>}
+        </div>
       </CrmShell>
     );
   }

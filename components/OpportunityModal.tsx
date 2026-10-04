@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import type { Oportunidad, Tarea, Nota, Empresa, Empleado } from '@/lib/types';
 import { ESTADOS, FRANJA_HORARIA_LABEL, ORIGEN_CONTACTO_LABEL } from '@/lib/types';
+import { eventDetails } from '@/lib/opportunityDemoDetails';
 import AssignmentFields from './AssignmentFields';
 import { Avatar, Icon, Section, btnGhost, btnPrimary, eventoLabel, fmtDate, fmtMoney, inputCls, tituloOportunidad } from './ui';
 
@@ -102,6 +103,7 @@ export default function OpportunityModal({
   }
 
   const c = oportunidad.cliente;
+  const evento = eventDetails(oportunidad);
   const tareasPendientes = tareas.filter((t) => !t.completada).length;
 
   const dato = (label: string, value: React.ReactNode) => (
@@ -152,7 +154,7 @@ export default function OpportunityModal({
               <span
                 key={e.key}
                 className="h-1.5 flex-1 rounded-full transition-colors"
-                style={{ backgroundColor: estadoIdx < 5 && i <= estadoIdx ? estadoActual.color : '#E6E2DB' }}
+                style={{ backgroundColor: estadoIdx < 5 && i <= estadoIdx ? e.color : '#E2E8F0' }}
               />
             ))}
           </div>
@@ -191,8 +193,8 @@ export default function OpportunityModal({
             <dl className="grid grid-cols-2 gap-x-5 gap-y-3.5">
               {dato('Tipo de evento', eventoLabel(oportunidad))}
               {dato('Fecha del evento', fmtDate(oportunidad.fecha_evento))}
-              {dato('Franja horaria', oportunidad.franja_horaria ? FRANJA_HORARIA_LABEL[oportunidad.franja_horaria] : '—')}
-              {dato('Ubicación del evento', oportunidad.ubicacion_evento || '—')}
+              {dato('Franja horaria', evento.franja_horaria ? FRANJA_HORARIA_LABEL[evento.franja_horaria] : '—')}
+              {dato('Ubicación del evento', evento.ubicacion_evento || '—')}
               {dato('Nº de invitados', oportunidad.num_invitados || '—')}
               {dato('Presupuesto estimado', <span className="font-semibold">{fmtMoney(oportunidad.presupuesto_estimado)}</span>)}
               {dato('Email', <a href={`mailto:${c.email}`} className="text-black hover:underline">{c.email}</a>)}

@@ -2,9 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabaseClient';
 import type { Cliente, Empresa, Oportunidad } from '@/lib/types';
-import { OPORTUNIDAD_SELECT } from '@/lib/types';
+import { loadCrmDirectory } from '@/lib/crmDirectory';
 import CrmShell from '@/components/CrmShell';
 import CompanyLogo from '@/components/CompanyLogo';
 import { Avatar, Icon, btnGhost, inputCls } from '@/components/ui';
@@ -16,16 +15,22 @@ export default function ContactosPage() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [ops, setOps] = useState<Oportunidad[]>([]);
   const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   async function load() {
-    const [c, e, o] = await Promise.all([
-      supabase.from('clientes').select('*').order('created_at', { ascending: false }),
-      supabase.from('empresas').select('*').order('nombre'),
-      supabase.from('oportunidades').select(OPORTUNIDAD_SELECT),
-    ]);
-    setContactos((c.data as Contacto[]) || []);
-    setEmpresas((e.data as Empresa[]) || []);
-    setOps((o.data as unknown as Oportunidad[]) || []);
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await loadCrmDirectory();
+      setContactos(data.contactos);
+      setEmpresas(data.empresas);
+      setOps(data.oportunidades);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'No se pudieron cargar los contactos.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -61,7 +66,7 @@ export default function ContactosPage() {
     !q ? personas : personas.filter((p) => `${p.nombre} ${p.email} ${p.cargo || ''}`.toLowerCase().includes(q));
 
   const gruposFiltrados = grupos.gruposEmpresa
-    .map((g) => ({ ...g, personas: filtrarPersonas(g.personas) }))
+    .map((g) => ({ ...g, personas: q && g.empresa.nombre.toLowerCase().includes(q) ? g.personas : filtrarPersonas(g.personas) }))
     .filter((g) => !q || g.empresa.nombre.toLowerCase().includes(q) || g.personas.length > 0);
   const sinEmpresaFiltrados = filtrarPersonas(grupos.sinEmpresa);
 
@@ -99,8 +104,7 @@ export default function ContactosPage() {
           <div>
             <h1 className="text-2xl font-semibold">Contactos</h1>
             <p className="text-sm text-neutral-500 mt-1">
-              {totalMostrado} persona{totalMostrado === 1 ? '' : 's'} en {gruposFiltrados.length} empresa
-              {gruposFiltrados.length === 1 ? '' : 's'}
+              {loading ? 'Cargando contactos...' : `${totalMostrado} persona${totalMostrado === 1 ? '' : 's'} en ${gruposFiltrados.length} empresa${gruposFiltrados.length === 1 ? '' : 's'}`}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -120,7 +124,12 @@ export default function ContactosPage() {
           />
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {loadError && (
+          <div role="alert" className="mb-5 text-sm text-red-700">
+            {loadError} <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>
+          </div>
+        )}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" aria-busy={loading}>
           {gruposFiltrados.map(({ empresa, personas }) => {
             const principal = personas[0];
             if (!principal) return null;
@@ -180,9 +189,9 @@ export default function ContactosPage() {
           </>
         )}
 
-        {totalMostrado === 0 && (
+        {!loading && !loadError && totalMostrado === 0 && (
           <div className="text-sm text-neutral-500 py-10 text-center border border-dashed border-neutral-200 rounded-xl">
-            Nadie ha contactado todavía.
+            {query.trim() ? 'No hay contactos que coincidan con la búsqueda.' : 'Nadie ha contactado todavía.'}
           </div>
         )}
       </div>

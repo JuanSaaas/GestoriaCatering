@@ -26,7 +26,8 @@ export default function CierresPage() {
   const proximos = useMemo(() => {
     const hoy = new Date().toISOString().slice(0, 10);
     return oportunidades.filter(
-      (o) => !['ganado', 'perdido'].includes(o.estado) && o.fecha_evento && o.fecha_evento >= hoy
+      (o) => o.cliente.nombre.trim().toLowerCase() !== 'prueba supabase'
+        && !['ganado', 'perdido'].includes(o.estado) && o.fecha_evento && o.fecha_evento >= hoy
     );
   }, [oportunidades]);
 

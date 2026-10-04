@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import type { Cliente, Empresa, Oportunidad } from '@/lib/types';
-import { OPORTUNIDAD_SELECT } from '@/lib/types';
+import { loadCrmDirectory } from '@/lib/crmDirectory';
 import CrmShell from '@/components/CrmShell';
 import CompanyLogo from '@/components/CompanyLogo';
 import { Icon, btnGhost, btnPrimary, inputCls } from '@/components/ui';
@@ -18,16 +18,22 @@ export default function EmpresasPage() {
   const [nombre, setNombre] = useState('');
   const [sitio, setSitio] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   async function load() {
-    const [e, o, c] = await Promise.all([
-      supabase.from('empresas').select('*').order('nombre'),
-      supabase.from('oportunidades').select(OPORTUNIDAD_SELECT),
-      supabase.from('clientes').select('*'),
-    ]);
-    setEmpresas((e.data as Empresa[]) || []);
-    setOportunidades((o.data as unknown as Oportunidad[]) || []);
-    setContactos((c.data as Cliente[]) || []);
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const data = await loadCrmDirectory();
+      setEmpresas(data.empresas);
+      setOportunidades(data.oportunidades);
+      setContactos(data.contactos);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'No se pudieron cargar las empresas.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -89,7 +95,7 @@ export default function EmpresasPage() {
           <div>
             <h1 className="text-2xl font-semibold">Empresas</h1>
             <p className="text-sm text-neutral-500 mt-1">
-              {filtradas.length} empresa{filtradas.length === 1 ? '' : 's'} en cartera
+              {loading ? 'Cargando empresas...' : `${filtradas.length} empresa${filtradas.length === 1 ? '' : 's'} en cartera`}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -131,7 +137,12 @@ export default function EmpresasPage() {
           />
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+        {loadError && (
+          <div role="alert" className="mb-5 text-sm text-red-700">
+            {loadError} <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>
+          </div>
+        )}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" aria-busy={loading}>
           {filtradas.map((emp) => {
             const ops = oportunidades.filter((o) => o.empresa_id === emp.id);
             const people = contactos.filter((c) => c.empresa_id === emp.id);
@@ -169,9 +180,9 @@ export default function EmpresasPage() {
               </Link>
             );
           })}
-          {filtradas.length === 0 && (
+          {!loading && !loadError && filtradas.length === 0 && (
             <div className="text-sm text-neutral-500 col-span-full py-10 text-center border border-dashed border-neutral-200 rounded-xl">
-              Todavía no hay empresas. Créala aquí o llegará sola cuando alguien rellene el formulario web.
+              {query.trim() ? 'No hay empresas que coincidan con la búsqueda.' : 'Todavía no hay empresas en cartera.'}
             </div>
           )}
         </div>

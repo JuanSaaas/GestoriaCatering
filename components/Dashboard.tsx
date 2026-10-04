@@ -12,9 +12,9 @@ import { fmtMoney, Icon } from './ui';
 
 const OBJETIVO_PIPELINE = 60000;
 
-// Paleta corta y viva, inspirada en dashboards modernos tipo Chart.js.
-const CHART_COLORS = ['#2563EB', '#4F46E5', '#0891B2', '#7C3AED'] as const;
-const MONEY_CHART_COLOR = '#526A8A';
+// Paleta de datos para un CRM: distinguible, sobria y usable sobre fondos claros.
+const CHART_COLORS = ['#2563EB', '#0F9F9A', '#7C3AED', '#D97706', '#16A34A', '#DC2626'] as const;
+const MONEY_CHART_COLOR = '#2563EB';
 
 
 function Gauge({ value, goal }: { value: number; goal: number }) {
@@ -45,7 +45,7 @@ function Gauge({ value, goal }: { value: number; goal: number }) {
               y2={y2}
               strokeWidth={3}
               strokeLinecap="round"
-              stroke={i < litTicks ? MONEY_CHART_COLOR : '#ECECEC'}
+              stroke={i < litTicks ? MONEY_CHART_COLOR : '#E2E8F0'}
             />
           );
         })}
@@ -72,9 +72,18 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
           {
             label: 'Nuevas oportunidades',
             data: data.map((d) => d.value),
-            backgroundColor: 'rgba(37, 99, 235, 0.72)',
-            borderColor: '#2563EB',
+            backgroundColor: (context) => {
+              const { ctx, chartArea } = context.chart;
+              if (!chartArea) return 'rgba(37, 99, 235, 0.78)';
+              const fill = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+              fill.addColorStop(0, 'rgba(37, 99, 235, 0.82)');
+              fill.addColorStop(1, 'rgba(37, 99, 235, 0.70)');
+              return fill;
+            },
+            borderColor: 'rgba(37, 99, 235, 0.65)',
             borderWidth: 1,
+            borderRadius: 6,
+            hoverBackgroundColor: 'rgba(37, 99, 235, 0.85)',
           },
         ],
       },
@@ -82,7 +91,7 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { position: 'top' },
+          legend: { display: false },
           title: { display: false },
           tooltip: {
             callbacks: {
@@ -94,7 +103,12 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
           y: {
             beginAtZero: true,
             min: 0,
-            ticks: { precision: 0 },
+            grid: { color: '#EEF2F7' },
+            ticks: { precision: 0, color: '#64748B' },
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#64748B' },
           },
         },
       },
@@ -105,27 +119,68 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
 
   return (
     <div className="relative h-[250px] w-full">
-      <canvas ref={canvasRef} />
+      <canvas ref={canvasRef} role="img" aria-label={`Nuevas oportunidades por mes: ${data.map((d) => `${d.label}: ${d.value}`).join(', ')}`} />
     </div>
   );
 }
 
 function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
-  const max = Math.max(1, ...data.map((d) => d.n));
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    const chart = new Chart(canvasRef.current, {
+      type: 'bar',
+      data: {
+        labels: data.map((d) => d.label),
+        datasets: [{
+          label: 'Oportunidades abiertas',
+          data: data.map((d) => d.n),
+          backgroundColor: MONEY_CHART_COLOR,
+          hoverBackgroundColor: MONEY_CHART_COLOR,
+          borderWidth: 0,
+          borderRadius: 4,
+          maxBarThickness: 18,
+          categoryPercentage: 0.65,
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#111827',
+            padding: 12,
+            cornerRadius: 6,
+            displayColors: false,
+            callbacks: { label: (context) => `${context.parsed.x} oportunidades abiertas` },
+          },
+        },
+        scales: {
+          x: {
+            beginAtZero: true,
+            suggestedMax: Math.max(1, ...data.map((d) => d.n)),
+            border: { display: false },
+            grid: { color: '#EEF2F7' },
+            ticks: { precision: 0, maxTicksLimit: 5, color: '#64748B', padding: 8 },
+          },
+          y: {
+            border: { display: false },
+            grid: { display: false },
+            ticks: { color: '#475569', padding: 8, font: { size: 12 }, autoSkip: false },
+          },
+        },
+      },
+    });
+    return () => chart.destroy();
+  }, [data]);
+
   return (
-    <div className="space-y-3 py-1">
-      {data.map((d, i) => (
-        <div key={d.label} className="grid grid-cols-[92px_1fr_24px] items-center gap-3 group">
-          <span className="text-sm font-medium text-neutral-700 truncate">{d.label}</span>
-          <div className="h-3 bg-neutral-100 overflow-hidden">
-            <div
-              className="h-full transition-all duration-200 group-hover:brightness-95"
-              style={{ width: `${d.n === 0 ? 0 : Math.max(7, (d.n / max) * 100)}%`, backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }}
-            />
-          </div>
-          <span className="text-sm font-medium text-neutral-600 tabular-nums text-right">{d.n}</span>
-        </div>
-      ))}
+    <div className="relative h-[220px] w-full">
+      <canvas ref={canvasRef} role="img" aria-label={`Oportunidades por tipo de evento: ${data.map((d) => `${d.label}: ${d.n}`).join(', ')}`} />
     </div>
   );
 }
@@ -242,7 +297,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-6 mb-2">
-      <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex flex-col items-center">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card flex flex-col items-center">
         <div className="w-full flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2">
           <Icon name="gauge" className="w-4 h-4" />
           Objetivo de pipeline
@@ -250,7 +305,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
         <Gauge value={pipeline} goal={OBJETIVO_PIPELINE} />
       </div>
 
-      <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
         <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="layers" className="w-4 h-4" />
           Reparto por estado
@@ -258,7 +313,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
         <StatusDonut segments={segments} total={abiertas.length} />
       </div>
 
-      <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card">
+      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
         <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="calendar" className="w-4 h-4" />
           Oportunidades por tipo de evento
@@ -271,7 +326,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
       </div>
 
       <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-4 items-stretch">
-        <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card min-w-0">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card min-w-0">
           <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
             <Icon name="trend" className="w-4 h-4" />
             Nuevas oportunidades por mes
@@ -280,7 +335,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-3">
-          <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
             <div>
               <div className="text-sm font-medium text-neutral-700 mb-1">Contactos solicitantes</div>
               <div className="text-2xl font-semibold tabular-nums">{contactosSolicitantes}</div>
@@ -288,7 +343,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
             <UserIcon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
           </div>
 
-          <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
             <div>
               <div className="text-sm font-medium text-neutral-700 mb-1">Empresas solicitantes</div>
               <div className="text-2xl font-semibold tabular-nums">{empresasSolicitantes}</div>
@@ -296,7 +351,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
             <BuildingOffice2Icon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
           </div>
 
-          <div className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
             <div>
               <div className="text-sm font-medium text-neutral-700 mb-1">Oportunidades totales</div>
               <div className="text-2xl font-semibold tabular-nums">{oportunidadesTotales}</div>

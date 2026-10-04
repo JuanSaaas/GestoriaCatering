@@ -61,11 +61,11 @@ export default function CrmShell({
     <div className="crm-shell min-h-screen bg-neutral-50 text-black md:flex">
       {/* Sidebar desktop */}
       <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 md:left-0 bg-white border-r border-neutral-200 z-40">
-        <div className="flex items-center gap-2.5 px-5 h-16 shrink-0 bg-white border-b border-neutral-100">
-          <img src="/logo-icon.png" alt="" className="h-7 w-auto" />
+        <div className="flex items-center gap-2 px-5 h-16 shrink-0 bg-white border-b border-neutral-100">
+          <img src="/logo-icon.png" alt="" className="h-8 w-auto shrink-0" />
           <div className="leading-tight min-w-0">
-            <div className="font-serif italic text-base truncate text-[#1c1410]">La Mesa Perfecta</div>
-            <span className="text-[10px] font-semibold tracking-[0.18em] uppercase text-neutral-500">CRM</span>
+            <div className="font-serif italic text-[17px] truncate text-[#1c1410]">La Mesa Perfecta</div>
+            <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-neutral-500">CRM</span>
           </div>
         </div>
         <div className="px-3 pt-4 pb-2">

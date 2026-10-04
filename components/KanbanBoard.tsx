@@ -26,8 +26,9 @@ export default function KanbanBoard({
         return (
           <div
             key={est.key}
+            style={{ borderTopColor: est.color }}
             className={`rounded-xl min-w-[264px] flex-1 max-w-[340px] border transition-colors ${
-              activa ? 'bg-[var(--crm-accent-soft)] border-[var(--crm-accent)]/40' : 'bg-neutral-100 border-transparent'
+              activa ? 'bg-[var(--crm-accent-soft)] border-[var(--crm-accent)]/40' : 'bg-slate-100 border-transparent border-t-[3px]'
             }`}
             onDragOver={(e) => {
               e.preventDefault();
@@ -49,15 +50,15 @@ export default function KanbanBoard({
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: est.color }} />
                   {est.label}
                 </h3>
-                <span className="text-xs font-medium text-ink-soft bg-white rounded-full px-2 py-0.5 shadow-card">
+                <span className="text-xs font-medium text-slate-600 bg-white rounded-full px-2 py-0.5 shadow-card">
                   {items.length}
                 </span>
               </div>
-              <div className="text-xs text-ink-soft mt-1 tabular-nums">{fmtMoney(total)}</div>
+              <div className="text-xs text-slate-500 mt-1 tabular-nums">{fmtMoney(total)}</div>
             </div>
             <div className="px-2.5 pb-2.5 flex flex-col gap-2.5 min-h-[72px]">
               {items.length === 0 && (
-                <div className="text-xs text-ink-soft/70 text-center py-5 border border-dashed border-ink-soft/25 rounded-lg">
+                <div className="text-xs text-slate-500 text-center py-5 border border-dashed border-slate-300 rounded-lg bg-white/55">
                   Arrastra aquí una oportunidad
                 </div>
               )}

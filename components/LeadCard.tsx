@@ -28,6 +28,11 @@ export default function LeadCard({
       className="bg-white border border-neutral-200 border-l-[3px] rounded-lg p-3 text-sm cursor-grab active:cursor-grabbing shadow-card hover:shadow-card-hover transition-shadow"
     >
       <div className="flex items-start gap-2">
+        <span
+          className="mt-1 h-2.5 w-2.5 rounded-full shrink-0"
+          style={{ backgroundColor: color, boxShadow: `0 0 0 4px ${color}18` }}
+          aria-hidden="true"
+        />
         {empresa && (
           <CompanyLogo
             nombre={empresa.nombre}
@@ -58,7 +63,7 @@ export default function LeadCard({
       </div>
 
       <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-neutral-200">
-        <span className="font-semibold tabular-nums">{fmtMoney(oportunidad.presupuesto_estimado)}</span>
+        <span className="font-semibold tabular-nums text-slate-900">{fmtMoney(oportunidad.presupuesto_estimado)}</span>
         <span className="flex items-center gap-1.5 text-xs text-neutral-500 min-w-0">
           {oportunidad.comercial && (
             <span className="truncate max-w-[90px]">{oportunidad.comercial.nombre.split(' ')[0]}</span>
