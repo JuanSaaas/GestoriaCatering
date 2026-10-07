@@ -158,9 +158,7 @@ export default function CrmPage() {
               <Avatar nombre={e.nombre} size={18} /> {e.nombre.split(' ')[0]}
             </button>
           ))}
-          <button className={chip(filtro === 'sin_asignar')} onClick={() => setFiltro('sin_asignar')}>
-            Sin asignar
-          </button>
+
         </div>
       </div>
 
