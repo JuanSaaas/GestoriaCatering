@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Icon, type IconName } from './ui';
@@ -9,6 +9,26 @@ import { useDialog } from './useDialog';
 function MobileMenu({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   const ref = useDialog<HTMLElement>(onClose);
   return <aside ref={ref} role="dialog" aria-modal="true" aria-label="Menú principal" tabIndex={-1} className="relative w-64 bg-white h-full flex flex-col shadow-xl">{children}</aside>;
+}
+
+function LogoutDialog({ busy, error, onCancel, onConfirm }: {
+  busy: boolean; error: string; onCancel: () => void; onConfirm: () => void;
+}) {
+  const ref = useDialog<HTMLDivElement>(() => { if (!busy) onCancel(); });
+  return <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4" onClick={(event) => {
+    if (event.target === event.currentTarget && !busy) onCancel();
+  }}>
+    <div ref={ref} tabIndex={-1} role="alertdialog" aria-modal="true" aria-labelledby="logout-title" aria-describedby="logout-description" aria-busy={busy} className="w-full max-w-md rounded-xl border border-neutral-200 bg-white p-6 shadow-xl">
+      <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-700"><Icon name="logout" className="h-6 w-6" /></span>
+      <h2 id="logout-title" className="text-xl font-semibold">¿Seguro que quieres cerrar sesión?</h2>
+      <p id="logout-description" className="mt-2 text-sm leading-6 text-neutral-600">Tendrás que volver a introducir tus credenciales para acceder al CRM.</p>
+      {error && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <button type="button" disabled={busy} onClick={onCancel} className="inline-flex min-h-12 items-center justify-center rounded-lg border border-neutral-300 bg-neutral-100 px-4 text-sm font-semibold text-neutral-800 hover:bg-neutral-200 disabled:opacity-60">Cancelar</button>
+        <button type="button" disabled={busy} onClick={onConfirm} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-red-700 px-4 text-sm font-semibold text-white hover:bg-red-800 focus-visible:!outline-red-700 disabled:opacity-60 disabled:cursor-not-allowed"><Icon name="logout" />{busy ? 'Cerrando sesión…' : 'Cerrar sesión'}</button>
+      </div>
+    </div>
+  </div>;
 }
 
 const NAV: { href: string; label: string; icon: IconName }[] = [
@@ -35,8 +55,18 @@ export default function CrmShell({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState('');
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const logoutPending = useRef(false);
+
+  function requestLogout() {
+    setLogoutError('');
+    setMobileOpen(false);
+    setConfirmLogout(true);
+  }
 
   async function handleLogout() {
+    if (logoutPending.current) return;
+    logoutPending.current = true;
     setLoggingOut(true);
     setLogoutError('');
     try {
@@ -44,7 +74,7 @@ export default function CrmShell({
       if (!response.ok) throw new Error();
       router.replace('/crm/login');
       router.refresh();
-    } catch { setLogoutError('⚠ No se pudo cerrar la sesión. Vuelve a intentarlo.'); setLoggingOut(false); }
+    } catch { logoutPending.current = false; setLogoutError('⚠ No se pudo cerrar la sesión. Vuelve a intentarlo.'); setLoggingOut(false); }
   }
 
   const isActive = (href: string) => {
@@ -95,7 +125,7 @@ export default function CrmShell({
             </span>
           )}
           <button
-            onClick={handleLogout}
+            onClick={requestLogout}
             disabled={loggingOut}
             className="w-full inline-flex items-center justify-center gap-2 min-h-12 px-4 mt-2 rounded-lg border border-red-700 bg-red-700 text-white text-sm font-medium hover:bg-red-800 hover:border-red-800 focus-visible:!outline-red-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
@@ -144,7 +174,7 @@ export default function CrmShell({
             </div>
             <div className="p-3 border-t border-neutral-200 shrink-0">
               <button
-                onClick={handleLogout}
+                onClick={requestLogout}
                 disabled={loggingOut}
                 className="w-full inline-flex items-center justify-center gap-2 min-h-12 px-4 rounded-lg border border-red-700 bg-red-700 text-white text-sm font-medium hover:bg-red-800 hover:border-red-800 focus-visible:!outline-red-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
@@ -162,9 +192,9 @@ export default function CrmShell({
           {pathname !== '/crm' && <><span aria-hidden="true">›</span><Link href={NAV.find((item) => item.href !== '/crm' && pathname.startsWith(item.href))?.href || '/crm/contactos'} className="hover:underline">{NAV.find((item) => item.href !== '/crm' && pathname.startsWith(item.href))?.label || 'Contactos'}</Link></>}
           {pathname.split('/').length > 3 && <><span aria-hidden="true">›</span><span aria-current="page">Ficha</span></>}
         </nav>
-        {logoutError && <p role="alert" className="px-6 pt-4 text-sm">{logoutError}</p>}
         {children}
       </main>
+      {confirmLogout && <LogoutDialog busy={loggingOut} error={logoutError} onCancel={() => setConfirmLogout(false)} onConfirm={handleLogout} />}
     </div>
   );
 }
