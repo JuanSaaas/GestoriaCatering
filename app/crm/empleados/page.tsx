@@ -50,8 +50,9 @@ export default function EmpleadosPage() {
         </p>
 
         <div className="relative mb-5 max-w-sm">
-          <Icon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input className={`${inputCls} pl-9`} placeholder="Buscar por nombre o empresa…" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
+          <label htmlFor="list-search" className="block text-sm font-medium text-neutral-700 mb-2">Buscar contactos</label>
+              <input id="list-search" type="search" className={`${inputCls} pl-9`} placeholder="Buscar por nombre o empresa…" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
 
         <div className="space-y-2">

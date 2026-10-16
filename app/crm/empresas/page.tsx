@@ -1,5 +1,7 @@
 'use client';
 
+import ValidatedForm from '@/components/ValidatedForm';
+
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
@@ -15,6 +17,8 @@ export default function EmpresasPage() {
   const [contactos, setContactos] = useState<Cliente[]>([]);
   const [query, setQuery] = useState('');
   const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [saveError, setSaveError] = useState('');
   const [nombre, setNombre] = useState('');
   const [sitio, setSitio] = useState('');
   const [showForm, setShowForm] = useState(false);
@@ -44,19 +48,25 @@ export default function EmpresasPage() {
     ev.preventDefault();
     if (!nombre.trim()) return;
     setSaving(true);
+    try {
+    setSaveError('');
+    setNotice('');
     const { error } = await supabase.from('empresas').insert({
       nombre: nombre.trim(),
       sitio_web: sitio.trim() || null,
     });
     setSaving(false);
     if (error) {
-      alert(error.code === '23505' ? 'Ya existe una empresa con ese nombre.' : 'No se pudo crear la empresa.');
+      setSaveError(error.code === '23505' ? 'Ya existe una empresa con ese nombre. Abre su ficha desde la lista.' : 'No se pudo crear la empresa. Revisa tu conexión y vuelve a intentarlo.');
       return;
     }
+    setNotice('✓ Empresa creada. Puedes abrir su ficha desde la lista.');
     setNombre('');
     setSitio('');
     setShowForm(false);
     load();
+    } catch { setSaveError('No se pudo crear la empresa. Revisa tu conexión y vuelve a intentarlo.'); }
+    finally { setSaving(false); }
   }
 
   function exportarCSV() {
@@ -102,34 +112,37 @@ export default function EmpresasPage() {
             <button className={btnGhost} onClick={exportarCSV} type="button">
               <Icon name="download" className="w-4 h-4" /> Exportar CSV
             </button>
-            <button className={btnPrimary} onClick={() => setShowForm((v) => !v)} type="button">
+            <button className={showForm ? btnGhost : btnPrimary} aria-expanded={showForm} onClick={() => setShowForm((v) => !v)} type="button">
               <Icon name="plus" className="w-4 h-4" /> Nueva empresa
             </button>
           </div>
         </div>
 
+        {notice && <p role="status" className="mb-4 text-sm">{notice}</p>}
+        {saveError && <p role="alert" className="mb-4 text-sm">⚠ {saveError}</p>}
         {showForm && (
-          <form onSubmit={crear} className="flex flex-col sm:flex-row gap-2 mb-6 items-end p-4 rounded-xl border border-neutral-200 bg-neutral-50">
+          <ValidatedForm onSubmit={crear} className="flex flex-col gap-4 mb-6 items-start p-4 rounded-xl border border-neutral-200 bg-neutral-50">
             <div className="flex-1 w-full">
-              <label className="text-xs text-neutral-500 mb-1.5 block">Nombre de la empresa</label>
+              <label htmlFor="company-name" className="text-sm font-medium text-neutral-700 mb-2 block">Nombre de la empresa *</label>
               <div className="flex items-center gap-2">
                 {nombre.trim() ? <CompanyLogo nombre={nombre} sitio_web={sitio} size={36} /> : null}
-                <input className={inputCls} placeholder="Nombre de la empresa" value={nombre} onChange={(e) => setNombre(e.target.value)} autoFocus />
+                <input id="company-name" required className={inputCls} placeholder="Ej. Eventos Zaragoza" value={nombre} onChange={(e) => setNombre(e.target.value)} autoFocus />
               </div>
             </div>
             <div className="flex-1 w-full">
-              <label className="text-xs text-neutral-500 mb-1.5 block">Web (opcional)</label>
-              <input className={inputCls} placeholder="empresa.com" value={sitio} onChange={(e) => setSitio(e.target.value)} />
+              <label htmlFor="company-web" className="text-sm font-medium text-neutral-700 mb-2 block">Web (opcional)</label>
+              <input id="company-web" className={inputCls} placeholder="empresa.com" value={sitio} onChange={(e) => setSitio(e.target.value)} />
             </div>
             <button className={btnPrimary} disabled={saving || !nombre.trim()}>
-              {saving ? 'Guardando…' : 'Añadir'}
+              {saving ? 'Guardando…' : 'Crear empresa'}
             </button>
-          </form>
+          </ValidatedForm>
         )}
 
         <div className="relative mb-5 max-w-sm">
-          <Icon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input
+          <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
+          <label htmlFor="list-search" className="block text-sm font-medium text-neutral-700 mb-2">Buscar empresas</label>
+              <input id="list-search" type="search"
             className={`${inputCls} pl-9`}
             placeholder="Buscar por nombre, sector o ciudad…"
             value={query}
@@ -182,7 +195,8 @@ export default function EmpresasPage() {
           })}
           {!loading && !loadError && filtradas.length === 0 && (
             <div className="text-sm text-neutral-500 col-span-full py-10 text-center border border-dashed border-neutral-200 rounded-xl">
-              {query.trim() ? 'No hay empresas que coincidan con la búsqueda.' : 'Todavía no hay empresas en cartera.'}
+              <p>{query.trim() ? 'No hay empresas que coincidan con la búsqueda.' : 'Todavía no hay empresas en cartera.'}</p>
+              <button type="button" className={`${btnGhost} mt-4`} onClick={() => query.trim() ? setQuery('') : setShowForm(true)}>{query.trim() ? 'Limpiar búsqueda' : 'Añadir primera empresa'}</button>
             </div>
           )}
         </div>

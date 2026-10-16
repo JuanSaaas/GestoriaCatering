@@ -115,8 +115,9 @@ export default function ContactosPage() {
         </div>
 
         <div className="relative mb-5 max-w-sm">
-          <Icon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-          <input
+          <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
+          <label htmlFor="list-search" className="block text-sm font-medium text-neutral-700 mb-2">Buscar contactos</label>
+              <input id="list-search" type="search"
             className={`${inputCls} pl-9`}
             placeholder="Buscar empresa o persona…"
             value={query}
@@ -191,7 +192,8 @@ export default function ContactosPage() {
 
         {!loading && !loadError && totalMostrado === 0 && (
           <div className="text-sm text-neutral-500 py-10 text-center border border-dashed border-neutral-200 rounded-xl">
-            {query.trim() ? 'No hay contactos que coincidan con la búsqueda.' : 'Nadie ha contactado todavía.'}
+            <p>{query.trim() ? 'No hay contactos que coincidan con la búsqueda.' : 'Todavía no hay contactos. Crea una oportunidad para registrar el primero.'}</p>
+            {query.trim() ? <button type="button" className={`${btnGhost} mt-4`} onClick={() => setQuery('')}>Limpiar búsqueda</button> : <Link href="/crm/oportunidades" className={`${btnGhost} mt-4`}>Crear una oportunidad</Link>}
           </div>
         )}
       </div>

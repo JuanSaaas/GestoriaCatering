@@ -2,31 +2,33 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabaseClient';
+import { loadCrmDirectory } from '@/lib/crmDirectory';
 import type { Oportunidad } from '@/lib/types';
-import { ESTADOS, OPORTUNIDAD_SELECT } from '@/lib/types';
+import { ESTADOS } from '@/lib/types';
 import CrmShell from '@/components/CrmShell';
 import { Icon, eventoLabel, fmtDate, fmtMoney, tituloOportunidad } from '@/components/ui';
 
 export default function CierresPage() {
   const [oportunidades, setOportunidades] = useState<Oportunidad[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await supabase
-        .from('oportunidades')
-        .select(OPORTUNIDAD_SELECT)
-        .order('fecha_evento', { ascending: true });
-      setOportunidades((data as unknown as Oportunidad[]) || []);
-    })();
-  }, []);
+  async function load() {
+    setLoading(true); setError('');
+    try {
+      const data = await loadCrmDirectory();
+      setOportunidades(data.oportunidades.sort((a, b) => (a.fecha_evento || '').localeCompare(b.fecha_evento || '')));
+    } catch (e) { setError(e instanceof Error ? e.message : 'No se pudieron cargar los cierres.'); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => { load(); }, []);
 
   // Solo oportunidades abiertas con fecha de evento futura (el "cierre previsto"
   // es la fecha del evento: es cuando la oportunidad tiene que estar resuelta).
   const proximos = useMemo(() => {
-    const hoy = new Date().toISOString().slice(0, 10);
+    const hoy = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Madrid' });
     return oportunidades.filter(
-      (o) => o.cliente.nombre.trim().toLowerCase() !== 'prueba supabase'
+      (o) => o.cliente?.nombre?.trim().toLowerCase() !== 'prueba supabase'
         && !['ganado', 'perdido'].includes(o.estado) && o.fecha_evento && o.fecha_evento >= hoy
     );
   }, [oportunidades]);
@@ -54,6 +56,8 @@ export default function CierresPage() {
         </p>
 
         <div className="space-y-8">
+          {loading && <p role="status" className="text-sm text-neutral-500">Cargando cierres previstos...</p>}
+          {error && <div role="alert" className="p-4 bg-red-50 text-red-700 rounded-md text-sm">{error}<button className="underline ml-3" onClick={load}>Reintentar</button></div>}
           {grupos.map(([mes, ops]) => (
             <div key={mes}>
               <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3 capitalize">{mes}</h2>
@@ -92,9 +96,10 @@ export default function CierresPage() {
               </div>
             </div>
           ))}
-          {proximos.length === 0 && (
+          {!loading && !error && proximos.length === 0 && (
             <div className="text-sm text-neutral-500 py-10 text-center border border-dashed border-neutral-200 rounded-xl">
-              No hay oportunidades abiertas con fecha de evento próxima.
+              <p>No hay oportunidades abiertas con fecha de evento próxima.</p>
+              <Link href="/crm/oportunidades" className="inline-flex min-h-12 items-center underline mt-4">Revisar fechas de las oportunidades</Link>
             </div>
           )}
         </div>

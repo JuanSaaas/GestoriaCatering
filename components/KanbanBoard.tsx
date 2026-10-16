@@ -46,7 +46,7 @@ export default function KanbanBoard({
           >
             <div className="px-3.5 pt-3.5 pb-2.5">
               <div className="flex items-center justify-between">
-                <h3 className="flex items-center gap-2 text-sm font-semibold">
+                <h3 style={{ color: est.color }} className="flex items-center gap-2 text-sm font-semibold">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: est.color }} />
                   {est.label}
                 </h3>

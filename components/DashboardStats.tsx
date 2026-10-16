@@ -35,19 +35,19 @@ export default function DashboardStats({
     { n: contactos.length, l: 'Contactos', icon: 'user' },
     { n: abiertas.length, l: 'Abiertas', icon: 'layers' },
     { n: oportunidades.length, l: 'Total', icon: 'trend' },
-    { n: fmtMoney(pipeline), l: 'Pipeline', icon: 'gauge' },
-    { n: fmtMoney(ponderado), l: 'Ponderado', icon: 'percent' },
+    { n: fmtMoney(pipeline), l: 'Importe abierto', icon: 'gauge' },
+    { n: fmtMoney(ponderado), l: 'Previsión estimada', icon: 'percent' },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 px-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 px-6">
       {stats.map((s) => (
-        <div key={s.l} className="bg-white border border-neutral-200 rounded-xl p-4 shadow-card">
-          <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2">
+        <div key={s.l} className="bg-white border border-neutral-200 rounded-xl p-4 shadow-card min-h-[168px] flex flex-col items-center text-center">
+          <div className="flex items-center gap-2 text-base font-semibold text-neutral-700 min-h-12">
             <Icon name={s.icon} className="w-4 h-4 shrink-0" />
             {s.l}
           </div>
-          <div className="text-xl font-semibold tabular-nums truncate">{s.n}</div>
+          <div className="text-2xl font-semibold tabular-nums my-auto break-words">{s.n}</div><p className="text-xs text-neutral-600 min-h-8 mt-2">{s.l === 'Previsión estimada' ? 'Según la fase de cada oportunidad' : ''}</p>
         </div>
       ))}
     </div>

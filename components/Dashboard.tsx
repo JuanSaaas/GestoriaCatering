@@ -24,7 +24,7 @@ function Gauge({ value, goal }: { value: number; goal: number }) {
 
   return (
     <div className="flex flex-col items-center">
-      <svg viewBox="0 0 200 110" className="w-full max-w-[300px]">
+      <svg role="img" aria-label={`Objetivo comercial: ${fmtMoney(value)} de ${fmtMoney(goal)}`} viewBox="0 0 200 110" className="w-full max-w-[300px]">
         {Array.from({ length: totalTicks }).map((_, i) => {
           const angle = -180 + (i / (totalTicks - 1)) * 180;
           const rad = (angle * Math.PI) / 180;
@@ -39,10 +39,10 @@ function Gauge({ value, goal }: { value: number; goal: number }) {
           return (
             <line
               key={i}
-              x1={x1}
-              y1={y1}
-              x2={x2}
-              y2={y2}
+              x1={Number(x1.toFixed(4))}
+              y1={Number(y1.toFixed(4))}
+              x2={Number(x2.toFixed(4))}
+              y2={Number(y2.toFixed(4))}
               strokeWidth={3}
               strokeLinecap="round"
               stroke={i < litTicks ? MONEY_CHART_COLOR : '#E2E8F0'}
@@ -72,14 +72,7 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
           {
             label: 'Nuevas oportunidades',
             data: data.map((d) => d.value),
-            backgroundColor: (context) => {
-              const { ctx, chartArea } = context.chart;
-              if (!chartArea) return 'rgba(37, 99, 235, 0.78)';
-              const fill = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-              fill.addColorStop(0, 'rgba(37, 99, 235, 0.82)');
-              fill.addColorStop(1, 'rgba(37, 99, 235, 0.70)');
-              return fill;
-            },
+            backgroundColor: MONEY_CHART_COLOR,
             borderColor: 'rgba(37, 99, 235, 0.65)',
             borderWidth: 1,
             borderRadius: 6,
@@ -230,7 +223,7 @@ function StatusDonut({ segments, total }: { segments: { label: string; value: nu
   return (
     <div className="flex items-center gap-7 min-h-[190px]">
       <div className="relative h-[190px] w-[190px] shrink-0">
-        <canvas ref={canvasRef} />
+        <canvas ref={canvasRef} role="img" aria-label={`Reparto por estado: ${segments.map((item) => `${item.label}: ${item.value}`).join(', ')}`} />
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-2xl font-semibold tabular-nums leading-none mb-4">{total}</div>
@@ -296,16 +289,16 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
   });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 px-6 mb-2">
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card flex flex-col items-center">
+    <div className="grid grid-cols-12 gap-6 px-6 mb-2">
+      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card flex flex-col items-center">
         <div className="w-full flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2">
           <Icon name="gauge" className="w-4 h-4" />
-          Objetivo de pipeline
+          Objetivo comercial (orientativo)
         </div>
         <Gauge value={pipeline} goal={OBJETIVO_PIPELINE} />
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card">
         <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="layers" className="w-4 h-4" />
           Reparto por estado
@@ -313,7 +306,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
         <StatusDonut segments={segments} total={abiertas.length} />
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card">
+      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card">
         <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="calendar" className="w-4 h-4" />
           Oportunidades por tipo de evento
@@ -325,8 +318,8 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
         )}
       </div>
 
-      <div className="lg:col-span-3 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-4 items-stretch">
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card min-w-0">
+      <div className="col-span-12 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-4 items-stretch">
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-card min-w-0">
           <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
             <Icon name="trend" className="w-4 h-4" />
             Nuevas oportunidades por mes
@@ -335,7 +328,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-1 gap-3">
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-card flex items-center justify-between gap-4">
             <div>
               <div className="text-sm font-medium text-neutral-700 mb-1">Contactos solicitantes</div>
               <div className="text-2xl font-semibold tabular-nums">{contactosSolicitantes}</div>
@@ -343,7 +336,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
             <UserIcon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-card flex items-center justify-between gap-4">
             <div>
               <div className="text-sm font-medium text-neutral-700 mb-1">Empresas solicitantes</div>
               <div className="text-2xl font-semibold tabular-nums">{empresasSolicitantes}</div>
@@ -351,7 +344,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
             <BuildingOffice2Icon className="w-7 h-7 text-neutral-700 shrink-0" aria-hidden="true" />
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-card flex items-center justify-between gap-4">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-card flex items-center justify-between gap-4">
             <div>
               <div className="text-sm font-medium text-neutral-700 mb-1">Oportunidades totales</div>
               <div className="text-2xl font-semibold tabular-nums">{oportunidadesTotales}</div>

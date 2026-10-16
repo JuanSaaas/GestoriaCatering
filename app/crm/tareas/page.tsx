@@ -1,14 +1,58 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import CrmShell from '@/components/CrmShell';
+import { btnGhost, fmtDate } from '@/components/ui';
 import type { Tarea } from '@/lib/types';
 
-export default function TareasPage(){
- const [items,setItems]=useState<Tarea[]>([]); const [title,setTitle]=useState(''); const [date,setDate]=useState(''); const [live,setLive]=useState(false);
- async function load(){const {data}=await supabase.from('tareas').select('*').order('completada').order('fecha_limite',{ascending:true});setItems((data as Tarea[])||[])}
- useEffect(()=>{load();const c=supabase.channel('crm-tareas-page').on('postgres_changes',{event:'*',schema:'public',table:'tareas'},load).subscribe(s=>s==='SUBSCRIBED'&&setLive(true));return()=>{supabase.removeChannel(c)}},[]);
- async function toggle(t:Tarea){await supabase.from('tareas').update({completada:!t.completada}).eq('id',t.id);load()}
- const pendientes=useMemo(()=>items.filter(x=>!x.completada),[items]);
- return <CrmShell live={live}><div className="p-6 lg:p-8 max-w-5xl"><div className="mb-7"><div className="text-xs uppercase tracking-[.18em] text-neutral-400 font-semibold">Productividad</div><h1 className="text-3xl font-semibold tracking-tight mt-1">Tareas</h1><p className="text-sm text-neutral-500 mt-1">{pendientes.length} pendientes · {items.length-pendientes.length} completadas</p></div><div className="grid lg:grid-cols-[1fr_280px] gap-6"><div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-sm">{items.map(t=><button key={t.id} onClick={()=>toggle(t)} className="w-full text-left flex items-center gap-4 px-5 py-4 border-b last:border-0 hover:bg-neutral-50 transition"><span className={`w-5 h-5 rounded-md border flex items-center justify-center text-xs ${t.completada?'bg-neutral-950 text-white border-neutral-950':'border-neutral-300'}`}>{t.completada?'✓':''}</span><div className="flex-1"><div className={`text-sm font-medium ${t.completada?'line-through text-neutral-400':''}`}>{t.titulo}</div><div className="text-xs text-neutral-400 mt-1">{t.fecha_limite?`Fecha límite · ${new Date(t.fecha_limite+'T12:00:00').toLocaleDateString('es-ES')}`:'Sin fecha límite'}</div></div></button>)}{!items.length&&<div className="py-16 text-center text-sm text-neutral-400">No hay tareas todavía.</div>}</div><div className="bg-[#101112] text-white rounded-2xl p-5 h-fit"><div className="text-xs uppercase tracking-wider text-white/40">Vista rápida</div><div className="text-4xl font-semibold mt-3">{pendientes.length}</div><div className="text-sm text-white/55 mt-1">tareas por completar</div><div className="h-px bg-white/10 my-5"/><p className="text-xs leading-relaxed text-white/40">Las tareas creadas dentro de cada oportunidad aparecen aquí automáticamente y se sincronizan con Supabase.</p></div></div></div></CrmShell>
+export default function TareasPage() {
+  const [items, setItems] = useState<Tarea[]>([]);
+  const [live, setLive] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+
+  async function load() {
+    try {
+      const { data, error } = await supabase.from('tareas').select('*').order('completada').order('fecha_limite', { ascending: true });
+      if (error) throw error;
+      setItems((data as Tarea[]) || []); setError('');
+    } catch { setError('⚠ No se pudieron cargar las tareas. Revisa tu conexión y vuelve a intentarlo.'); }
+    finally { setLoading(false); }
+  }
+  useEffect(() => {
+    load();
+    const channel = supabase.channel('crm-tareas-page').on('postgres_changes', { event: '*', schema: 'public', table: 'tareas' }, load).subscribe((status) => setLive(status === 'SUBSCRIBED'));
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  async function toggle(task: Tarea) {
+    setBusy(task.id); setError(''); setNotice('');
+    try {
+      const { error } = await supabase.from('tareas').update({ completada: !task.completada }).eq('id', task.id);
+      if (error) throw error;
+      setItems((previous) => previous.map((item) => item.id === task.id ? { ...item, completada: !task.completada } : item));
+      setNotice(`✓ «${task.titulo}» marcada como ${task.completada ? 'pendiente' : 'completada'}.`);
+    } catch { setError('⚠ No se pudo guardar el estado de la tarea. Vuelve a intentarlo.'); }
+    finally { setBusy(null); }
+  }
+  const pending = items.filter((item) => !item.completada).length;
+  return <CrmShell live={live}><div className="p-6 lg:p-8 max-w-5xl">
+    <h1 className="text-2xl font-semibold">Tareas</h1>
+    <p className="text-sm text-neutral-600 mt-2 mb-6">{pending} pendientes · {items.length - pending} completadas. Crea tareas desde la ficha de una oportunidad.</p>
+    {loading && <p role="status">Cargando tareas…</p>}
+    {error && <p role="alert" className="mb-4 text-sm">{error} <button className="underline ml-2" onClick={load}>Reintentar</button></p>}
+    {notice && <p role="status" className="mb-4 text-sm">{notice}</p>}
+    <div className="bg-white border border-neutral-200 rounded-xl overflow-hidden">
+      {items.map((task) => <div key={task.id} className="flex flex-wrap items-center gap-4 p-4 border-b last:border-0">
+        <button type="button" aria-pressed={task.completada} aria-label={`Marcar «${task.titulo}» como ${task.completada ? 'pendiente' : 'completada'}`} disabled={!!busy} onClick={() => toggle(task)} className="shrink-0 rounded-lg border border-neutral-300 px-3 text-sm">{busy === task.id ? '…' : task.completada ? '✓' : '○'}</button>
+        <div className="min-w-0 flex-1"><p className={`text-sm font-medium ${task.completada ? 'line-through text-neutral-600' : ''}`}>{task.titulo}</p><p className="text-xs text-neutral-600 mt-2">{task.completada ? '✓ Completada' : '◷ Pendiente'} · {task.fecha_limite ? `Fecha límite: ${fmtDate(task.fecha_limite)}` : 'Sin fecha límite'}</p></div>
+        <Link href={`/crm/oportunidades?abrir=${task.oportunidad_id}`} className={`${btnGhost} shrink-0`}>Ver oportunidad</Link>
+      </div>)}
+      {!loading && !error && !items.length && <div className="p-8 text-center"><p className="text-sm text-neutral-600">Todavía no hay tareas. Abre una oportunidad para añadir el próximo seguimiento.</p><Link href="/crm/oportunidades" className={`${btnGhost} mt-4`}>Ver oportunidades</Link></div>}
+    </div>
+  </div></CrmShell>;
 }

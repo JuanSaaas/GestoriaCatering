@@ -1,5 +1,8 @@
 'use client';
 
+import SearchableSelect from '@/components/SearchableSelect';
+import ValidatedForm from '@/components/ValidatedForm';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -16,6 +19,8 @@ export default function EmpleadoPerfilPage() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [ops, setOps] = useState<Oportunidad[]>([]);
   const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [saveFailed, setSaveFailed] = useState(false);
 
   async function load() {
     const id = params.id;
@@ -38,6 +43,8 @@ export default function EmpleadoPerfilPage() {
     e.preventDefault();
     if (!contacto) return;
     setSaving(true);
+    setSaveMessage('');
+    try {
     const emp = empresas.find((x) => x.id === contacto.empresa_id);
     const { error } = await supabase
       .from('clientes')
@@ -52,7 +59,10 @@ export default function EmpleadoPerfilPage() {
       })
       .eq('id', contacto.id);
     setSaving(false);
-    if (error) alert('No se pudo guardar el perfil.');
+    setSaveFailed(!!error);
+    setSaveMessage(error ? '⚠ No se pudo guardar. Revisa tu conexión y vuelve a intentarlo.' : '✓ Cambios guardados.');
+    } catch { setSaveFailed(true); setSaveMessage('⚠ No se pudo guardar. Revisa tu conexión y vuelve a intentarlo.'); }
+    finally { setSaving(false); }
   }
 
   if (!contacto) {
@@ -100,25 +110,27 @@ export default function EmpleadoPerfilPage() {
           </div>
         </div>
 
-        <form onSubmit={guardar} className="grid sm:grid-cols-2 gap-4 mb-10">
+        <p className="text-sm text-neutral-600 mb-4">Los campos con * son obligatorios.</p>
+        {saveMessage && <p role={saveFailed ? 'alert' : 'status'} className="mb-4 text-sm">{saveMessage}</p>}
+        <ValidatedForm onSubmit={guardar} className="grid sm:grid-cols-2 gap-4 mb-10">
           <div>
-            <label className={labelCls}>Nombre</label>
-            <input className={inputCls} value={contacto.nombre} onChange={(e) => patch({ nombre: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-nombre">Nombre *</label>
+            <input id="perfil-nombre" required className={inputCls} value={contacto.nombre} onChange={(e) => patch({ nombre: e.target.value })} />
           </div>
           <div>
-            <label className={labelCls}>Cargo</label>
-            <input className={inputCls} placeholder="p. ej. Directora de eventos" value={contacto.cargo || ''} onChange={(e) => patch({ cargo: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-cargo">Cargo</label>
+            <input id="perfil-cargo" className={inputCls} placeholder="p. ej. Directora de eventos" value={contacto.cargo || ''} onChange={(e) => patch({ cargo: e.target.value })} />
           </div>
           <div>
-            <label className={labelCls}>Email</label>
-            <input className={inputCls} value={contacto.email} onChange={(e) => patch({ email: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-email">Email *</label>
+            <input id="perfil-email" type="email" required className={inputCls} value={contacto.email} onChange={(e) => patch({ email: e.target.value })} />
           </div>
           <div>
-            <label className={labelCls}>Teléfono</label>
-            <input className={inputCls} value={contacto.telefono || ''} onChange={(e) => patch({ telefono: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-telefono">Teléfono</label>
+            <input id="perfil-telefono" type="tel" className={inputCls} value={contacto.telefono || ''} onChange={(e) => patch({ telefono: e.target.value })} />
           </div>
           <div className="sm:col-span-2">
-            <label className={labelCls}>Empresa</label>
+            <label className={labelCls} htmlFor="perfil-empresa">Empresa</label>
             <div className="flex items-center gap-2">
               {empresa && (
                 <CompanyLogo
@@ -129,7 +141,7 @@ export default function EmpleadoPerfilPage() {
                   size={32}
                 />
               )}
-              <select
+              <SearchableSelect id="perfil-empresa"
                 className={inputCls}
                 value={contacto.empresa_id || ''}
                 onChange={(e) => patch({ empresa_id: e.target.value || null })}
@@ -140,7 +152,7 @@ export default function EmpleadoPerfilPage() {
                     {emp.nombre}
                   </option>
                 ))}
-              </select>
+              </SearchableSelect>
             </div>
           </div>
           <div>
@@ -148,7 +160,7 @@ export default function EmpleadoPerfilPage() {
               {saving ? 'Guardando…' : 'Guardar perfil'}
             </button>
           </div>
-        </form>
+        </ValidatedForm>
 
         <h2 className="text-lg font-semibold mb-3">Oportunidades asignadas / creadas</h2>
         <div className="space-y-2">

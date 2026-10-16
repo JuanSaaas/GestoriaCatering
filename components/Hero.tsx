@@ -14,7 +14,7 @@ export default function Hero() {
     <section id="inicio" className="relative min-h-[100dvh] bg-[#d9cbb7] text-ink overflow-hidden">
       <div className="absolute inset-0 flex flex-col md:flex-row">
         <div className="relative w-full md:w-[56%] min-h-[62dvh] md:min-h-0 bg-[#d9cbb7]">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#e4d9c8] via-[#d9cbb7] to-[#cdbb9f]" />
+          <div className="absolute inset-0 bg-[#d9cbb7]" />
         </div>
 
         <div className="relative w-full md:w-[44%] min-h-[38dvh] md:min-h-0 overflow-hidden">

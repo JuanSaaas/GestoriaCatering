@@ -1,5 +1,6 @@
 'use client';
 
+import SearchableSelect from './SearchableSelect';
 import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import type { Empresa, Empleado } from '@/lib/types';
@@ -63,7 +64,7 @@ export default function AssignmentFields({
 
   async function crearEmpresa() {
     const nombre = nombreEmpresa.trim();
-    if (!nombre) return;
+    if (!nombre) { setError('Indica el nombre de la empresa.'); return; }
     setSaving(true);
     setError(null);
     const { data, error: err } = await supabase
@@ -76,7 +77,7 @@ export default function AssignmentFields({
       setError(
         err?.code === '23505'
           ? 'Ya existe una empresa con ese nombre.'
-          : 'No se pudo crear la empresa. ¿Has ejecutado la migración SQL de empresas?'
+          : 'No se pudo crear la empresa. Revisa tu conexión y vuelve a intentarlo.'
       );
       return;
     }
@@ -88,8 +89,8 @@ export default function AssignmentFields({
   async function crearEmpleado() {
     const nombre = nombreEmpleado.trim();
     const email = emailEmpleado.trim();
-    if (!nombre || !email) {
-      setError('El nombre y el email del empleado son obligatorios.');
+    if (!nombre || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Indica un nombre y un correo válido, por ejemplo nombre@empresa.es.');
       return;
     }
     setSaving(true);
@@ -121,7 +122,7 @@ export default function AssignmentFields({
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+    <div className="grid grid-cols-1 gap-x-4 gap-y-6">
       {/* ---------- Empresa ---------- */}
       <div>
         <label className={labelCls} htmlFor="asig-empresa">
@@ -137,7 +138,7 @@ export default function AssignmentFields({
               size={32}
             />
           )}
-        <select
+        <SearchableSelect
           id="asig-empresa"
           className={inputCls}
           value={creandoEmpresa ? NEW : empresa?.id ?? ''}
@@ -155,7 +156,7 @@ export default function AssignmentFields({
             </option>
           ))}
           <option value={NEW}>＋ Crear empresa nueva…</option>
-        </select>
+        </SearchableSelect>
         </div>
 
         {!empresa && !creandoEmpresa && sugerida && (
@@ -174,24 +175,24 @@ export default function AssignmentFields({
               {nombreEmpresa.trim() && (
                 <CompanyLogo nombre={nombreEmpresa} size={28} />
               )}
-              <input
+              <div className="w-full"><label htmlFor="quick-company-name" className={labelCls}>Nombre de la empresa *</label><input id="quick-company-name"
                 className={inputCls}
                 placeholder="Nombre de la empresa *"
                 value={nombreEmpresa}
                 onChange={(e) => setNombreEmpresa(e.target.value)}
                 onKeyDown={onEnter(crearEmpresa)}
                 autoFocus
-              />
+              /></div>
             </div>
-            <input
+            <div className="w-full"><label htmlFor="quick-company-sector" className={labelCls}>Sector</label><input id="quick-company-sector"
               className={inputCls}
               placeholder="Sector (opcional)"
               value={sectorEmpresa}
               onChange={(e) => setSectorEmpresa(e.target.value)}
               onKeyDown={onEnter(crearEmpresa)}
-            />
+            /></div>
             <div className="flex gap-2">
-              <button type="button" className={btnPrimary} onClick={crearEmpresa} disabled={saving || !nombreEmpresa.trim()}>
+              <button type="button" className={btnGhost} onClick={crearEmpresa} disabled={saving || !nombreEmpresa.trim()}>
                 {saving ? 'Guardando…' : 'Crear y asignar'}
               </button>
               <button type="button" className={btnGhost} onClick={() => setCreandoEmpresa(false)}>
@@ -209,7 +210,7 @@ export default function AssignmentFields({
         </label>
         <div className="flex items-center gap-2">
           <Avatar nombre={empleado?.nombre} size={32} />
-          <select
+          <SearchableSelect
             id="asig-empleado"
             className={inputCls}
             value={creandoEmpleado ? NEW : empleado?.id ?? ''}
@@ -232,34 +233,34 @@ export default function AssignmentFields({
               </option>
             ))}
             <option value={NEW}>＋ Añadir empleado nuevo…</option>
-          </select>
+          </SearchableSelect>
         </div>
 
         {creandoEmpleado && (
           <div className="mt-2 p-3 rounded-lg bg-surface border border-line space-y-2 animate-fade-in">
-            <input
+            <div className="w-full"><label htmlFor="quick-employee-name" className={labelCls}>Nombre y apellidos *</label><input id="quick-employee-name"
               className={inputCls}
               placeholder="Nombre y apellidos *"
               value={nombreEmpleado}
               onChange={(e) => setNombreEmpleado(e.target.value)}
               onKeyDown={onEnter(crearEmpleado)}
               autoFocus
-            />
-            <input
+            /></div>
+            <div className="w-full"><label htmlFor="quick-employee-email" className={labelCls}>Correo electrónico *</label><input id="quick-employee-email"
               className={inputCls}
               type="email"
               placeholder="Email *"
               value={emailEmpleado}
               onChange={(e) => setEmailEmpleado(e.target.value)}
               onKeyDown={onEnter(crearEmpleado)}
-            />
-            <input
+            /></div>
+            <div className="w-full"><label htmlFor="quick-employee-role" className={labelCls}>Puesto</label><input id="quick-employee-role"
               className={inputCls}
               placeholder="Rol (comercial, jefe de sala…)"
               value={rolEmpleado}
               onChange={(e) => setRolEmpleado(e.target.value)}
               onKeyDown={onEnter(crearEmpleado)}
-            />
+            /></div>
             <div className="flex gap-2">
               <button type="button" className={btnPrimary} onClick={crearEmpleado} disabled={saving}>
                 {saving ? 'Guardando…' : 'Añadir y asignar'}
@@ -273,8 +274,8 @@ export default function AssignmentFields({
       </div>
 
       {error && (
-        <div className="sm:col-span-2 text-xs px-3 py-2 rounded-lg bg-[#FBEAE8] text-wine-dark border border-wine/20">
-          {error}
+        <div role="alert" className="text-sm px-3 py-2 rounded-lg bg-[#FBEAE8] text-wine-dark border border-wine/20">
+          ⚠ {error}
         </div>
       )}
     </div>

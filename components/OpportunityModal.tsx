@@ -1,12 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useDialog } from './useDialog';
 import { supabase } from '@/lib/supabaseClient';
 import type { Oportunidad, Tarea, Nota, Empresa, Empleado } from '@/lib/types';
 import { ESTADOS, FRANJA_HORARIA_LABEL, ORIGEN_CONTACTO_LABEL } from '@/lib/types';
 import { eventDetails } from '@/lib/opportunityDemoDetails';
 import AssignmentFields from './AssignmentFields';
-import { Avatar, Icon, Section, btnGhost, btnPrimary, eventoLabel, fmtDate, fmtMoney, inputCls, tituloOportunidad } from './ui';
+import { Avatar, Icon, Section, btnGhost, eventoLabel, fmtDate, fmtMoney, inputCls, tituloOportunidad } from './ui';
 
 export default function OpportunityModal({
   oportunidad,
@@ -33,15 +34,27 @@ export default function OpportunityModal({
   const [notas, setNotas] = useState<Nota[]>([]);
   const [newTask, setNewTask] = useState('');
   const [newNote, setNewNote] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [failed, setFailed] = useState(false);
+  const dialogRef = useDialog<HTMLElement>(() => { if (!busy) onClose(); });
+  async function perform(action: () => Promise<void>, success: string) {
+    if (busy) return;
+    setBusy(true); setNotice(''); setFailed(false);
+    try { await action(); setNotice('✓ ' + success); }
+    catch { setFailed(true); setNotice('⚠ La acción no se pudo guardar. Revisa tu conexión y vuelve a intentarlo.'); }
+    finally { setBusy(false); }
+  }
 
   const estadoActual = ESTADOS.find((e) => e.key === oportunidad.estado)!;
   const estadoIdx = ESTADOS.findIndex((e) => e.key === oportunidad.estado);
 
   async function loadDetails() {
-    const [{ data: t }, { data: n }] = await Promise.all([
+    const [{ data: t, error: taskError }, { data: n, error: noteError }] = await Promise.all([
       supabase.from('tareas').select('*').eq('oportunidad_id', oportunidad.id).order('created_at'),
       supabase.from('notas').select('*').eq('oportunidad_id', oportunidad.id).order('created_at', { ascending: false }),
     ]);
+    if (taskError || noteError) { setFailed(true); setNotice('⚠ No se pudieron cargar las tareas y notas. Cierra la ficha y vuelve a abrirla para reintentar.'); return; }
     setTareas(t || []);
     setNotas(n || []);
   }
@@ -51,15 +64,12 @@ export default function OpportunityModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oportunidad.id]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+
 
   async function addTask() {
     const titulo = newTask.trim();
     if (!titulo) return;
+    await perform(async () => {
     // La tarea queda asignada al empleado responsable de la oportunidad
     const { data, error } = await supabase
       .from('tareas')
@@ -69,22 +79,32 @@ export default function OpportunityModal({
     if (!error && data) {
       setTareas((prev) => [...prev, data]);
       setNewTask('');
-    }
+    } else throw error;
+    }, 'Tarea añadida.');
   }
 
   async function toggleTask(t: Tarea) {
-    await supabase.from('tareas').update({ completada: !t.completada }).eq('id', t.id);
+    await perform(async () => {
+    const { error } = await supabase.from('tareas').update({ completada: !t.completada }).eq('id', t.id);
+    if (error) throw error;
     setTareas((prev) => prev.map((x) => (x.id === t.id ? { ...x, completada: !x.completada } : x)));
+    }, 'Estado de la tarea guardado.');
   }
 
   async function deleteTask(id: string) {
-    await supabase.from('tareas').delete().eq('id', id);
+    const task = tareas.find((item) => item.id === id);
+    if (!confirm(`¿Eliminar la tarea «${task?.titulo}»? Se borrará de esta oportunidad y no se puede recuperar.`)) return;
+    await perform(async () => {
+    const { error } = await supabase.from('tareas').delete().eq('id', id);
+    if (error) throw error;
     setTareas((prev) => prev.filter((x) => x.id !== id));
+    }, 'Tarea eliminada.');
   }
 
   async function addNote() {
     const contenido = newNote.trim();
     if (!contenido) return;
+    await perform(async () => {
     const { data, error } = await supabase
       .from('notas')
       .insert({ oportunidad_id: oportunidad.id, contenido })
@@ -93,13 +113,17 @@ export default function OpportunityModal({
     if (!error && data) {
       setNotas((prev) => [data, ...prev]);
       setNewNote('');
-    }
+    } else throw error;
+    }, 'Nota añadida.');
   }
 
   async function deleteOpportunity() {
-    if (!confirm('¿Eliminar esta oportunidad? Esta acción no se puede deshacer.')) return;
-    await supabase.from('oportunidades').delete().eq('id', oportunidad.id);
-    onDeleted(oportunidad.id);
+    if (!confirm(`¿Eliminar la oportunidad de «${tituloOportunidad(oportunidad)}»? También se eliminarán sus tareas y notas. Esta acción no se puede deshacer.`)) return;
+    await perform(async () => {
+      const { error } = await supabase.from('oportunidades').delete().eq('id', oportunidad.id);
+      if (error) throw error;
+      onDeleted(oportunidad.id);
+    }, 'Oportunidad eliminada.');
   }
 
   const c = oportunidad.cliente;
@@ -119,6 +143,9 @@ export default function OpportunityModal({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <aside
+        ref={dialogRef}
+        tabIndex={-1}
+        aria-busy={busy}
         role="dialog"
         aria-modal="true"
         aria-label="Ficha de oportunidad"
@@ -160,6 +187,8 @@ export default function OpportunityModal({
           </div>
         </div>
 
+        {notice && <p role={failed ? 'alert' : 'status'} className="px-6 py-4 text-sm">{notice}</p>}
+        {busy && <p role="status" className="px-6 py-2 text-sm">Guardando…</p>}
         {/* Contenido */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-7">
           <Section title="Asignación">
@@ -224,6 +253,8 @@ export default function OpportunityModal({
                     <input
                       type="checkbox"
                       className="w-4 h-4 accent-black"
+                      aria-label={`Marcar «${t.titulo}» como ${t.completada ? 'pendiente' : 'completada'}`}
+                      disabled={busy}
                       checked={t.completada}
                       onChange={() => toggleTask(t)}
                     />
@@ -231,8 +262,9 @@ export default function OpportunityModal({
                     <span className="ml-auto flex items-center gap-2 shrink-0">
                       {responsable && <Avatar nombre={responsable.nombre} size={20} />}
                       <button
+                        disabled={busy}
                         onClick={() => deleteTask(t.id)}
-                        className="text-xs text-neutral-500 hover:text-warning opacity-0 group-hover:opacity-100 focus:opacity-100 transition"
+                        className="text-xs text-neutral-500 hover:text-warning  transition"
                       >
                         Eliminar
                       </button>
@@ -241,15 +273,16 @@ export default function OpportunityModal({
                 );
               })}
             </ul>
-            <div className="flex gap-2 mt-3">
-              <input
+            <label htmlFor="new-task" className="block text-sm font-medium mt-4">Nueva tarea</label>
+            <div className="flex gap-2 mt-2">
+              <input id="new-task"
                 className={inputCls}
                 placeholder="Ej. Llamar para confirmar menú"
                 value={newTask}
                 onChange={(e) => setNewTask(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addTask()}
               />
-              <button onClick={addTask} className={btnPrimary}>Añadir</button>
+              <button disabled={busy || !newTask.trim()} onClick={addTask} className={btnGhost}>Añadir tarea</button>
             </div>
           </Section>
 
@@ -263,15 +296,16 @@ export default function OpportunityModal({
                 </div>
               ))}
             </div>
-            <div className="flex gap-2 mt-3">
-              <input
+            <label htmlFor="new-note" className="block text-sm font-medium mt-4">Nueva nota</label>
+            <div className="flex gap-2 mt-2">
+              <input id="new-note"
                 className={inputCls}
                 placeholder="Ej. Llamada de seguimiento, cambió el menú a…"
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addNote()}
               />
-              <button onClick={addNote} className={btnPrimary}>Añadir</button>
+              <button disabled={busy || !newNote.trim()} onClick={addNote} className={btnGhost}>Añadir nota</button>
             </div>
           </Section>
         </div>
@@ -279,6 +313,7 @@ export default function OpportunityModal({
         {/* Pie */}
         <div className="flex justify-between px-6 py-4 border-t border-line bg-surface/60">
           <button
+            disabled={busy}
             onClick={deleteOpportunity}
             className="inline-flex items-center h-9 px-3.5 rounded-lg border border-warning/40 text-warning text-sm font-medium hover:bg-warning hover:text-white transition"
           >

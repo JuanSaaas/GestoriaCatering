@@ -22,6 +22,8 @@ export default function CrmPage() {
   const [live, setLive] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [notice, setNotice] = useState('');
+  const [saving, setSaving] = useState(false);
   const [filtro, setFiltro] = useState<FiltroEmpleado>('todos');
 
   async function loadAll() {
@@ -31,7 +33,7 @@ export default function CrmPage() {
       .order('created_at', { ascending: false });
     if (error) {
       console.error(error);
-      setLoadError(error.message);
+      setLoadError('No se pudieron cargar las oportunidades. Revisa tu conexión y pulsa Reintentar.');
     } else {
       setLoadError(null);
       setOportunidades((data as unknown as Oportunidad[]) || []);
@@ -48,6 +50,8 @@ export default function CrmPage() {
   }
 
   useEffect(() => {
+    const openId = new URLSearchParams(window.location.search).get('abrir');
+    if (openId) setSelectedId(openId);
     loadAll();
     loadCatalogos();
 
@@ -66,8 +70,15 @@ export default function CrmPage() {
   const selected = oportunidades.find((o) => o.id === selectedId) ?? null;
 
   async function updateEstado(id: string, estado: EstadoOportunidad) {
-    await supabase.from('oportunidades').update({ estado }).eq('id', id);
-    setOportunidades((prev) => prev.map((o) => (o.id === id ? { ...o, estado } : o)));
+    if (saving) return;
+    setSaving(true); setNotice('Guardando fase…');
+    try {
+      const { error } = await supabase.from('oportunidades').update({ estado }).eq('id', id);
+      if (error) throw error;
+      setOportunidades((prev) => prev.map((o) => (o.id === id ? { ...o, estado } : o)));
+      setNotice('✓ Fase guardada.');
+    } catch { setNotice('⚠ No se pudo guardar la fase. Revisa tu conexión y vuelve a intentarlo.'); }
+    finally { setSaving(false); }
   }
 
   async function updateAsignacion(id: string, patch: { empresa?: Empresa | null; comercial?: Empleado | null }) {
@@ -75,23 +86,30 @@ export default function CrmPage() {
     if ('empresa' in patch) dbPatch.empresa_id = patch.empresa?.id ?? null;
     if ('comercial' in patch) dbPatch.comercial_id = patch.comercial?.id ?? null;
 
+    if (saving) return;
+    setSaving(true); setNotice('Guardando asignación…');
+    try {
     const { error } = await supabase.from('oportunidades').update(dbPatch).eq('id', id);
     if (error) {
       console.error(error);
-      alert('No se pudo guardar la asignación.');
-      return;
+      throw error;
     }
     setOportunidades((prev) => prev.map((o) => (o.id === id ? { ...o, ...dbPatch, ...patch } : o)));
+    setNotice('✓ Asignación guardada.');
+    } catch { setNotice('⚠ No se pudo guardar la asignación. Revisa tu conexión y vuelve a intentarlo.'); }
+    finally { setSaving(false); }
   }
 
   function handleCreated(o: Oportunidad) {
     setOportunidades((prev) => [o, ...prev.filter((x) => x.id !== o.id)]);
     setShowNew(false);
+    setNotice('✓ Oportunidad creada. Puedes abrir su ficha desde el tablero.');
   }
 
   function handleDeleted(id: string) {
     setOportunidades((prev) => prev.filter((o) => o.id !== id));
     setSelectedId(null);
+    setNotice('✓ Oportunidad eliminada.');
   }
 
   const addEmpresa = (e: Empresa) => setEmpresas((prev) => [...prev, e]);
@@ -123,7 +141,7 @@ export default function CrmPage() {
           <div>
             <h1 className="text-2xl font-semibold">Oportunidades</h1>
             <p className="text-sm text-neutral-500 mt-0.5">
-              Arrastra las tarjetas entre columnas, como en Trello.{' '}
+              Abre una tarjeta para consultar sus datos y cambiar la fase. También puedes arrastrarla entre columnas.{' '}
               {visibles.length === oportunidades.length
                 ? `${oportunidades.length} oportunidades`
                 : `${visibles.length} de ${oportunidades.length} oportunidades`}
@@ -132,14 +150,15 @@ export default function CrmPage() {
           <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-end lg:w-auto">
             <button
               onClick={() => setShowNew(true)}
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-[var(--crm-accent)] px-4 text-sm font-medium text-white shadow-sm transition hover:brightness-110"
+              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-[var(--crm-accent)] px-4 text-sm font-medium text-white shadow-sm transition hover:brightness-110"
             >
               <Icon name="plus" className="w-4 h-4" />
               Nueva oportunidad
             </button>
             <div className="relative w-full lg:w-80">
-              <Icon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
-              <input
+              <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
+              <label htmlFor="list-search" className="sr-only">Buscar oportunidades</label>
+              <input id="list-search" type="search"
                 className={`${inputCls} pl-9`}
                 placeholder="Buscar empresa, contacto, empleado…"
                 value={query}
@@ -150,11 +169,11 @@ export default function CrmPage() {
         </div>
 
         <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-1">
-          <button className={chip(filtro === 'todos')} onClick={() => setFiltro('todos')}>
+          <button aria-pressed={filtro === 'todos'} className={chip(filtro === 'todos')} onClick={() => setFiltro('todos')}>
             Todos
           </button>
           {empleados.map((e) => (
-            <button key={e.id} className={chip(filtro === e.id)} onClick={() => setFiltro(e.id)}>
+            <button key={e.id} aria-pressed={filtro === e.id} className={chip(filtro === e.id)} onClick={() => setFiltro(e.id)}>
               <Avatar nombre={e.nombre} size={18} /> {e.nombre.split(' ')[0]}
             </button>
           ))}
@@ -162,18 +181,20 @@ export default function CrmPage() {
         </div>
       </div>
 
+      {notice && <p role="status" className="mx-6 mb-4 text-sm">{notice}</p>}
       {loadError && (
-        <div className="mx-6 mb-5 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-red-50 border border-warning/20 text-sm text-warning">
+        <div role="alert" className="mx-6 mb-5 flex items-start gap-2.5 px-4 py-3 rounded-lg bg-red-50 border border-warning/20 text-sm text-warning">
           <Icon name="alert" className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
-            No se pudieron cargar las oportunidades: {loadError}
+            {loadError}
             <div className="text-xs mt-0.5 opacity-80">
-              Si acabas de actualizar el proyecto, ejecuta las migraciones SQL en el SQL Editor de Supabase.
+              <button type="button" className="underline" onClick={loadAll}>Reintentar</button>
             </div>
           </div>
         </div>
       )}
 
+      {!loadError && visibles.length === 0 && <div className="mx-6 p-6 rounded-xl border border-dashed border-neutral-300 text-sm"><p>{query || filtro !== 'todos' ? 'No hay oportunidades con estos filtros.' : 'Todavía no hay oportunidades. Registra una solicitud para comenzar.'}</p><button type="button" className="mt-4 px-4 rounded-lg border border-neutral-300 bg-white" onClick={() => query || filtro !== 'todos' ? (setQuery(''), setFiltro('todos')) : setShowNew(true)}>{query || filtro !== 'todos' ? 'Limpiar filtros' : 'Crear primera oportunidad'}</button></div>}
       <StatsBar oportunidades={visibles} />
 
       <div className="pt-6">

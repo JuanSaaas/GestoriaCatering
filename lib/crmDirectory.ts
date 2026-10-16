@@ -1,6 +1,4 @@
-import { supabase } from './supabaseClient';
 import type { Cliente, Empresa, Oportunidad } from './types';
-import { OPORTUNIDAD_SELECT } from './types';
 
 export function linkContacts(contactos: Cliente[], empresas: Empresa[], oportunidades: Oportunidad[]) {
   return contactos.map((contacto) => {
@@ -16,22 +14,29 @@ export function linkContacts(contactos: Cliente[], empresas: Empresa[], oportuni
   });
 }
 
+async function readDirectory() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch('/api/crm/directorio', { cache: 'no-store', signal: controller.signal });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'No se pudo cargar el CRM.');
+    const empresas = data.empresas as Empresa[];
+    const oportunidades = data.oportunidades as Oportunidad[];
+    const contactos = linkContacts(data.contactos as Cliente[], empresas, oportunidades);
+    const sample = data.contactos[0];
+    return {
+      empresas, contactos, oportunidades,
+      supportsContactCompanyId: !!sample && 'empresa_id' in sample,
+      supportsContactRole: !!sample && 'cargo' in sample,
+    };
+  } finally { clearTimeout(timer); }
+}
+
 export async function loadCrmDirectory() {
-  const [e, c, o] = await Promise.all([
-    supabase.from('empresas').select('*').order('nombre'),
-    supabase.from('clientes').select('*').order('created_at', { ascending: false }),
-    supabase.from('oportunidades').select(OPORTUNIDAD_SELECT).order('created_at', { ascending: false }),
-  ]);
-  for (const [nombre, result] of [['empresas', e], ['contactos', c], ['oportunidades', o]] as const) {
-    if (result.error) throw new Error(`No se pudieron cargar ${nombre}: ${result.error.message}`);
+  try { return await readDirectory(); }
+  catch {
+    // Retry a transient connection failure without replacing real records with empty data.
+    return readDirectory();
   }
-  const empresas = (e.data || []) as Empresa[];
-  const oportunidades = (o.data || []) as unknown as Oportunidad[];
-  const contactos = linkContacts((c.data || []) as Cliente[], empresas, oportunidades);
-  const sample = c.data?.[0];
-  return {
-    empresas, contactos, oportunidades,
-    supportsContactCompanyId: !!sample && 'empresa_id' in sample,
-    supportsContactRole: !!sample && 'cargo' in sample,
-  };
 }

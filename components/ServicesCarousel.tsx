@@ -81,7 +81,7 @@ export default function ServicesCarousel() {
               alt=""
               className={`absolute inset-0 h-full w-full object-cover object-center ${i === index ? 'animate-kenburns' : ''}`}
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/55 to-black/25" />
+            <div className="absolute inset-0 bg-black/65" />
           </div>
         ))}
 

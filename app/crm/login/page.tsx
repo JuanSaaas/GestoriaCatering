@@ -1,5 +1,7 @@
 'use client';
 
+import ValidatedForm from '@/components/ValidatedForm';
+
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Icon, btnPrimary, inputCls } from '@/components/ui';
@@ -7,15 +9,18 @@ import { Icon, btnPrimary, inputCls } from '@/components/ui';
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get('next') || '/crm';
+  const destination = params.get('next') || '/crm';
+  const next = destination.startsWith('/crm') && !destination.startsWith('/crm/login') && !destination.includes('\\') ? destination : '/crm';
 
   const [usuario, setUsuario] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
     setError(null);
 
@@ -40,120 +45,49 @@ function LoginForm() {
   }
 
   return (
-    <div className="crm-shell min-h-screen bg-[#F6F8FB] text-slate-950 lg:grid lg:grid-cols-[minmax(0,1fr)_480px]">
-      <section className="relative hidden overflow-hidden bg-[#2563EB] text-white lg:flex lg:flex-col lg:justify-between p-10 xl:p-12">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.18),rgba(37,99,235,0)_42%,rgba(15,159,154,0.22))]" />
-        <div className="relative flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-lg">
-            <img src="/logo-icon.png" alt="" className="h-8 w-auto" />
-          </span>
-          <div className="leading-tight">
-            <div className="font-serif italic text-xl">La Mesa Perfecta</div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/65">CRM Suite</div>
+    <div className="crm-shell min-h-screen !bg-[#f5f1e9] text-slate-950">
+      <header className="px-6 py-6 sm:px-10 flex items-center justify-between border-b border-[#ded7cc]">
+        <a href="/" aria-label="La Mesa Perfecta · Ir a la web" className="flex items-center gap-3">
+          <img src="/logo-icon.png" alt="" className="h-12 w-12 object-contain" />
+          <span className="font-serif text-xl">La Mesa Perfecta</span>
+        </a>
+        <span className="hidden sm:block text-sm text-slate-600">Equipo comercial y administración</span>
+      </header>
+      <main className="mx-auto grid max-w-6xl gap-12 px-6 py-12 lg:grid-cols-2 lg:items-center lg:gap-24 lg:py-20">
+        <section className="max-w-lg">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#715b3e]">Eventos y catering</p>
+          <h1 className="mt-5 font-serif text-4xl leading-tight sm:text-5xl">Cada gran evento empieza con una buena organización.</h1>
+          <p className="mt-6 text-base leading-7 text-slate-600">Tu espacio de trabajo para atender solicitudes, acompañar a los clientes y preparar su próxima celebración.</p>
+          <div className="mt-8 overflow-hidden rounded-2xl border border-[#ded7cc]">
+            <img src="/hero-photo.jpg" alt="Mesa preparada para un evento de La Mesa Perfecta" className="h-48 w-full object-cover sm:h-64" />
           </div>
-        </div>
-
-        <div className="relative max-w-md">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-medium text-white/80">
-            <span className="h-2 w-2 rounded-full bg-emerald-300" />
-            Panel administrativo
+        </section>
+        <section className="w-full max-w-md rounded-2xl border border-[#ded7cc] bg-white p-6 shadow-sm sm:p-10" aria-labelledby="login-title">
+          <div className="mb-8">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-[#f5f1e9] text-[#715b3e]"><Icon name="user" className="h-6 w-6" /></span>
+            <h2 id="login-title" className="mt-5 text-2xl font-semibold">Bienvenido a tu equipo</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">Accede al CRM de La Mesa Perfecta.</p>
           </div>
-          <h1 className="text-4xl font-semibold tracking-tight">Gestiona clientes, pipeline y cierres desde un solo lugar.</h1>
-          <p className="mt-4 text-sm leading-6 text-white/72">
-            Acceso privado para el equipo comercial, con oportunidades en tiempo real y seguimiento profesional de cada evento.
-          </p>
-        </div>
-
-        <div className="relative grid grid-cols-3 gap-3">
-          {[
-            ['Pipeline', '60k'],
-            ['Estados', '6'],
-            ['Tiempo real', 'Live'],
-          ].map(([label, value]) => (
-            <div key={label} className="rounded-xl border border-white/15 bg-white/10 p-4 backdrop-blur">
-              <div className="text-2xl font-semibold tabular-nums">{value}</div>
-              <div className="mt-1 text-xs text-white/65">{label}</div>
+          <ValidatedForm onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="usuario" className="mb-2 block text-sm font-medium">Usuario *</label>
+              <input id="usuario" name="username" className={inputCls} value={usuario} onChange={(e) => setUsuario(e.target.value)} autoComplete="username" autoCapitalize="none" required disabled={loading} />
             </div>
-          ))}
-        </div>
-      </section>
-
-      <main className="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6">
-        <div className="w-full max-w-[420px]">
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-card ring-1 ring-slate-200">
-              <img src="/logo-icon.png" alt="" className="h-8 w-auto" />
-            </span>
-            <div className="leading-tight">
-              <div className="font-serif italic text-xl text-slate-950">La Mesa Perfecta</div>
-              <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">CRM Suite</div>
+            <div>
+              <label htmlFor="contrasena" className="mb-2 block text-sm font-medium">Contraseña *</label>
+              <input id="contrasena" name="password" type={showPassword ? 'text' : 'password'} className={inputCls} value={contrasena} onChange={(e) => setContrasena(e.target.value)} autoComplete="current-password" required disabled={loading} />
+              <button type="button" className="mt-1 text-sm font-medium text-slate-600 underline underline-offset-4" aria-controls="contrasena" aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>{showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}</button>
             </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-7 shadow-card sm:p-8">
-            <div className="mb-7">
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--crm-accent)]">Acceso seguro</div>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight">Entrar al CRM</h1>
-              <p className="mt-2 text-sm leading-6 text-slate-500">Introduce tus credenciales para continuar al panel de administración.</p>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block" htmlFor="usuario">
-                  Usuario
-                </label>
-                <input
-                  id="usuario"
-                  className={inputCls}
-                  value={usuario}
-                  onChange={(e) => setUsuario(e.target.value)}
-                  autoComplete="username"
-                  autoFocus
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block" htmlFor="contrasena">
-                  Contraseña
-                </label>
-                <input
-                  id="contrasena"
-                  type="password"
-                  className={inputCls}
-                  value={contrasena}
-                  onChange={(e) => setContrasena(e.target.value)}
-                  autoComplete="current-password"
-                  required
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="flex items-start gap-2 mt-4 text-sm px-3 py-2.5 rounded-lg bg-red-50 text-red-700 border border-red-200">
-                <Icon name="alert" className="w-4 h-4 mt-0.5 shrink-0" />
-                {error}
-              </div>
-            )}
-
-            <button type="submit" className={`${btnPrimary} h-10 w-full mt-6`} disabled={loading}>
-              {loading ? 'Entrando...' : 'Entrar al panel'}
-            </button>
-
-            <div className="mt-5 flex items-center gap-2 text-xs text-slate-500">
-              <Icon name="check" className="h-3.5 w-3.5 text-emerald-600" />
-              Sesión privada para administradores y comerciales autorizados.
-            </div>
-          </form>
-        </div>
+            {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">⚠ {error}</p>}
+            <button type="submit" className={btnPrimary + ' w-full !bg-[#2a2622] hover:!bg-[#403930]'} disabled={loading}>{loading ? 'Entrando…' : 'Entrar al CRM'}<Icon name="logout" /></button>
+            <p role="status" className="text-xs leading-5 text-slate-600">{loading ? 'Verificando tus credenciales…' : 'Acceso reservado al equipo de La Mesa Perfecta.'}</p>
+          </ValidatedForm>
+        </section>
       </main>
     </div>
   );
 }
 
 export default function LoginPage() {
-  return (
-    <Suspense fallback={null}>
-      <LoginForm />
-    </Suspense>
-  );
+  return <Suspense fallback={<p role="status" className="p-8">Preparando el acceso…</p>}><LoginForm /></Suspense>;
 }

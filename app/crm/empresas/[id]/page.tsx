@@ -1,5 +1,7 @@
 'use client';
 
+import ValidatedForm from '@/components/ValidatedForm';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -17,6 +19,8 @@ export default function EmpresaPerfilPage() {
   const [contactos, setContactos] = useState<Cliente[]>([]);
   const [ops, setOps] = useState<Oportunidad[]>([]);
   const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [saveFailed, setSaveFailed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -46,6 +50,8 @@ export default function EmpresaPerfilPage() {
     e.preventDefault();
     if (!empresa) return;
     setSaving(true);
+    setSaveMessage('');
+    try {
     const { error } = await supabase
       .from('empresas')
       .update({
@@ -60,7 +66,10 @@ export default function EmpresaPerfilPage() {
       })
       .eq('id', empresa.id);
     setSaving(false);
-    if (error) alert('No se pudo guardar.');
+    setSaveFailed(!!error);
+    setSaveMessage(error ? '⚠ No se pudo guardar. Revisa tu conexión y vuelve a intentarlo.' : '✓ Cambios guardados.');
+    } catch { setSaveFailed(true); setSaveMessage('⚠ No se pudo guardar. Revisa tu conexión y vuelve a intentarlo.'); }
+    finally { setSaving(false); }
   }
 
   if (loading || loadError || !empresa) {
@@ -100,9 +109,11 @@ export default function EmpresaPerfilPage() {
           </div>
         </div>
 
-        <form onSubmit={guardar} className="grid sm:grid-cols-2 gap-4 mb-10">
+        <p className="text-sm text-neutral-600 mb-4">Los campos con * son obligatorios.</p>
+        {saveMessage && <p role={saveFailed ? 'alert' : 'status'} className="mb-4 text-sm">{saveMessage}</p>}
+        <ValidatedForm onSubmit={guardar} className="grid sm:grid-cols-2 gap-4 mb-10">
           <div className="sm:col-span-2">
-            <label className={labelCls}>Nombre</label>
+            <label className={labelCls} htmlFor="perfil-nombre">Nombre *</label>
             <div className="flex items-center gap-2">
               <CompanyLogo
                 nombre={empresa.nombre}
@@ -111,13 +122,13 @@ export default function EmpresaPerfilPage() {
                 logo_url={empresa.logo_url}
                 size={36}
               />
-              <input className={inputCls} value={empresa.nombre} onChange={(e) => patch({ nombre: e.target.value })} />
+              <input id="perfil-nombre" required className={inputCls} value={empresa.nombre} onChange={(e) => patch({ nombre: e.target.value })} />
             </div>
             <p className="text-xs text-neutral-400 mt-1">El logo pequeño se actualiza al rellenar el nombre o la web.</p>
           </div>
           <div>
-            <label className={labelCls}>Sitio web</label>
-            <input
+            <label className={labelCls} htmlFor="perfil-web">Sitio web</label>
+            <input id="perfil-web"
               className={inputCls}
               placeholder="www.empresa.com"
               value={empresa.sitio_web || ''}
@@ -125,35 +136,35 @@ export default function EmpresaPerfilPage() {
             />
           </div>
           <div>
-            <label className={labelCls}>URL de logo (opcional)</label>
-            <input className={inputCls} value={empresa.logo_url || ''} onChange={(e) => patch({ logo_url: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-logo">URL de logo (opcional)</label>
+            <input id="perfil-logo" className={inputCls} value={empresa.logo_url || ''} onChange={(e) => patch({ logo_url: e.target.value })} />
           </div>
           <div>
-            <label className={labelCls}>Email</label>
-            <input className={inputCls} value={empresa.email || ''} onChange={(e) => patch({ email: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-email">Email</label>
+            <input id="perfil-email" type="email" className={inputCls} value={empresa.email || ''} onChange={(e) => patch({ email: e.target.value })} />
           </div>
           <div>
-            <label className={labelCls}>Teléfono</label>
-            <input className={inputCls} value={empresa.telefono || ''} onChange={(e) => patch({ telefono: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-telefono">Teléfono</label>
+            <input id="perfil-telefono" type="tel" className={inputCls} value={empresa.telefono || ''} onChange={(e) => patch({ telefono: e.target.value })} />
           </div>
           <div>
-            <label className={labelCls}>Sector</label>
-            <input className={inputCls} value={empresa.sector || ''} onChange={(e) => patch({ sector: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-sector">Sector</label>
+            <input id="perfil-sector" className={inputCls} value={empresa.sector || ''} onChange={(e) => patch({ sector: e.target.value })} />
           </div>
           <div>
-            <label className={labelCls}>Ciudad</label>
-            <input className={inputCls} value={empresa.ciudad || ''} onChange={(e) => patch({ ciudad: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-ciudad">Ciudad</label>
+            <input id="perfil-ciudad" className={inputCls} value={empresa.ciudad || ''} onChange={(e) => patch({ ciudad: e.target.value })} />
           </div>
           <div>
-            <label className={labelCls}>CIF</label>
-            <input className={inputCls} value={empresa.cif || ''} onChange={(e) => patch({ cif: e.target.value })} />
+            <label className={labelCls} htmlFor="perfil-cif">CIF</label>
+            <input id="perfil-cif" className={inputCls} value={empresa.cif || ''} onChange={(e) => patch({ cif: e.target.value })} />
           </div>
           <div className="sm:col-span-2">
             <button className={btnPrimary} disabled={saving}>
               {saving ? 'Guardando…' : 'Guardar perfil'}
             </button>
           </div>
-        </form>
+        </ValidatedForm>
 
         <h2 className="text-lg font-semibold mb-3">Contactos</h2>
         <div className="space-y-2 mb-10">

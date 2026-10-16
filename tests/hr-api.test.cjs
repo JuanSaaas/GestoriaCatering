@@ -1,0 +1,60 @@
+const assert = require('node:assert/strict');
+const { PDFDocument, StandardFonts } = require('pdf-lib');
+const fs = require('node:fs/promises');
+const path = require('node:path');
+require('@next/env').loadEnvConfig(process.cwd());
+
+async function main() {
+  const base = process.env.HR_TEST_URL || 'http://localhost:3001';
+  if (!process.env.HR_DATA_DIR || !process.env.HR_DATA_DIR.endsWith('rrhh-api-test')) throw new Error('Usa un servidor con HR_DATA_DIR terminado en rrhh-api-test.');
+  const unauthorized = await fetch(`${base}/api/crm/rrhh`);
+  assert.equal(unauthorized.status, 401);
+  const login = await fetch(`${base}/api/crm/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario: process.env.CRM_ADMIN_USER || 'admin', contrasena: process.env.CRM_ADMIN_PASSWORD || '1234' }) });
+  assert.equal(login.status, 200);
+  const cookie = login.headers.get('set-cookie').split(';')[0];
+  const headers = { Cookie: cookie };
+  async function action(body, status = 200) {
+    const response = await fetch(`${base}/api/crm/rrhh`, body instanceof FormData ? { method: 'POST', headers, body } : { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await response.json(); assert.equal(response.status, status, JSON.stringify(data)); return data;
+  }
+  let state = await action({ type: 'employee', name: 'Empleado de prueba', role: 'Coordinador', department: 'Operaciones', email: `prueba.${Date.now()}@example.com`, startDate: '2026-10-08' });
+  const employee = state.employees.at(-1);
+  const photo = new FormData(); photo.set('kind', 'photo'); photo.set('ownerId', employee.id); photo.set('file', new Blob([await fs.readFile('public/logo-icon.png')], { type: 'image/png' }), 'foto-prueba.png');
+  state = await action(photo); assert.ok(state.employees.at(-1).photoId);
+  state = await action({ type: 'clock', employeeId: employee.id, direction: 'in' });
+  await action({ type: 'clock', employeeId: employee.id, direction: 'in' }, 400);
+  state = await action({ type: 'clock', employeeId: employee.id, direction: 'out' }); assert.ok(state.attendance[0].out);
+  state = await action({ type: 'vacation', employeeId: employee.id, start: '2027-01-04', end: '2027-01-08', reason: 'Prueba del flujo' });
+  state = await action({ type: 'vacation_status', id: state.vacations[0].id, status: 'aprobada' }); assert.equal(state.vacations[0].status, 'aprobada');
+  state = await action({ type: 'check', employeeId: employee.id, id: employee.checklist[0].id, done: true }); assert.equal(state.employees.at(-1).checklist[0].done, true);
+  state = await action({ type: 'evaluation', employeeId: employee.id, quarter: '2026-T4', score: 4, comment: 'Evaluación de prueba.' }); assert.equal(state.evaluations[0].score, 4);
+  const pdf = await PDFDocument.create(); const font = await pdf.embedFont(StandardFonts.Helvetica);
+  pdf.addPage().drawText('Documento ficticio para verificar RRHH. Sin validez real.', { x: 40, y: 700, size: 12, font });
+  const bytes = await pdf.save();
+  const cv = new FormData(); cv.set('kind', 'cv'); cv.set('createCandidate', 'true'); cv.set('name', 'Candidata de prueba'); cv.set('email', 'candidata@example.com'); cv.set('role', 'Comercial'); cv.set('department', 'Comercial'); cv.set('file', new Blob([bytes], { type: 'application/pdf' }), 'cv-prueba.pdf');
+  state = await action(cv); const candidate = state.candidates[0]; assert.ok(candidate.cvId);
+  state = await action({ type: 'candidate_stage', id: candidate.id, stage: 'entrevista' });
+  state = await action({ type: 'candidate_stage', id: candidate.id, stage: 'contratado' });
+  const hired = state.employees.find((e) => e.id === state.candidates[0].employeeId); assert.ok(hired.email.endsWith('@lamesaperfecta.es')); assert.equal(hired.checklist.length, 5);
+  await action({ type: 'candidate_stage', id: candidate.id, stage: 'contratado' }, 400);
+  const payroll = new FormData(); payroll.set('kind', 'payroll'); payroll.set('ownerId', employee.id); payroll.set('file', new Blob([bytes], { type: 'application/pdf' }), 'nomina-prueba.pdf');
+  state = await action(payroll); const document = state.files.findLast((f) => f.kind === 'payroll');
+  await action({ type: 'sign', id: document.id, signer: ' ', accepted: true }, 400);
+  await action({ type: 'sign', id: document.id, signer: 'Responsable de prueba', accepted: false }, 400);
+  state = await action({ type: 'sign', id: document.id, signer: 'Responsable de prueba', accepted: true });
+  const signed = state.files.find((f) => f.id === document.id); assert.ok(signed.signedId);
+  assert.equal(signed.signer, 'Responsable de prueba');
+  const deniedFile = await fetch(`${base}/api/crm/rrhh/archivos/${signed.signedId}`); assert.equal(deniedFile.status, 401);
+  const downloaded = await fetch(`${base}/api/crm/rrhh/archivos/${signed.signedId}?download=1`, { headers }); assert.equal(downloaded.status, 200);
+  assert.equal((await PDFDocument.load(await downloaded.arrayBuffer())).getPageCount(), 2);
+  const report = await fetch(`${base}/api/crm/rrhh/informe`, { headers }); assert.equal(report.status, 200);
+  const reportBytes = new Uint8Array(await report.arrayBuffer()); assert.ok((await PDFDocument.load(reportBytes)).getPageCount() >= 1);
+  await fs.mkdir('artifacts/rrhh', { recursive: true });
+  await fs.writeFile(path.resolve('artifacts/rrhh/informe-verificacion.pdf'), reportBytes);
+  const invalid = new FormData(); invalid.set('kind', 'cv'); invalid.set('createCandidate', 'true'); invalid.set('name', 'No crear'); invalid.set('email', 'no@example.com'); invalid.set('role', 'Test'); invalid.set('department', 'Test'); invalid.set('file', new Blob(['archivo invalido']), 'no.pdf');
+  await action(invalid, 400);
+  const reloaded = await (await fetch(`${base}/api/crm/rrhh`, { headers })).json();
+  assert.equal(reloaded.candidates.length, state.candidates.length); assert.ok(reloaded.files.find((f) => f.id === document.id).signedAt);
+  console.log('OK: autenticación, fichas y foto, fichajes, vacaciones, incorporación, contratación con CV, evaluaciones, PDF firmado, informe y persistencia.');
+}
+main().catch((error) => { console.error(error.message); process.exitCode = 1; });

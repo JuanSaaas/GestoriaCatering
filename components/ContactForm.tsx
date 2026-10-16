@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import FormSteps from '@/components/FormSteps';
+import ValidatedForm from '@/components/ValidatedForm';
+
+import { useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import type { TipoEvento, FranjaHoraria } from '@/lib/types';
 import { FRANJA_HORARIA_LABEL, ORIGEN_CONTACTO_LABEL } from '@/lib/types';
@@ -12,16 +15,22 @@ type Status = 'idle' | 'sending' | 'ok' | 'error';
 const EVENTOS_SIN_EMPRESA: TipoEvento[] = ['boda', 'comunion', 'cumpleanos'];
 
 export default function ContactForm() {
+  const sending = useRef(false);
+  const requestId = useRef<string | null>(null);
+  const [formVersion, setFormVersion] = useState(0);
   const [tipoEvento, setTipoEvento] = useState<TipoEvento>('boda');
   const [status, setStatus] = useState<Status>('idle');
   const mostrarEmpresa = !EVENTOS_SIN_EMPRESA.includes(tipoEvento);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus('sending');
-
+    if (sending.current) return;
     const form = e.currentTarget;
     const data = new FormData(form);
+    requestId.current ??= crypto.randomUUID();
+    sending.current = true;
+    setStatus('sending');
+    try {
 
     const eventoActual = data.get('tipoEvento') as TipoEvento;
     const empresaNombre = !EVENTOS_SIN_EMPRESA.includes(eventoActual)
@@ -30,20 +39,22 @@ export default function ContactForm() {
 
     let empresaId: string | null = null;
     if (empresaNombre) {
-      const { data: existenteEmp } = await supabase
+      const { data: existenteEmp, error: empresaLookupError } = await supabase
         .from('empresas')
         .select('*')
         .ilike('nombre', empresaNombre)
         .maybeSingle();
+      if (empresaLookupError) throw empresaLookupError;
       if (existenteEmp) {
         empresaId = existenteEmp.id;
       } else {
-        const { data: nuevaEmp } = await supabase
+        const { data: nuevaEmp, error: empresaError } = await supabase
           .from('empresas')
           .insert({ nombre: empresaNombre })
           .select('id')
           .single();
-        empresaId = nuevaEmp?.id ?? null;
+        if (empresaError || !nuevaEmp) throw empresaError || new Error('No se pudo guardar la empresa.');
+        empresaId = nuevaEmp.id;
       }
     }
 
@@ -64,13 +75,6 @@ export default function ContactForm() {
       .select()
       .single();
 
-    if (clienteError) {
-      const { empresa_id: _omit, ...sinEmpresaId } = clientePayload;
-      const retry = await supabase.from('clientes').upsert(sinEmpresaId, { onConflict: 'email' }).select().single();
-      cliente = retry.data;
-      clienteError = retry.error;
-    }
-
     if (clienteError || !cliente) {
       console.error(clienteError);
       setStatus('error');
@@ -78,6 +82,7 @@ export default function ContactForm() {
     }
 
     const oportunidadPayload = {
+      id: requestId.current,
       cliente_id: cliente.id,
       tipo_evento: data.get('tipoEvento') as TipoEvento,
       tipo_evento_otro:
@@ -97,61 +102,58 @@ export default function ContactForm() {
       empresa_id: empresaId,
     };
 
-    let { error } = await supabase.from('oportunidades').insert(oportunidadPayload);
-
-    if (error) {
-      // Si la migración de columnas nuevas (franja, ubicación, restricciones,
-      // origen) aún no se ha aplicado en Supabase, reintentamos sin ellas para
-      // no bloquear el envío del formulario por completo.
-      const { franja_horaria, ubicacion_evento, restricciones, como_nos_conocio, ...basico } = oportunidadPayload;
-      const retry = await supabase.from('oportunidades').insert(basico);
-      error = retry.error;
-    }
+    const { error } = await supabase.from('oportunidades').insert(oportunidadPayload).retry(false);
 
     if (error) {
       console.error(error);
       setStatus('error');
     } else {
       setStatus('ok');
+      requestId.current = null;
       form.reset();
       setTipoEvento('boda');
+      setFormVersion((value) => value + 1);
+    }
+    } catch {
+      setStatus('error');
+    } finally {
+      sending.current = false;
     }
   }
 
-  const inputClass =
-    'w-full px-0 py-2.5 text-sm bg-transparent border-0 border-b border-[var(--line)] focus:outline-none focus:border-ink transition-colors';
-  const labelClass = 'block text-xs uppercase tracking-wide text-ink-soft mb-1.5';
+  const inputClass = 'w-full min-h-12 px-4 py-3 text-sm bg-white border border-neutral-300 rounded-lg focus:border-ink transition-colors';
+  const labelClass = 'block text-sm font-medium text-ink mb-2';
 
   return (
-    <div className="bg-paper-2 p-8 md:p-10">
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-5">
+    <div className="public-contact bg-paper-2 p-8 md:p-10">
+      <ValidatedForm onSubmit={handleSubmit}>
+        <FormSteps key={formVersion} disabled={status === 'sending'} submitLabel="Enviar solicitud" busyLabel="Enviando…" steps={[
+          { title: 'Tus datos de contacto', content: <>        <div className="grid grid-cols-1 gap-x-6 gap-y-6 mb-6">
           <div>
-            <label className={labelClass} htmlFor="nombre">Nombre y apellidos</label>
-            <input className={inputClass} id="nombre" name="nombre" type="text" required />
+            <label className={labelClass} htmlFor="nombre">Nombre y apellidos *</label>
+            <input className={inputClass} id="nombre" name="nombre" type="text" autoComplete="name" required />
           </div>
-          {mostrarEmpresa && (
-            <div>
-              <label className={labelClass} htmlFor="empresa">Nombre de la empresa</label>
-              <input className={inputClass} id="empresa" name="empresa" type="text" />
-            </div>
-          )}
+
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-5">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-6 mb-6">
           <div>
-            <label className={labelClass} htmlFor="email">Email</label>
-            <input className={inputClass} id="email" name="email" type="email" required />
+            <label className={labelClass} htmlFor="email">Correo electrónico *</label>
+            <input className={inputClass} id="email" name="email" type="email" autoComplete="email" required />
           </div>
           <div>
             <label className={labelClass} htmlFor="telefono">Teléfono</label>
-            <input className={inputClass} id="telefono" name="telefono" type="tel" />
+            <input className={inputClass} id="telefono" name="telefono" type="tel" autoComplete="tel" />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-5">
+</> },
+          { title: 'Datos del evento', content: <>          <div hidden={!mostrarEmpresa}>
+              <label className={labelClass} htmlFor="empresa">Nombre de la empresa</label>
+              <input className={inputClass} id="empresa" name="empresa" type="text" />
+            </div>        <div className="grid grid-cols-1 gap-x-6 gap-y-6 mb-6">
           <div>
-            <label className={labelClass} htmlFor="tipoEvento">Tipo de evento</label>
+            <label className={labelClass} htmlFor="tipoEvento">Tipo de evento *</label>
             <select
               className={inputClass}
               id="tipoEvento"
@@ -173,21 +175,20 @@ export default function ContactForm() {
           </div>
         </div>
 
-        {tipoEvento === 'otro' && (
-          <div className="mb-5">
-            <label className={labelClass} htmlFor="tipoEventoOtro">¿Qué tipo de evento es?</label>
+        <div hidden={tipoEvento !== 'otro'} className="mb-6">
+            <label className={labelClass} htmlFor="tipoEventoOtro">¿Qué tipo de evento es? *</label>
             <input
               className={inputClass}
               id="tipoEventoOtro"
               name="tipoEventoOtro"
               type="text"
               placeholder="Ej. aniversario, bautizo, inauguración..."
-              required
+              disabled={tipoEvento !== 'otro'}
+              required={tipoEvento === 'otro'}
             />
           </div>
-        )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-5">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-6 mb-6">
           <div>
             <label className={labelClass} htmlFor="franjaHoraria">Franja horaria</label>
             <select className={inputClass} id="franjaHoraria" name="franjaHoraria" defaultValue="">
@@ -209,18 +210,19 @@ export default function ContactForm() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-5">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-6 mb-6">
           <div>
             <label className={labelClass} htmlFor="numInvitados">Nº aprox. de invitados</label>
             <input className={inputClass} id="numInvitados" name="numInvitados" type="number" min={1} />
           </div>
           <div>
             <label className={labelClass} htmlFor="presupuesto">Presupuesto orientativo (€)</label>
-            <input className={inputClass} id="presupuesto" name="presupuesto" type="number" min={0} step={50} />
+            <input className={inputClass} id="presupuesto" name="presupuesto" type="number" min={0} step="0.01" />
           </div>
         </div>
 
-        <div className="mb-5">
+</> },
+          { title: 'Preferencias y solicitud', content: <>        <div className="mb-6">
           <label className={labelClass} htmlFor="restricciones">Restricciones alimentarias o alergias</label>
           <input
             className={inputClass}
@@ -231,7 +233,7 @@ export default function ContactForm() {
           />
         </div>
 
-        <div className="mb-7">
+        <div className="mb-6">
           <label className={labelClass} htmlFor="mensaje">Cuéntanos más</label>
           <textarea
             className={`${inputClass} min-h-[80px] resize-y`}
@@ -241,7 +243,7 @@ export default function ContactForm() {
           />
         </div>
 
-        <div className="mb-7">
+        <div className="mb-6">
           <label className={labelClass} htmlFor="comoNosConocio">¿Cómo nos has conocido?</label>
           <select className={inputClass} id="comoNosConocio" name="comoNosConocio" defaultValue="">
             <option value="" disabled>Selecciona una opción</option>
@@ -251,25 +253,21 @@ export default function ContactForm() {
           </select>
         </div>
 
-        <button
-          type="submit"
-          disabled={status === 'sending'}
-          className="w-full py-3.5 bg-ink text-paper text-sm tracking-wide hover:bg-gold hover:text-ink transition-colors disabled:opacity-60"
-        >
-          {status === 'sending' ? 'Enviando...' : 'Enviar solicitud'}
-        </button>
+</> },
+        ]} />
+
 
         {status === 'ok' && (
-          <div className="mt-4 text-sm px-4 py-3 bg-[#EFEBE2] text-ink border-l-2 border-gold">
-            Solicitud recibida. Te contactaremos muy pronto.
+          <div role="status" className="mt-4 text-sm px-4 py-3 bg-[#EFEBE2] text-ink border-l-2 border-gold">
+            ✓ Solicitud recibida. Te contactaremos muy pronto.
           </div>
         )}
         {status === 'error' && (
-          <div className="mt-4 text-sm px-4 py-3 bg-[#F5E2E0] text-wine-dark border-l-2 border-wine">
-            No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos.
+          <div role="alert" className="mt-4 text-sm px-4 py-3 bg-[#F5E2E0] text-wine-dark border-l-2 border-wine">
+            ⚠ No hemos podido enviar tu solicitud. Tus respuestas se conservan. Revisa la conexión y vuelve a pulsar Enviar solicitud.
           </div>
         )}
-      </form>
+      </ValidatedForm>
     </div>
   );
 }

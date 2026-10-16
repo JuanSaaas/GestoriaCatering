@@ -3,8 +3,12 @@ node_modules
 .env.local
 .DS_Store
 npm-debug.log*
+.data/
+tmp/pdfs/
+artifacts/rrhh/
 
 # CRM secrets
 .env.local
 
 .env.local
+.next-*/

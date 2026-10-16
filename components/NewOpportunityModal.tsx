@@ -1,11 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import FormSteps from '@/components/FormSteps';
+import { useDialog } from '@/components/useDialog';
+import ValidatedForm from '@/components/ValidatedForm';
+
+import { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import type { Oportunidad, Empresa, Empleado, TipoEvento, EstadoOportunidad } from '@/lib/types';
 import { ESTADOS, OPORTUNIDAD_SELECT, TIPO_EVENTO_LABEL } from '@/lib/types';
 import AssignmentFields from './AssignmentFields';
-import { Icon, Section, btnGhost, btnPrimary, inputCls, labelCls } from './ui';
+import { Icon, btnGhost, inputCls, labelCls } from './ui';
 
 export default function NewOpportunityModal({
   empresas,
@@ -39,16 +43,13 @@ export default function NewOpportunityModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const dialogRef = useDialog<HTMLDivElement>(() => { if (!saving) onClose(); });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError(null);
+    try {
 
     const emailLimpio = email.trim();
 
@@ -104,18 +105,24 @@ export default function NewOpportunityModal({
     setSaving(false);
     if (oErr || !op) {
       console.error(oErr);
-      setError('No se pudo crear la oportunidad. ¿Has ejecutado la migración SQL de empresas?');
+      setError('No se pudo crear la oportunidad. Revisa tu conexión y vuelve a intentarlo.');
       return;
     }
     onCreated(op as unknown as Oportunidad);
+    } catch {
+      setError('No se pudo guardar. Revisa tu conexión y vuelve a intentarlo.');
+      setSaving(false);
+    }
   }
 
   return (
     <div
       className="fixed inset-0 z-50 bg-ink/45 flex items-center justify-center p-4 animate-fade-in"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onClick={(e) => e.target === e.currentTarget && !saving && onClose()}
     >
       <div
+        ref={dialogRef}
+        tabIndex={-1}
         role="dialog"
         aria-modal="true"
         aria-label="Nueva oportunidad"
@@ -126,29 +133,17 @@ export default function NewOpportunityModal({
             <h2 className="text-lg font-semibold">Nueva oportunidad</h2>
             <p className="text-sm text-ink-soft">Asóciala a una empresa y a un empleado desde el primer momento.</p>
           </div>
-          <button onClick={onClose} aria-label="Cerrar" className="p-1.5 -mr-1.5 rounded-lg text-ink-soft hover:bg-surface">
+          <button disabled={saving} onClick={onClose} aria-label="Cerrar" className="p-1.5 -mr-1.5 rounded-lg text-ink-soft hover:bg-surface">
             <Icon name="close" className="w-5 h-5" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col min-h-0">
+        <ValidatedForm onSubmit={handleSubmit} className="flex flex-col min-h-0">
           <div className="overflow-y-auto px-6 py-5 space-y-7">
-            <Section title="Asignación">
-              <AssignmentFields
-                empresas={empresas}
-                empleados={empleados}
-                empresa={empresa}
-                empleado={empleado}
-                onEmpresaChange={setEmpresa}
-                onEmpleadoChange={setEmpleado}
-                onEmpresaCreated={onEmpresaCreated}
-                onEmpleadoCreated={onEmpleadoCreated}
-              />
-            </Section>
-
-            <Section title="Contacto">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
-                <div className="sm:col-span-2">
+            <FormSteps disabled={saving} submitLabel="Crear oportunidad" busyLabel="Creando…" steps={[
+              { title: 'Contacto', content: <>
+              <div className="grid grid-cols-1 gap-x-4 gap-y-4">
+                <div className="col-span-1">
                   <label className={labelCls} htmlFor="n-nombre">Persona de contacto *</label>
                   <input id="n-nombre" className={inputCls} value={nombre} onChange={(e) => setNombre(e.target.value)} required />
                 </div>
@@ -161,10 +156,9 @@ export default function NewOpportunityModal({
                   <input id="n-tel" type="tel" className={inputCls} value={telefono} onChange={(e) => setTelefono(e.target.value)} />
                 </div>
               </div>
-            </Section>
-
-            <Section title="Evento">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4">
+            </> },
+              { title: 'Evento', content: <>
+              <div className="grid grid-cols-1 gap-x-4 gap-y-4">
                 <div>
                   <label className={labelCls} htmlFor="n-tipo">Tipo de evento</label>
                   <select id="n-tipo" className={inputCls} value={tipoEvento} onChange={(e) => setTipoEvento(e.target.value as TipoEvento)}>
@@ -178,7 +172,7 @@ export default function NewOpportunityModal({
                   <input id="n-fecha" type="date" className={inputCls} value={fecha} onChange={(e) => setFecha(e.target.value)} />
                 </div>
                 {tipoEvento === 'otro' && (
-                  <div className="sm:col-span-2">
+                  <div className="col-span-1">
                     <label className={labelCls} htmlFor="n-otro">¿Qué tipo de evento es? *</label>
                     <input id="n-otro" className={inputCls} value={tipoEventoOtro} onChange={(e) => setTipoEventoOtro(e.target.value)} required />
                   </div>
@@ -189,7 +183,7 @@ export default function NewOpportunityModal({
                 </div>
                 <div>
                   <label className={labelCls} htmlFor="n-pres">Presupuesto estimado (€)</label>
-                  <input id="n-pres" type="number" min={0} step={50} className={inputCls} value={presupuesto} onChange={(e) => setPresupuesto(e.target.value)} />
+                  <input id="n-pres" type="number" min={0} step="0.01" className={inputCls} value={presupuesto} onChange={(e) => setPresupuesto(e.target.value)} />
                 </div>
                 <div>
                   <label className={labelCls} htmlFor="n-estado">Fase inicial</label>
@@ -199,7 +193,7 @@ export default function NewOpportunityModal({
                     ))}
                   </select>
                 </div>
-                <div className="sm:col-span-2">
+                <div className="col-span-1">
                   <label className={labelCls} htmlFor="n-msg">Notas / requisitos</label>
                   <textarea
                     id="n-msg"
@@ -210,20 +204,30 @@ export default function NewOpportunityModal({
                   />
                 </div>
               </div>
-            </Section>
-
+            </> },
+              { title: 'Asignación', content: <>
+              <AssignmentFields
+                empresas={empresas}
+                empleados={empleados}
+                empresa={empresa}
+                empleado={empleado}
+                onEmpresaChange={setEmpresa}
+                onEmpleadoChange={setEmpleado}
+                onEmpresaCreated={onEmpresaCreated}
+                onEmpleadoCreated={onEmpleadoCreated}
+              />
+            </> },
+            ]} />
             {error && (
-              <div className="text-sm px-3 py-2.5 rounded-lg bg-[#FBEAE8] text-wine-dark border border-wine/20">{error}</div>
+              <div role="alert" className="text-sm px-3 py-2.5 rounded-lg bg-[#FBEAE8] text-wine-dark border border-wine/20">⚠ {error}</div>
             )}
           </div>
 
           <div className="flex justify-end gap-2 px-6 py-4 border-t border-line bg-surface/60">
-            <button type="button" className={btnGhost} onClick={onClose}>Cancelar</button>
-            <button type="submit" className={btnPrimary} disabled={saving}>
-              {saving ? 'Creando…' : 'Crear oportunidad'}
-            </button>
+            <button type="button" disabled={saving} className={btnGhost} onClick={onClose}>Cancelar</button>
+
           </div>
-        </form>
+        </ValidatedForm>
       </div>
     </div>
   );
