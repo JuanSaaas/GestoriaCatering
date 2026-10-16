@@ -42,9 +42,39 @@ La carpeta está excluida de Git. Se conservan al recargar y al reiniciar el
 servidor local. Las rutas de datos, archivos e informe requieren la sesión del
 CRM. El límite por archivo es de 5 MB; los PDFs se validan antes de guardarse.
 
-Este almacenamiento está pensado para el simulador local. Para un despliegue
-con varias instancias o un sistema de archivos efímero hay que sustituirlo por
-una base de datos y almacenamiento persistente compartido.
+Este almacenamiento se mantiene para el simulador local. Las consultas ya no
+reescriben un estado existente. En Vercel se selecciona automáticamente el
+almacenamiento persistente en Supabase; no se usa `/tmp` para guardar RRHH.
+
+### Activar RRHH en Vercel
+
+1. Ejecuta `supabase/migracion_rrhh.sql` en el SQL Editor del mismo proyecto
+   Supabase usado por el CRM. Crea `rrhh_state` y el bucket privado `rrhh-private`.
+   No borra ni modifica los datos comerciales.
+2. En las variables de entorno de Vercel añade `HR_STORAGE=supabase` y
+   `SUPABASE_SERVICE_ROLE_KEY` (o `SUPABASE_SECRET_KEY`) con la clave secreta del
+   servidor de Supabase. Mantén `NEXT_PUBLIC_SUPABASE_URL` apuntando a ese proyecto.
+   La clave secreta nunca debe tener prefijo `NEXT_PUBLIC_`, enviarse al navegador
+   ni incluirse en Git. Comprueba que las variables se apliquen al entorno del despliegue.
+3. Despliega la versión que contiene esta corrección. Comprueba un alta, su
+   persistencia al recargar y la descarga de un documento. Sin la migración o
+   la clave, la API responde JSON con estado 503 y no crea un almacenamiento temporal.
+
+Los datos se guardan en un documento JSON de `rrhh_state` con una revisión.
+Cada actualización comprueba esa revisión: si otra instancia ha guardado entre
+la lectura y la escritura, se rechaza con 409 para no sobrescribir sus cambios.
+Los documentos se guardan en Supabase Storage. Ni la tabla ni el bucket se
+exponen con la clave pública; las API del CRM comprueban la sesión y acceden
+desde el servidor con la clave secreta.
+
+Los datos locales previos no se trasladan automáticamente: antes de cambiar el
+backend, conserva una copia de `.data/rrhh/`. En un almacenamiento vacío se
+crean los tres empleados ficticios de ejemplo. La migración SQL no sustituye
+un estado remoto existente. Si una escritura de estado falla después de subir
+un archivo, puede quedar un objeto sin referencia que necesita limpieza.
+
+Para seguir usando archivos en tu ordenador, no definas `HR_STORAGE` o usa
+`HR_STORAGE=local`. Para probar la integración remota usa `HR_STORAGE=supabase`.
 
 ## Verificación
 

@@ -1,3 +1,4 @@
+import { HrStorageError, hrErrorMessage } from '@/lib/hrErrors';
 import { NextRequest, NextResponse } from 'next/server';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { getHr } from '@/lib/hrStore';
@@ -8,6 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   if (request.cookies.get('lmp_crm_session')?.value !== (process.env.CRM_SESSION_TOKEN || 'lmp-crm-session-v1')) return new NextResponse('No autorizado', { status: 401 });
+  try {
   const state = await getHr();
   const pdf = await PDFDocument.create();
   const normal = await pdf.embedFont(StandardFonts.Helvetica);
@@ -69,4 +71,7 @@ export async function GET(request: NextRequest) {
   line('Firma de simulación sin certificado digital. Se conserva el original y se genera una copia con el registro de conformidad.');
   for (const [i, p] of pdf.getPages().entries()) p.drawText(`${i + 1} / ${pdf.getPageCount()}`, { x: 520, y: 28, size: 9, font: normal, color: rgb(0.5, 0.5, 0.5) });
   return new NextResponse(new Uint8Array(await pdf.save()), { headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="informe-rrhh.pdf"', 'Cache-Control': 'private, no-store' } });
+  } catch (error) {
+    return NextResponse.json({ error: hrErrorMessage(error, 'No se pudo generar el informe de Recursos humanos.') }, { status: error instanceof HrStorageError ? error.status : 503 });
+  }
 }

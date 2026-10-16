@@ -2,6 +2,7 @@
 
 import { useDialog } from '@/components/useDialog';
 import ValidatedForm from '@/components/ValidatedForm';
+import { readHrResponse } from '@/lib/hrResponse';
 
 import { useEffect, useState } from 'react';
 import { ArrowDownTrayIcon, ArrowRightOnRectangleIcon, ArrowLeftOnRectangleIcon, ArrowLeftIcon, CheckIcon, ClockIcon, DocumentTextIcon, EyeIcon, PencilSquareIcon, PlusIcon, StarIcon, UserGroupIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -68,8 +69,7 @@ export default function HrModule() {
     setError('');
     try {
       const response = await fetch('/api/crm/rrhh', { cache: 'no-store' });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'No se pudo cargar RRHH.');
+      const result = await readHrResponse(response);
       setData(result); setSelectedId((id) => id || result.employees[0]?.id || '');
     } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo cargar RRHH.'); }
   }
@@ -79,8 +79,7 @@ export default function HrModule() {
     setBusy(true); setError(''); setNotice('');
     try {
       const response = await fetch('/api/crm/rrhh', body instanceof FormData ? { method: 'POST', body } : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'No se pudo guardar.');
+      const result = await readHrResponse(response);
       setData(result); setNotice(message); setNow(Date.now()); return result;
     } catch (e) { setError(e instanceof Error ? e.message : 'No se pudo guardar.'); return null; }
     finally { setBusy(false); }

@@ -19,7 +19,7 @@ function LogoutDialog({ busy, error, onCancel, onConfirm }: {
     if (event.target === event.currentTarget && !busy) onCancel();
   }}>
     <div ref={ref} tabIndex={-1} role="alertdialog" aria-modal="true" aria-labelledby="logout-title" aria-describedby="logout-description" aria-busy={busy} className="w-full max-w-md rounded-xl border border-neutral-200 bg-white p-6 shadow-xl">
-      <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-50 text-red-700"><Icon name="logout" className="h-6 w-6" /></span>
+      <span className="mb-4 inline-flex h-12 w-12 items-center justify-center text-red-700"><Icon name="logout" className="h-6 w-6" /></span>
       <h2 id="logout-title" className="text-xl font-semibold">¿Seguro que quieres cerrar sesión?</h2>
       <p id="logout-description" className="mt-2 text-sm leading-6 text-neutral-600">Tendrás que volver a introducir tus credenciales para acceder al CRM.</p>
       {error && <p role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}

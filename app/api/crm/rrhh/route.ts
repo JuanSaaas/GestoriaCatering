@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { applyHrAction, validateSigner, type HrFile } from '@/lib/hr';
-import { getHr, updateHr, HR_DIR } from '@/lib/hrStore';
+import { getHr, updateHr, readHrFile, writeHrFile } from '@/lib/hrStore';
+
+import { HrStorageError, hrErrorMessage } from '@/lib/hrErrors';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -14,7 +14,11 @@ function denied() { return NextResponse.json({ error: 'Inicia sesión para acced
 
 export async function GET(request: NextRequest) {
   if (!authorized(request)) return denied();
-  return NextResponse.json(await getHr(), { headers: { 'Cache-Control': 'no-store' } });
+  try {
+    return NextResponse.json(await getHr(), { headers: { 'Cache-Control': 'no-store' } });
+  } catch (error) {
+    return NextResponse.json({ error: hrErrorMessage(error, 'No se pudieron cargar los datos de Recursos humanos. Vuelve a intentarlo.') }, { status: error instanceof HrStorageError ? error.status : 503 });
+  }
 }
 export async function POST(request: NextRequest) {
   if (!authorized(request)) return denied();
@@ -38,7 +42,7 @@ export async function POST(request: NextRequest) {
         const owner = kind === 'cv' ? (form.get('createCandidate') === 'true' ? state.candidates[0] : state.candidates.find((c) => c.id === ownerId)) : state.employees.find((e) => e.id === ownerId);
         if (!owner) throw new Error('No se encontró la ficha.');
         const record: HrFile = { id: crypto.randomUUID(), name: file.name.slice(0, 200), mime: kind === 'photo' ? (isPng ? 'image/png' : 'image/jpeg') : 'application/pdf', kind, createdAt: new Date().toISOString(), ...(kind === 'payroll' ? { employeeId: ownerId } : {}) };
-        await writeFile(path.join(HR_DIR, record.id), bytes);
+        await writeHrFile(record.id, bytes, record.mime);
         state.files.push(record);
         if (kind === 'photo' && 'checklist' in owner) owner.photoId = record.id;
         if (kind === 'cv' && 'stage' in owner) owner.cvId = record.id;
@@ -53,7 +57,7 @@ export async function POST(request: NextRequest) {
       const employee = state.employees.find((e) => e.id === file?.employeeId);
       if (!file || !employee || file.signedAt) throw new Error('Documento no disponible para firmar.');
       const signer = validateSigner(action.signer, action.accepted);
-      const pdf = await PDFDocument.load(await readFile(path.join(HR_DIR, file.id)));
+      const pdf = await PDFDocument.load(await readHrFile(file.id));
       const font = await pdf.embedFont(StandardFonts.Helvetica);
       const page = pdf.addPage([595, 842]);
       const signedAt = new Date().toISOString();
@@ -69,11 +73,11 @@ export async function POST(request: NextRequest) {
         page.drawText(row, { x: 50, y, size: 12, font }); y -= 35;
       }
       const signedId = crypto.randomUUID();
-      await writeFile(path.join(HR_DIR, signedId), await pdf.save());
+      await writeHrFile(signedId, await pdf.save());
       Object.assign(file, { signedId, signedAt, signer });
     });
     return NextResponse.json(state);
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'No se pudo guardar el cambio.' }, { status: 400 });
+    return NextResponse.json({ error: error instanceof HrStorageError || (error as NodeJS.ErrnoException)?.code || error instanceof SyntaxError ? hrErrorMessage(error, 'No se pudo guardar el cambio.') : error instanceof Error ? error.message : 'No se pudo guardar el cambio.' }, { status: error instanceof HrStorageError ? error.status : 400 });
   }
 }

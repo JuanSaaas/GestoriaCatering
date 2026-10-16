@@ -50,7 +50,7 @@ function LoginForm() {
       <main className="flex min-h-dvh items-center justify-center px-4 py-8 sm:px-6">
         <section className="w-full max-w-md rounded-2xl border border-[#ded7cc] bg-white p-6 shadow-sm sm:p-10" aria-labelledby="login-title">
           <div className="mb-8">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-neutral-700"><LockClosedIcon aria-hidden="true" className="h-6 w-6" /></span>
+            <span className="inline-flex h-12 w-12 items-center justify-center text-neutral-700"><LockClosedIcon aria-hidden="true" className="h-6 w-6" /></span>
             <h1 id="login-title" className="mt-5 text-2xl font-semibold">Bienvenido a tu equipo</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">Accede al CRM de La Mesa Perfecta.</p>
           </div>

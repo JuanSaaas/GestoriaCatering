@@ -33,7 +33,7 @@ export default function SiteHeader() {
           <span className="font-serif italic text-lg md:text-xl whitespace-nowrap">La Mesa Perfecta</span>
         </a>
         <button type="button" className="sm:hidden rounded-lg border border-ink/20 px-3 text-sm" aria-expanded={menuOpen} aria-controls="site-navigation" onClick={() => setMenuOpen(!menuOpen)}>Menú</button>
-        <nav id="site-navigation" aria-label="Navegación principal" className={`${menuOpen ? 'flex' : 'hidden'} absolute top-full inset-x-0 bg-paper border-b border-ink/20 px-6 py-4 flex-col sm:static sm:flex sm:flex-row sm:border-0 sm:p-0 items-center gap-4 md:gap-8`}>
+        <nav id="site-navigation" aria-label="Navegación principal" className={`${menuOpen ? 'flex' : 'hidden'} absolute top-full inset-x-0 bg-paper border-b border-ink/20 px-6 py-4 flex-col sm:static sm:flex sm:flex-row sm:bg-transparent sm:border-0 sm:p-0 items-center gap-4 md:gap-8`}>
           {LINKS.map((l) => (
             <a
               key={l.href}
