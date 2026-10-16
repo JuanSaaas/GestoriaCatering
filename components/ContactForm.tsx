@@ -5,6 +5,7 @@ import ValidatedForm from '@/components/ValidatedForm';
 
 import { useRef, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { saveFormRecord } from '@/lib/formSubmission';
 import type { TipoEvento, FranjaHoraria } from '@/lib/types';
 import { FRANJA_HORARIA_LABEL, ORIGEN_CONTACTO_LABEL } from '@/lib/types';
 
@@ -69,11 +70,10 @@ export default function ContactForm() {
 
     // Un mismo email puede volver a escribir para otro evento: usamos upsert
     // por email para no duplicar el cliente (ver UNIQUE(email) en schema.sql).
-    let { data: cliente, error: clienteError } = await supabase
-      .from('clientes')
-      .upsert(clientePayload, { onConflict: 'email' })
-      .select()
-      .single();
+    const { data: cliente, error: clienteError } = await saveFormRecord<{ id: string }>(
+      'clientes', clientePayload,
+      (payload) => supabase.from('clientes').upsert(payload, { onConflict: 'email' }).select('id').single().retry(false),
+    );
 
     if (clienteError || !cliente) {
       console.error(clienteError);
@@ -102,7 +102,10 @@ export default function ContactForm() {
       empresa_id: empresaId,
     };
 
-    const { error } = await supabase.from('oportunidades').insert(oportunidadPayload).retry(false);
+    const { error } = await saveFormRecord(
+      'oportunidades', oportunidadPayload,
+      (payload) => supabase.from('oportunidades').insert(payload).retry(false),
+    );
 
     if (error) {
       console.error(error);
@@ -264,7 +267,7 @@ export default function ContactForm() {
         )}
         {status === 'error' && (
           <div role="alert" className="mt-4 text-sm px-4 py-3 bg-[#F5E2E0] text-wine-dark border-l-2 border-wine">
-            ⚠ No hemos podido enviar tu solicitud. Tus respuestas se conservan. Revisa la conexión y vuelve a pulsar Enviar solicitud.
+            ⚠ No hemos podido confirmar el envío de tu solicitud. Tus respuestas se conservan. Vuelve a intentarlo en unos minutos. Si el problema continúa, contacta con nosotros.
           </div>
         )}
       </ValidatedForm>

@@ -57,6 +57,10 @@ create table if not exists oportunidades (
                           tipo_evento in ('boda','corporativo','comunion','cumpleanos','otro')
                         ),
   tipo_evento_otro      text,
+  franja_horaria        text,
+  ubicacion_evento      text,
+  restricciones        text,
+  como_nos_conocio      text,
   fecha_evento          date,
   num_invitados         integer,
   presupuesto_estimado  numeric(10,2),

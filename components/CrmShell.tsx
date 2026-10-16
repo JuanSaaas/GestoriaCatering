@@ -97,7 +97,7 @@ export default function CrmShell({
           <button
             onClick={handleLogout}
             disabled={loggingOut}
-            className="w-full inline-flex items-center justify-center gap-2 min-h-12 px-4 mt-2 rounded-lg border border-neutral-300 text-neutral-700 text-sm font-medium hover:bg-neutral-100 transition"
+            className="w-full inline-flex items-center justify-center gap-2 min-h-12 px-4 mt-2 rounded-lg border border-red-700 bg-red-700 text-white text-sm font-medium hover:bg-red-800 hover:border-red-800 focus-visible:!outline-red-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Icon name="logout" className="w-4 h-4" /> {loggingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}
           </button>
@@ -146,7 +146,7 @@ export default function CrmShell({
               <button
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="w-full inline-flex items-center justify-center gap-2 min-h-12 px-4 rounded-lg border border-neutral-300 text-neutral-700 text-sm font-medium hover:bg-neutral-100 transition"
+                className="w-full inline-flex items-center justify-center gap-2 min-h-12 px-4 rounded-lg border border-red-700 bg-red-700 text-white text-sm font-medium hover:bg-red-800 hover:border-red-800 focus-visible:!outline-red-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Icon name="logout" className="w-4 h-4" /> {loggingOut ? 'Cerrando sesión…' : 'Cerrar sesión'}
               </button>
