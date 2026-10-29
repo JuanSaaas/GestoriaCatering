@@ -81,7 +81,9 @@ body { line-height: 1.5; overflow-wrap: anywhere; }
 .text-xs, .text-sm, .field-error { font-size: 1rem; line-height: 1.5; }
 [class*="text-[10px]"], [class*="text-[11px]"] { font-size: 1rem; line-height: 1.5; }
 a { text-decoration-line: underline; text-underline-offset: .2em; }
-a:hover, button:hover { text-decoration-line: underline; text-decoration-thickness: 2px; }
+/* Navigation and button-like links gain their underline on interaction. */
+nav a, header a, a.inline-flex, a.inline-block, a.flex, a.block { text-decoration-line: none; }
+a:hover, button:hover, a:focus-visible, button:focus-visible { text-decoration-line: underline; text-decoration-thickness: 2px; }
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 3px solid #111827 !important;
   outline-offset: 3px;

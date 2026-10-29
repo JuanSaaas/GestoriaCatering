@@ -1,5 +1,15 @@
 # Accesibilidad de La Mesa Perfecta
 
+## Ajuste de subrayados · 29/10/2026
+
+A petición del usuario, los enlaces de navegación, la marca de la cabecera y los
+enlaces presentados como botones o tarjetas dejan de estar subrayados en reposo.
+El subrayado aparece al pasar el ratón y al recibir foco de teclado; se conserva
+el contorno de foco existente. Los enlaces dentro del texto conservan el
+subrayado para distinguirse sin depender del color (WCAG 1.4.1 y 2.4.7).
+Cambio limitado a estilos, sin modificar rutas, datos ni acciones del CRM.
+Comprobación visual de hover y recorrido con teclado pendientes de navegador.
+
 Actualización del 26/10/2026: [aplicación del nuevo ZIP Pautas_WCAG, resultados y
 checklist](WCAG-2026-10-26.md). Incluye la fuente original verificada, auditoría
 axe en 17 URL y 25 estados, capturas, contraste, reflujo, regresión y pendientes.
