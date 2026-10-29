@@ -1,0 +1,304 @@
+{
+  "mobile": [
+    {
+      "clientWidth": 305,
+      "offscreen": [],
+      "scrollWidth": 305,
+      "url": "/crm",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "offscreen": [],
+      "scrollWidth": 305,
+      "url": "/crm/empresas",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "offscreen": [],
+      "scrollWidth": 305,
+      "url": "/crm/contactos",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "offscreen": [],
+      "scrollWidth": 305,
+      "url": "/crm/oportunidades",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "offscreen": [],
+      "scrollWidth": 305,
+      "url": "/crm/cierres",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "offscreen": [],
+      "scrollWidth": 305,
+      "url": "/crm/tareas",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "offscreen": [
+        {
+          "className": "shrink-0 text-sm py-3 border-b-2 transition border-transparent text-neutral-500 hover:text-black",
+          "tag": "BUTTON"
+        },
+        {
+          "className": "w-full",
+          "tag": "TABLE"
+        },
+        {
+          "className": "bg-neutral-50",
+          "tag": "THEAD"
+        },
+        {
+          "className": "",
+          "tag": "TR"
+        },
+        {
+          "className": "px-4 py-3 text-left text-xs font-medium text-neutral-500 whitespace-nowrap",
+          "tag": "TH"
+        }
+      ],
+      "scrollWidth": 305,
+      "url": "/crm/rrhh",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "offscreen": [],
+      "scrollWidth": 305,
+      "url": "/crm/facturas",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "offscreen": [],
+      "scrollWidth": 305,
+      "url": "/crm/empleados",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "scrollWidth": 305,
+      "url": "/",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "scrollWidth": 305,
+      "url": "/crm/login",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "scrollWidth": 305,
+      "url": "/crm/contactos/65ae3ba7-5c96-4832-b5e9-76521efdeb3f",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "scrollWidth": 305,
+      "url": "/crm/empresas/f1e376f9-7ce0-4839-a898-6ff3284bf9d3",
+      "viewport": 320
+    },
+    {
+      "clientWidth": 305,
+      "scrollWidth": 305,
+      "url": "/crm/empleados/65ae3ba7-5c96-4832-b5e9-76521efdeb3f",
+      "viewport": 320
+    }
+  ],
+  "spacing": [
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm/empresas",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm/contactos",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm/oportunidades",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm/cierres",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm/tareas",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm/rrhh",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm/facturas",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing corrected",
+      "scrollWidth": 305,
+      "url": "/crm/contactos/65ae3ba7-5c96-4832-b5e9-76521efdeb3f",
+      "viewport": 320,
+      "width": 305
+    },
+    {
+      "mode": "text-spacing",
+      "scrollWidth": 305,
+      "style": true,
+      "url": "/crm/empresas/f1e376f9-7ce0-4839-a898-6ff3284bf9d3",
+      "viewport": 320,
+      "width": 305
+    }
+  ],
+  "text200": [
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 corrected final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/oportunidades",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/rrhh",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/contactos/65ae3ba7-5c96-4832-b5e9-76521efdeb3f",
+      "viewport": 1280
+    },
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/login",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/empresas",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 corrected final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/contactos",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/cierres",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/tareas",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/facturas",
+      "viewport": 1280,
+      "width": 1265
+    },
+    {
+      "mode": "text-200 final",
+      "rootFont": "32px",
+      "scrollWidth": 1265,
+      "url": "/crm/empleados",
+      "viewport": 1280,
+      "width": 1265
+    }
+  ]
+}

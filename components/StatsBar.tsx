@@ -16,12 +16,12 @@ export default function StatsBar({ oportunidades }: { oportunidades: Oportunidad
   const stats: { n: string | number; l: string; sub: string; icon: IconName; tone: string }[] = [
     { n: total, l: 'Oportunidades', sub: `${abiertas.length} abiertas`, icon: 'layers', tone: '#0A0A0A' },
     { n: fmtMoney(valorPipeline), l: 'Importe abierto', sub: 'Oportunidades abiertas', icon: 'trend', tone: '#2563EB' },
-    { n: ganadas.length, l: 'Eventos ganados', sub: fmtMoney(valorGanado), icon: 'check', tone: '#16A34A' },
+    { n: ganadas.length, l: 'Eventos ganados', sub: fmtMoney(valorGanado), icon: 'check', tone: '#166534' },
     { n: `${tasa}%`, l: 'Tasa de conversión', sub: `${cerradas} cerradas`, icon: 'percent', tone: '#4F46E5' },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6">
       {stats.map((s) => (
         <div key={s.l} className="bg-white border border-neutral-200 rounded-xl p-5 shadow-card min-h-[168px] relative text-center">
           <div className="min-w-0 flex-1">

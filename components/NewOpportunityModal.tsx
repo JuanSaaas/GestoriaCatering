@@ -145,15 +145,15 @@ export default function NewOpportunityModal({
               <div className="grid grid-cols-1 gap-x-4 gap-y-4">
                 <div className="col-span-1">
                   <label className={labelCls} htmlFor="n-nombre">Persona de contacto *</label>
-                  <input id="n-nombre" className={inputCls} value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+                  <input id="n-nombre" autoComplete="name" className={inputCls} value={nombre} onChange={(e) => setNombre(e.target.value)} required />
                 </div>
                 <div>
                   <label className={labelCls} htmlFor="n-email">Email *</label>
-                  <input id="n-email" type="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <input id="n-email" type="email" autoComplete="email" className={inputCls} value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
                 <div>
                   <label className={labelCls} htmlFor="n-tel">Teléfono</label>
-                  <input id="n-tel" type="tel" className={inputCls} value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+                  <input id="n-tel" type="tel" autoComplete="tel" className={inputCls} value={telefono} onChange={(e) => setTelefono(e.target.value)} />
                 </div>
               </div>
             </> },

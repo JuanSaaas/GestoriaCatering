@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ejemplo accesible</title><link rel="stylesheet" href="accesibilidad-base.css"></head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header><nav aria-label="Navegación principal"><a href="/">Inicio</a></nav></header>
+<main id="contenido" tabindex="-1"><h1>Nueva factura</h1>
+<form id="factura" novalidate>
+<div><label for="nif">NIF del cliente (obligatorio)</label><input id="nif" name="nif" required aria-describedby="nif-ayuda nif-error"><p id="nif-ayuda">Introduce el NIF del cliente.</p><p id="nif-error" hidden></p></div>
+<button type="submit">Guardar factura</button>
+<p id="resultado" role="status" aria-live="polite"></p>
+</form></main>
+<script>
+document.getElementById('factura').addEventListener('submit', function(event) {
+ event.preventDefault(); const input=document.getElementById('nif'); const error=document.getElementById('nif-error'); const result=document.getElementById('resultado');
+ if (!input.value.trim()) { error.textContent='Escribe el NIF para guardar la factura.'; error.hidden=false; input.setAttribute('aria-invalid','true'); result.textContent='No se ha guardado la factura. Revisa el NIF.'; input.focus(); return; }
+ error.hidden=true; input.removeAttribute('aria-invalid'); result.textContent='Formulario validado. Ejemplo: no se han enviado datos al servidor.';
+});
+</script></body></html>

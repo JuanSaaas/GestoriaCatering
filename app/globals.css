@@ -67,8 +67,59 @@ body {
 .skip-link { position: fixed; left: 16px; top: -100px; z-index: 100; padding: 16px; background: white; color: #1e2329; border-radius: 8px; }
 .skip-link:focus { top: 16px; }
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+  html { scroll-behavior: auto !important; }
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* WCAG: shared by the public site, sign-in and every CRM screen. */
+html { font-size: 100%; scroll-padding-top: 7rem; }
+body { line-height: 1.5; overflow-wrap: anywhere; }
+[hidden] { display: none !important; }
+/* Essential record names remain readable with zoom and user text spacing. */
+.crm-shell .truncate { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
+.crm-shell .line-clamp-2 { display: block; overflow: visible; -webkit-line-clamp: unset; }
+.text-xs, .text-sm, .field-error { font-size: 1rem; line-height: 1.5; }
+[class*="text-[10px]"], [class*="text-[11px]"] { font-size: 1rem; line-height: 1.5; }
+a { text-decoration-line: underline; text-underline-offset: .2em; }
+a:hover, button:hover { text-decoration-line: underline; text-decoration-thickness: 2px; }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #111827 !important;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px #fff !important;
+}
+:where(a, button, input, select, textarea, [tabindex]) { scroll-margin-block: 7rem 2rem; }
+button, a.inline-flex, a.inline-block, nav a { min-height: 2.75rem; }
+nav a { display: inline-flex; align-items: center; }
+button { min-width: 2.75rem; }
+input:not([type='checkbox']):not([type='radio']):not([type='hidden']), select, textarea {
+  min-height: 3rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-color: #767676;
+}
+input[type='checkbox'], input[type='radio'] { width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+label:has(input[type='checkbox']), label:has(input[type='radio']) { min-height: 2.75rem; }
+label:has(input:focus-visible) { outline: 3px solid #111827; outline-offset: 3px; }
+button[class*="border-neutral-"], button[class*="border-white/"], button[class*="border-ink/"] { border-color: #767676; }
+button[class*="text-white"], button[class*="text-paper"] { border-color: currentColor; }
+.error-summary { border: 2px solid #92400e; border-radius: .5rem; padding: 1rem; margin-bottom: 1rem; max-height: 40dvh; overflow-y: auto; }
+.error-summary a { display: inline-block; padding-block: .5rem; }
+.skip-link { z-index: 1000; }
+@media (max-width: 639px) {
+  header > div { flex-wrap: wrap; gap: .5rem; padding-inline: 1rem; }
+  .crm-shell [role='dialog'], .crm-shell [role='alertdialog'] { overflow-y: auto; }
+}
+@media (prefers-contrast: more) {
+  body, .crm-shell { color: #000; }
+  .crm-shell :where(p, label, legend, th, td, dt, dd), .text-ink-soft { color: #000; }
+  input, select, textarea, button { border-width: 2px; }
+}
+@media (forced-colors: active) {
+  .chart-visual { display: none; } /* The adjacent text contains every value. */
+  button, input, select, textarea, a.inline-flex, a.inline-block { border: 2px solid ButtonText; }
+  :focus-visible { outline: 3px solid Highlight !important; box-shadow: none !important; }
+  [aria-current], [aria-selected='true'], [aria-pressed='true'] { outline: 2px solid Highlight; }
+  [aria-invalid='true'], .error-summary { border: 2px solid Mark !important; }
 }
 
 .hr-module input[type='file']::file-selector-button {

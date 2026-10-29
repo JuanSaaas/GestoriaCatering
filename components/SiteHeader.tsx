@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const LINKS = [
   { href: '#propuesta', label: 'Nuestra propuesta' },
@@ -11,6 +11,7 @@ const LINKS = [
 export default function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => {
@@ -22,8 +23,8 @@ export default function SiteHeader() {
   }, []);
 
   return (
-    <header
-      className={`fixed top-0 inset-x-0 z-50 bg-paper/95 backdrop-blur-md border-b border-[var(--line)] shadow-md transition-all duration-300 ${
+    <header onKeyDown={(event) => { if (event.key === 'Escape' && menuOpen) { setMenuOpen(false); menuButton.current?.focus(); } }}
+      className={`fixed top-0 inset-x-0 z-50 bg-paper border-b border-[var(--line)] shadow-md transition-all duration-300 ${
         scrolled ? 'py-0' : ''
       }`}
     >
@@ -32,7 +33,7 @@ export default function SiteHeader() {
           <img src="/logo-icon.png" alt="" className="h-9 w-auto" />
           <span className="font-serif italic text-lg md:text-xl whitespace-nowrap">La Mesa Perfecta</span>
         </a>
-        <button type="button" className="sm:hidden rounded-lg border border-ink/20 px-3 text-sm" aria-expanded={menuOpen} aria-controls="site-navigation" onClick={() => setMenuOpen(!menuOpen)}>Menú</button>
+        <button ref={menuButton} type="button" className="sm:hidden rounded-lg border border-ink/20 px-3 text-sm" aria-expanded={menuOpen} aria-controls="site-navigation" onClick={() => setMenuOpen(!menuOpen)}>Menú</button>
         <nav id="site-navigation" aria-label="Navegación principal" className={`${menuOpen ? 'flex' : 'hidden'} absolute top-full inset-x-0 bg-paper border-b border-ink/20 px-6 py-4 flex-col sm:static sm:flex sm:flex-row sm:bg-transparent sm:border-0 sm:p-0 items-center gap-4 md:gap-8`}>
           {LINKS.map((l) => (
             <a

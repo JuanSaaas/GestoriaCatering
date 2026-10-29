@@ -40,14 +40,14 @@ export default function DashboardStats({
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 px-6">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,13rem),1fr))] gap-4 px-6">
       {stats.map((s) => (
         <div key={s.l} className="bg-white border border-neutral-200 rounded-xl p-4 shadow-card min-h-[168px] flex flex-col items-center text-center">
           <div className="flex items-center gap-2 text-base font-semibold text-neutral-700 min-h-12">
             <Icon name={s.icon} className="w-4 h-4 shrink-0" />
             {s.l}
           </div>
-          <div className="text-2xl font-semibold tabular-nums my-auto break-words">{s.n}</div><p className="text-xs text-neutral-600 min-h-8 mt-2">{s.l === 'Previsión estimada' ? 'Según la fase de cada oportunidad' : ''}</p>
+          <div className="text-2xl font-semibold tabular-nums my-auto min-w-0 max-w-full [overflow-wrap:anywhere]">{s.n}</div><p className="text-xs text-neutral-600 min-h-8 mt-2">{s.l === 'Previsión estimada' ? 'Según la fase de cada oportunidad' : ''}</p>
         </div>
       ))}
     </div>

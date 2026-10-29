@@ -1,0 +1,17 @@
+[Unit]
+Description=La Mesa Perfecta - Extraccion de facturas
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=gestoria
+WorkingDirectory=/srv/gestoria-catering
+ExecStart=/srv/gestoria-catering/automation/facturas/.venv/bin/python -m automation.facturas.worker --env-file /srv/gestoria-catering/automation/facturas/.env
+Restart=on-failure
+RestartSec=60
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

@@ -49,27 +49,39 @@ const SERVICIOS = [
 
 export default function ServicesCarousel() {
   const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [interacting, setInteracting] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(true);
 
-  // Cambia de slide sola cada 6.5s. Cada interacción manual (flechas o
-  // selector) reinicia este intervalo para no saltar justo después de elegir.
   useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => { setReduceMotion(preference.matches); if (preference.matches) setPlaying(false); };
+    update(); preference.addEventListener('change', update);
+    return () => preference.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (!playing || interacting || reduceMotion) return;
     const id = window.setInterval(() => {
       setIndex((i) => (i + 1) % SERVICIOS.length);
     }, 6500);
     return () => window.clearInterval(id);
-  }, [index]);
+  }, [index, playing, interacting, reduceMotion]);
 
-  const go = (dir: number) => setIndex((i) => (i + dir + SERVICIOS.length) % SERVICIOS.length);
+  const go = (dir: number) => { setPlaying(false); setIndex((i) => (i + dir + SERVICIOS.length) % SERVICIOS.length); };
   const actual = SERVICIOS[index];
 
   return (
-    <section className="relative h-full flex flex-col bg-ink overflow-hidden">
+    <section aria-label="Servicios de catering" aria-roledescription="carrusel" className="relative flex flex-col bg-ink"
+      onMouseEnter={() => setInteracting(true)} onMouseLeave={() => setInteracting(false)}
+      onFocusCapture={() => setPlaying(false)}>
       <div className="max-w-[1200px] mx-auto px-6 md:px-10 pt-8 md:pt-10 pb-4 shrink-0">
         <span className="block text-xs uppercase tracking-[0.2em] text-gold-light mb-2">Lo que preparamos</span>
         <h2 className="font-serif text-2xl md:text-3xl text-paper">Servicios</h2>
+        {!reduceMotion && <button type="button" aria-pressed={playing} onClick={() => setPlaying(!playing)} className="mt-4 border border-paper rounded-lg px-4 text-paper">{playing ? 'Pausar presentación' : 'Iniciar presentación automática'}</button>}
       </div>
 
-      <div className="relative flex-1 min-h-0 overflow-hidden">
+      <div className="relative overflow-hidden">
         {SERVICIOS.map((s, i) => (
           <div
             key={s.n}
@@ -79,17 +91,18 @@ export default function ServicesCarousel() {
             <img
               src={s.image}
               alt=""
-              className={`absolute inset-0 h-full w-full object-cover object-center ${i === index ? 'animate-kenburns' : ''}`}
+              className="absolute inset-0 h-full w-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-black/65" />
           </div>
         ))}
 
-        <div className="relative z-10 h-full flex items-center">
+        <div aria-live={playing ? 'off' : 'polite'} aria-atomic="true" className="relative z-10 flex items-center py-12 pb-24 min-h-[28rem]">
           <div className="max-w-[1200px] mx-auto w-full px-6 md:px-10">
             <span className="font-serif text-gold-light text-2xl md:text-3xl">{actual.n}</span>
             <h3 className="font-serif text-2xl md:text-4xl text-paper mt-2 mb-3 md:mb-4 max-w-[16ch]">{actual.title}</h3>
-            <p className="text-paper/85 max-w-[46ch] text-sm md:text-base leading-relaxed hidden sm:block">{actual.text}</p>
+            <p className="text-paper max-w-[46ch] text-base leading-relaxed">{actual.text}</p>
+            <p className="text-paper mt-4">Servicio {index + 1} de {SERVICIOS.length}</p>
           </div>
         </div>
 
@@ -118,7 +131,8 @@ export default function ServicesCarousel() {
           <button
             key={s.n}
             type="button"
-            onClick={() => setIndex(i)}
+            onClick={() => { setPlaying(false); setIndex(i); }}
+            aria-pressed={i === index}
             className={`shrink-0 text-left text-xs px-2.5 py-1.5 md:px-3 md:py-2 border transition-colors ${
               i === index ? 'border-paper bg-paper text-ink' : 'border-white/25 text-paper/70 hover:border-white/60'
             }`}

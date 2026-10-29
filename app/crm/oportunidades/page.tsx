@@ -137,7 +137,7 @@ export default function CrmPage() {
   return (
     <CrmShell live={live} onNew={() => setShowNew(true)}>
       <div className="px-6 pt-6 pb-5">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold">Oportunidades</h1>
             <p className="text-sm text-neutral-500 mt-0.5">
@@ -147,17 +147,17 @@ export default function CrmPage() {
                 : `${visibles.length} de ${oportunidades.length} oportunidades`}
             </p>
           </div>
-          <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-end lg:w-auto">
+          <div className="flex w-full min-w-0 flex-wrap gap-2 items-end justify-end">
             <button
               onClick={() => setShowNew(true)}
-              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-lg bg-[var(--crm-accent)] px-4 text-sm font-medium text-white shadow-sm transition hover:brightness-110"
+              className="inline-flex min-h-12 py-3 items-center justify-center gap-1.5 rounded-lg bg-[var(--crm-accent)] px-4 text-sm font-medium text-white shadow-sm transition hover:brightness-110"
             >
               <Icon name="plus" className="w-4 h-4" />
               Nueva oportunidad
             </button>
-            <div className="relative w-full lg:w-80">
+            <div className="relative w-full min-w-0 sm:max-w-80">
               <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
-              <label htmlFor="list-search" className="sr-only">Buscar oportunidades</label>
+              <label htmlFor="list-search" className="block text-base font-medium mb-2">Buscar oportunidades</label>
               <input id="list-search" type="search"
                 className={`${inputCls} pl-9`}
                 placeholder="Buscar empresa, contacto, empleado…"

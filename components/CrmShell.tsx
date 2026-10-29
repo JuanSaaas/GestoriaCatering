@@ -7,8 +7,8 @@ import { Icon, type IconName } from './ui';
 import { useDialog } from './useDialog';
 
 function MobileMenu({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
-  const ref = useDialog<HTMLElement>(onClose);
-  return <aside ref={ref} role="dialog" aria-modal="true" aria-label="Menú principal" tabIndex={-1} className="relative w-64 bg-white h-full flex flex-col shadow-xl">{children}</aside>;
+  const ref = useDialog<HTMLDivElement>(onClose);
+  return <div ref={ref} role="dialog" aria-modal="true" aria-label="Menú principal" tabIndex={-1} className="relative w-64 bg-white h-full flex flex-col shadow-xl">{children}</div>;
 }
 
 function LogoutDialog({ busy, error, onCancel, onConfirm }: {
@@ -38,6 +38,7 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
   { href: '/crm/oportunidades', label: 'Oportunidades', icon: 'layers' },
   { href: '/crm/cierres', label: 'Cierres previstos', icon: 'calendar' },
   { href: '/crm/tareas', label: 'Tareas', icon: 'check' },
+  { href: '/crm/facturas', label: 'Facturas', icon: 'archive' },
   { href: '/crm/rrhh', label: 'Recursos humanos', icon: 'guests' },
 ];
 
@@ -83,7 +84,7 @@ export default function CrmShell({
   };
 
   const NavLinks = () => (
-    <nav aria-label="Menú principal" className="flex-1 px-3 space-y-2">
+    <nav aria-label="Menú principal" className="flex-1 min-h-0 overflow-y-auto px-3 py-2 space-y-2">
       {NAV.map((item) => (
         <Link
           key={item.href}
@@ -108,7 +109,7 @@ export default function CrmShell({
       <a href="#crm-contenido" className="skip-link">Saltar al contenido</a>
       {/* Sidebar desktop */}
       <aside className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 md:left-0 bg-white border-r border-neutral-200 z-40">
-        <div className="flex items-center gap-2 px-5 h-16 shrink-0 bg-white border-b border-neutral-100">
+        <div className="flex items-center gap-2 px-5 py-3 min-h-16 shrink-0 bg-white border-b border-neutral-100">
           <img src="/logo-icon.png" alt="" className="h-8 w-auto shrink-0" />
           <div className="leading-tight min-w-0">
             <div className="font-serif italic text-[17px] truncate text-[#1c1410]">La Mesa Perfecta</div>
@@ -120,7 +121,7 @@ export default function CrmShell({
         <div className="p-3 border-t border-neutral-200 shrink-0">
           {typeof live === 'boolean' && (
             <span className="flex items-center gap-1.5 text-xs text-neutral-500 px-2 mb-2">
-              <span className={`w-2 h-2 rounded-full ${live ? 'bg-success animate-pulse' : 'bg-neutral-300'}`} />
+              <span aria-hidden="true" className={`w-2 h-2 rounded-full ${live ? 'bg-success' : 'bg-neutral-300'}`} />
               {live ? 'En vivo' : 'Conectando…'}
             </span>
           )}
@@ -135,8 +136,8 @@ export default function CrmShell({
       </aside>
 
       {/* Header + drawer móvil */}
-      <div className="md:hidden sticky top-0 z-40 bg-white border-b border-neutral-200">
-        <div className="flex items-center justify-between gap-3 px-4 h-14">
+      <header className="md:hidden sticky top-0 z-40 bg-white border-b border-neutral-200">
+        <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-2 px-4 py-2 min-h-14">
           <button
             onClick={() => setMobileOpen(true)}
             className="p-2 -ml-2 rounded-lg hover:bg-[var(--crm-accent-soft)] text-[#1c1410]"
@@ -145,8 +146,8 @@ export default function CrmShell({
           >
             <Icon name="layers" className="w-5 h-5" />
           </button>
-          <div className="flex items-center gap-2 text-[#1c1410]">
-            <img src="/logo-icon.png" alt="" className="h-6 w-auto" />
+          <div className="flex items-center justify-center min-w-0 gap-2 text-[#1c1410]">
+            <img src="/logo-icon.png" alt="" className="h-6 w-auto shrink-0" />
             <span className="font-serif italic text-base">La Mesa Perfecta</span>
           </div>
           {onNew ? (
@@ -154,22 +155,22 @@ export default function CrmShell({
               <Icon name="plus" className="w-5 h-5" />
             </button>
           ) : (
-            <span className="w-9" />
+            <span className="w-11" />
           )}
         </div>
-      </div>
+      </header>
 
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMobileOpen(false)} />
           <MobileMenu onClose={() => setMobileOpen(false)}>
-            <div className="flex items-center justify-between px-5 h-14 border-b border-neutral-200 shrink-0">
+            <div className="flex items-center justify-between px-5 py-2 min-h-14 border-b border-neutral-200 shrink-0">
               <span className="font-serif italic text-base">La Mesa Perfecta</span>
               <button aria-label="Cerrar menú" onClick={() => setMobileOpen(false)} className="p-1 rounded hover:bg-neutral-100">
                 <Icon name="close" className="w-5 h-5" />
               </button>
             </div>
-            <div className="pt-3 flex-1 overflow-y-auto">
+            <div className="pt-3 flex-1 min-h-0 overflow-y-auto">
               <NavLinks />
             </div>
             <div className="p-3 border-t border-neutral-200 shrink-0">

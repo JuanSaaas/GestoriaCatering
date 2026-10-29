@@ -1,0 +1,26 @@
+[
+  {
+    "archivo": "skill/Pautas_WCAG/SKILL.md",
+    "copia_identica": true
+  },
+  {
+    "archivo": "skill/Pautas_WCAG/examples/accesibilidad-base.css",
+    "copia_identica": true
+  },
+  {
+    "archivo": "skill/Pautas_WCAG/examples/componentes.html",
+    "copia_identica": true
+  },
+  {
+    "archivo": "skill/Pautas_WCAG/references/temario-completo-53-diapositivas.md",
+    "copia_identica": true
+  },
+  {
+    "archivo": "skill/Pautas_WCAG/references/anexo-original.md",
+    "copia_identica": true
+  },
+  {
+    "archivo": "skill/Pautas_WCAG/references/checklist-implementacion.md",
+    "copia_identica": true
+  }
+]

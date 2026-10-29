@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Chart, registerables } from 'chart.js';
+import { Chart, registerables, type Plugin } from 'chart.js';
 import { UserIcon, BuildingOffice2Icon, ChartBarIcon } from '@heroicons/react/24/outline';
 
 Chart.register(...registerables);
@@ -12,9 +12,26 @@ import { fmtMoney, Icon } from './ui';
 
 const OBJETIVO_PIPELINE = 60000;
 
-// Paleta de datos para un CRM: distinguible, sobria y usable sobre fondos claros.
-const CHART_COLORS = ['#2563EB', '#0F9F9A', '#7C3AED', '#D97706', '#16A34A', '#DC2626'] as const;
-const MONEY_CHART_COLOR = '#2563EB';
+// Okabe–Ito: labels and dark contours also identify data without color.
+const CHART_COLORS = ['#0072B2', '#E69F00', '#009E73', '#D55E00', '#CC79A7', '#56B4E9'] as const;
+const MONEY_CHART_COLOR = '#0072B2';
+
+const barValues: Plugin<'bar'> = {
+  id: 'accessibleBarValues',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const horizontal = chart.options.indexAxis === 'y';
+    ctx.save();
+    ctx.fillStyle = '#111827';
+    ctx.font = '600 16px system-ui, sans-serif';
+    ctx.textAlign = horizontal ? 'left' : 'center';
+    ctx.textBaseline = horizontal ? 'middle' : 'bottom';
+    chart.getDatasetMeta(0).data.forEach((bar, index) => {
+      ctx.fillText(String(chart.data.datasets[0].data[index]), bar.x + (horizontal ? 8 : 0), bar.y - (horizontal ? 0 : 8));
+    });
+    ctx.restore();
+  },
+};
 
 
 function Gauge({ value, goal }: { value: number; goal: number }) {
@@ -66,6 +83,7 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
 
     const chart = new Chart(canvasRef.current, {
       type: 'bar',
+      plugins: [barValues],
       data: {
         labels: data.map((d) => d.label),
         datasets: [
@@ -73,8 +91,8 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
             label: 'Nuevas oportunidades',
             data: data.map((d) => d.value),
             backgroundColor: MONEY_CHART_COLOR,
-            borderColor: 'rgba(37, 99, 235, 0.65)',
-            borderWidth: 1,
+            borderColor: '#111827',
+            borderWidth: 2,
             borderRadius: 6,
             hoverBackgroundColor: 'rgba(37, 99, 235, 0.85)',
           },
@@ -82,7 +100,9 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
       },
       options: {
         responsive: true,
+        animation: false,
         maintainAspectRatio: false,
+        layout: { padding: { top: 28, right: 12 } },
         plugins: {
           legend: { display: false },
           title: { display: false },
@@ -97,11 +117,11 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
             beginAtZero: true,
             min: 0,
             grid: { color: '#EEF2F7' },
-            ticks: { precision: 0, color: '#64748B' },
+            ticks: { precision: 0, color: '#475569', font: { size: 16 } },
           },
           x: {
             grid: { display: false },
-            ticks: { color: '#64748B' },
+            ticks: { color: '#475569', font: { size: 16 } },
           },
         },
       },
@@ -111,9 +131,9 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
   }, [data]);
 
   return (
-    <div className="relative h-[250px] w-full">
+    <div><section className="mb-4" aria-label="Datos de nuevas oportunidades por mes"><h3 className="font-semibold">Oportunidades por mes</h3><ul>{data.map((item) => <li key={item.label}>{item.label}: {item.value} oportunidades</li>)}</ul></section><div className="chart-visual relative h-[250px] w-full">
       <canvas ref={canvasRef} role="img" aria-label={`Nuevas oportunidades por mes: ${data.map((d) => `${d.label}: ${d.value}`).join(', ')}`} />
-    </div>
+    </div></div>
   );
 }
 
@@ -124,6 +144,7 @@ function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
     if (!canvasRef.current) return;
     const chart = new Chart(canvasRef.current, {
       type: 'bar',
+      plugins: [barValues],
       data: {
         labels: data.map((d) => d.label),
         datasets: [{
@@ -131,7 +152,8 @@ function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
           data: data.map((d) => d.n),
           backgroundColor: MONEY_CHART_COLOR,
           hoverBackgroundColor: MONEY_CHART_COLOR,
-          borderWidth: 0,
+          borderColor: '#111827',
+          borderWidth: 2,
           borderRadius: 4,
           maxBarThickness: 18,
           categoryPercentage: 0.65,
@@ -140,7 +162,9 @@ function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
       options: {
         indexAxis: 'y',
         responsive: true,
+        animation: false,
         maintainAspectRatio: false,
+        layout: { padding: { right: 40 } },
         interaction: { mode: 'index', intersect: false },
         plugins: {
           legend: { display: false },
@@ -158,12 +182,12 @@ function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
             suggestedMax: Math.max(1, ...data.map((d) => d.n)),
             border: { display: false },
             grid: { color: '#EEF2F7' },
-            ticks: { precision: 0, maxTicksLimit: 5, color: '#64748B', padding: 8 },
+            ticks: { precision: 0, maxTicksLimit: 5, color: '#475569', font: { size: 16 }, padding: 8 },
           },
           y: {
             border: { display: false },
             grid: { display: false },
-            ticks: { color: '#475569', padding: 8, font: { size: 12 }, autoSkip: false },
+            ticks: { color: '#475569', padding: 8, font: { size: 16 }, autoSkip: false },
           },
         },
       },
@@ -172,9 +196,9 @@ function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
   }, [data]);
 
   return (
-    <div className="relative h-[220px] w-full">
+    <div><section className="mb-4" aria-label="Datos de oportunidades por tipo de evento"><h3 className="font-semibold">Oportunidades abiertas</h3><ul>{data.map((item) => <li key={item.label}>{item.label}: {item.n} oportunidades</li>)}</ul></section><div className="chart-visual relative h-[220px] w-full">
       <canvas ref={canvasRef} role="img" aria-label={`Oportunidades por tipo de evento: ${data.map((d) => `${d.label}: ${d.n}`).join(', ')}`} />
-    </div>
+    </div></div>
   );
 }
 function StatusDonut({ segments, total }: { segments: { label: string; value: number; color: string }[]; total: number }) {
@@ -191,7 +215,7 @@ function StatusDonut({ segments, total }: { segments: { label: string; value: nu
           {
             data: segments.map((s) => s.value),
             backgroundColor: segments.map((s) => s.color),
-            borderColor: '#FFFFFF',
+            borderColor: '#111827',
             borderWidth: 2,
             hoverOffset: 5,
           },
@@ -199,6 +223,7 @@ function StatusDonut({ segments, total }: { segments: { label: string; value: nu
       },
       options: {
         responsive: true,
+        animation: false,
         maintainAspectRatio: false,
         cutout: '62%',
         plugins: {
@@ -213,7 +238,6 @@ function StatusDonut({ segments, total }: { segments: { label: string; value: nu
             },
           },
         },
-        animation: { duration: 650 },
       },
     });
 
@@ -221,16 +245,16 @@ function StatusDonut({ segments, total }: { segments: { label: string; value: nu
   }, [segments, total]);
 
   return (
-    <div className="flex items-center gap-7 min-h-[190px]">
-      <div className="relative h-[190px] w-[190px] shrink-0">
+    <div className="flex flex-wrap justify-center items-center gap-7 min-h-[190px]">
+      <div className="chart-visual relative h-[190px] w-[190px] shrink-0">
         <canvas ref={canvasRef} role="img" aria-label={`Reparto por estado: ${segments.map((item) => `${item.label}: ${item.value}`).join(', ')}`} />
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 basis-[13rem] flex-1">
         <div className="text-2xl font-semibold tabular-nums leading-none mb-4">{total}</div>
         <div className="space-y-2">
           {segments.map((s) => (
-            <div key={s.label} className="flex items-center justify-between gap-4 text-sm">
-              <span className="flex items-center gap-2 text-neutral-600 min-w-0 truncate">
+            <div key={s.label} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+              <span className="flex items-center gap-2 text-neutral-600 min-w-0">
                 <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
                 {s.label}
               </span>
@@ -291,26 +315,26 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
   return (
     <div className="grid grid-cols-12 gap-6 px-6 mb-2">
       <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card flex flex-col items-center">
-        <div className="w-full flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2">
+        <h2 className="w-full flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2">
           <Icon name="gauge" className="w-4 h-4" />
           Objetivo comercial (orientativo)
-        </div>
+        </h2>
         <Gauge value={pipeline} goal={OBJETIVO_PIPELINE} />
       </div>
 
       <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card">
-        <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
+        <h2 className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="layers" className="w-4 h-4" />
           Reparto por estado
-        </div>
+        </h2>
         <StatusDonut segments={segments} total={abiertas.length} />
       </div>
 
       <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card">
-        <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
+        <h2 className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="calendar" className="w-4 h-4" />
           Oportunidades por tipo de evento
-        </div>
+        </h2>
         {abiertas.length > 0 ? (
           <EventTypeBars data={porTipoEvento} />
         ) : (
@@ -320,10 +344,10 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
 
       <div className="col-span-12 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px] gap-4 items-stretch">
         <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-card min-w-0">
-          <div className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
+          <h2 className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
             <Icon name="trend" className="w-4 h-4" />
             Nuevas oportunidades por mes
-          </div>
+          </h2>
           <MonthlyBars data={evolucionMensual} />
         </div>
 

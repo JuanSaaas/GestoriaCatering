@@ -75,8 +75,11 @@ export default function EmpresaPerfilPage() {
   if (loading || loadError || !empresa) {
     return (
       <CrmShell>
-        <div className="p-8 text-sm text-neutral-500">
+        <div className="p-8 text-neutral-600">
+          <h1 className="text-2xl font-semibold text-neutral-900 mb-4">Ficha de empresa</h1>
+          <p role={loading ? "status" : "alert"}>
           {loading ? 'Cargando perfil...' : loadError || 'No se encontró esta empresa.'}
+          </p>
           {!loading && <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>}
         </div>
       </CrmShell>
@@ -109,7 +112,6 @@ export default function EmpresaPerfilPage() {
           </div>
         </div>
 
-        <p className="text-sm text-neutral-600 mb-4">Los campos con * son obligatorios.</p>
         {saveMessage && <p role={saveFailed ? 'alert' : 'status'} className="mb-4 text-sm">{saveMessage}</p>}
         <ValidatedForm onSubmit={guardar} className="grid sm:grid-cols-2 gap-4 mb-10">
           <div className="sm:col-span-2">
@@ -189,7 +191,7 @@ export default function EmpresaPerfilPage() {
           {ops.map((o) => {
             const est = ESTADOS.find((e) => e.key === o.estado);
             return (
-              <div key={o.id} className="flex items-center justify-between p-3 rounded-lg border border-neutral-200">
+              <div key={o.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-neutral-200">
                 <div>
                   <div className="text-sm font-medium">{eventoLabel(o)}</div>
                   <div className="text-xs text-neutral-500">{o.cliente.nombre}</div>

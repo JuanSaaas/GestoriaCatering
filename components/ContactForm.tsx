@@ -153,7 +153,7 @@ export default function ContactForm() {
 </> },
           { title: 'Datos del evento', content: <>          <div hidden={!mostrarEmpresa}>
               <label className={labelClass} htmlFor="empresa">Nombre de la empresa</label>
-              <input className={inputClass} id="empresa" name="empresa" type="text" />
+              <input className={inputClass} id="empresa" name="empresa" type="text" autoComplete="organization" />
             </div>        <div className="grid grid-cols-1 gap-x-6 gap-y-6 mb-6">
           <div>
             <label className={labelClass} htmlFor="tipoEvento">Tipo de evento *</label>

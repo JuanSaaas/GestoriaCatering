@@ -1,0 +1,13 @@
+:root { --a11y-focus: #ffdd00; --a11y-text: #17212b; --a11y-bg: #fff; }
+html { scroll-behavior: auto; }
+body { color: var(--a11y-text); background: var(--a11y-bg); line-height: 1.5; }
+a { text-decoration: underline; text-underline-offset: .15em; }
+:where(a,button,input,select,textarea,[tabindex]):focus-visible { outline: 3px solid var(--a11y-focus); outline-offset: 3px; box-shadow: 0 0 0 1px #111; }
+.skip-link { position: absolute; left: .75rem; top: -10rem; z-index: 9999; background: white; color: black; padding: .75rem; }
+.skip-link:focus { top: .75rem; }
+button, input, select, textarea { font: inherit; }
+button { min-height: 44px; min-width: 44px; border: 2px solid currentColor; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+@media (forced-colors: active) { button { border: 2px solid ButtonText; } :where(a,button,input,select,textarea):focus-visible { outline-color: Highlight; box-shadow: none; } }

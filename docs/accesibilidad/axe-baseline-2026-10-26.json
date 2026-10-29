@@ -1,0 +1,918 @@
+[
+  {
+    "phase": "initial",
+    "url": "/",
+    "date": "2026-10-26T07:41:48.097Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "autocomplete-valid",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "duplicate-id-aria",
+      "empty-heading",
+      "form-field-multiple-labels",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "label-title-only",
+      "label",
+      "landmark-banner-is-top-level",
+      "landmark-contentinfo-is-top-level",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-banner",
+      "landmark-no-duplicate-contentinfo",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "list",
+      "listitem",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "scrollable-region-focusable",
+      "skip-link",
+      "tabindex"
+    ],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 10
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "nodes": 2
+      }
+    ]
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/login",
+    "date": "2026-10-26T07:43:39.440Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "autocomplete-valid",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "duplicate-id-aria",
+      "empty-heading",
+      "form-field-multiple-labels",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "label-title-only",
+      "label",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "region",
+      "skip-link",
+      "tabindex"
+    ],
+    "incomplete": []
+  },
+  {
+    "phase": "initial",
+    "url": "/crm",
+    "date": "2026-10-26T07:44:12.908Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "empty-heading",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "role-img-alt",
+      "skip-link",
+      "summary-name",
+      "svg-img-alt",
+      "tabindex"
+    ],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 5
+      }
+    ]
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/empresas",
+    "date": "2026-10-26T07:44:16.105Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "duplicate-id-aria",
+      "empty-heading",
+      "form-field-multiple-labels",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "label-title-only",
+      "label",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "skip-link",
+      "tabindex"
+    ],
+    "incomplete": []
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/contactos",
+    "date": "2026-10-26T07:44:19.163Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "nodes": [
+          {
+            "target": [
+              "span[title=\"Marta Sánchez López\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"Ana Pérez Navarro\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"Laura Gómez Sánchez\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"TEST CRM - Laura Martín\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"TEST CRM - Ana López\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"TEST CRM - David Ruiz\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"Prueba Supabase\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "avoid-inline-spacing",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "duplicate-id-aria",
+      "empty-heading",
+      "form-field-multiple-labels",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "label-title-only",
+      "label",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "skip-link",
+      "tabindex"
+    ],
+    "incomplete": []
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/oportunidades",
+    "date": "2026-10-26T07:44:23.086Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [
+      {
+        "id": "label-content-name-mismatch",
+        "impact": "serious",
+        "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name",
+        "help": "Elements must have their visible text as part of their accessible name",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/label-content-name-mismatch?application=axeAPI",
+        "tags": [
+          "cat.semantics",
+          "wcag21a",
+          "wcag253",
+          "EN-301-549",
+          "EN-9.2.5.3",
+          "RGAAv4",
+          "RGAA-6.1.5"
+        ],
+        "nodes": [
+          {
+            "target": [
+              ".text-left.border-l-\\[3px\\][aria-label=\"Abrir oportunidad de SkyArena\"]:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".text-left.border-l-\\[3px\\][aria-label=\"Abrir oportunidad de SkyArena\"]:nth-child(2)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(1) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(3)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".text-left.border-l-\\[3px\\].cursor-grab:nth-child(4)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".text-left.border-l-\\[3px\\].cursor-grab:nth-child(5)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(2) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              "button[aria-label=\"Abrir oportunidad de GFT\"]"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(3) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(3) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(2)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              "button[aria-label=\"Abrir oportunidad de NTT  Data\"]"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(4) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(2)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(4) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(3)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              "button[aria-label=\"Abrir oportunidad de Inditex\"]"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(5) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(2)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(5) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\][aria-label=\"Abrir oportunidad de SkyArena\"]"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(6) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(1)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          },
+          {
+            "target": [
+              ".md\\:min-w-\\[264px\\].md\\:max-w-\\[340px\\].transition-colors:nth-child(6) > .px-2\\.5.gap-2\\.5.min-h-\\[72px\\] > .text-left.border-l-\\[3px\\].cursor-grab:nth-child(2)"
+            ],
+            "summary": "Fix any of the following:\n  Text inside the element is not included in the accessible name"
+          }
+        ]
+      }
+    ],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "avoid-inline-spacing",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "duplicate-id-aria",
+      "empty-heading",
+      "form-field-multiple-labels",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "label-title-only",
+      "label",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "scrollable-region-focusable",
+      "skip-link",
+      "tabindex"
+    ],
+    "incomplete": []
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/cierres",
+    "date": "2026-10-26T07:44:59.920Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "nodes": [
+          {
+            "target": [
+              "div:nth-child(1) > .space-y-2 > .p-4.rounded-xl.hover\\:border-\\[var\\(--crm-accent\\)\\]:nth-child(1) > .gap-3.shrink-0.flex > .px-2.py-0\\.5.rounded-full"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.28 (foreground color: #2563eb, background color: #e2eafc, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "div:nth-child(3) > .space-y-2 > .p-4.rounded-xl.hover\\:border-\\[var\\(--crm-accent\\)\\] > .gap-3.shrink-0.flex > .px-2.py-0\\.5.rounded-full"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.28 (foreground color: #2563eb, background color: #e2eafc, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "div:nth-child(4) > .space-y-2 > .p-4.rounded-xl.hover\\:border-\\[var\\(--crm-accent\\)\\]:nth-child(1) > .gap-3.shrink-0.flex > .px-2.py-0\\.5.rounded-full"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.28 (foreground color: #2563eb, background color: #e2eafc, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "div:nth-child(4) > .space-y-2 > .p-4.rounded-xl.hover\\:border-\\[var\\(--crm-accent\\)\\]:nth-child(2) > .gap-3.shrink-0.flex > .px-2.py-0\\.5.rounded-full"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.28 (foreground color: #2563eb, background color: #e2eafc, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "avoid-inline-spacing",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "empty-heading",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "skip-link",
+      "tabindex"
+    ],
+    "incomplete": []
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/tareas",
+    "date": "2026-10-26T07:45:02.851Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "empty-heading",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "skip-link",
+      "tabindex"
+    ],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "nodes": 1
+      },
+      {
+        "id": "label-content-name-mismatch",
+        "nodes": 1
+      }
+    ]
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/rrhh",
+    "date": "2026-10-26T07:45:06.137Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-required-children",
+      "aria-required-parent",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "avoid-inline-spacing",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "duplicate-id-aria",
+      "empty-heading",
+      "empty-table-header",
+      "form-field-multiple-labels",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "label-title-only",
+      "label",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "scope-attr-valid",
+      "skip-link",
+      "tabindex",
+      "table-duplicate-name",
+      "td-headers-attr",
+      "th-has-data-cells"
+    ],
+    "incomplete": []
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/facturas",
+    "date": "2026-10-26T07:45:09.323Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "duplicate-id-aria",
+      "empty-heading",
+      "form-field-multiple-labels",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "label-title-only",
+      "label",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-banner",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "list",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "select-name",
+      "skip-link",
+      "summary-name",
+      "tabindex"
+    ],
+    "incomplete": []
+  },
+  {
+    "phase": "initial",
+    "url": "/crm/empleados",
+    "date": "2026-10-26T07:45:12.593Z",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "version": "4.14.0",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "nodes": [
+          {
+            "target": [
+              "span[title=\"Sergio Alonso Pérez\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"Paula Jiménez Castro\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"Marta Sánchez López\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"Ana Pérez Navarro\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"Laura Gómez Sánchez\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"TEST CRM - Laura Martín\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"TEST CRM - Ana López\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"TEST CRM - David Ruiz\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "span[title=\"Prueba Supabase\"]"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 3.68 (foreground color: #ffffff, background color: #0891b2, font size: 11.4pt (15.2px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "passes": [
+      "aria-allowed-attr",
+      "aria-allowed-role",
+      "aria-conditional-attr",
+      "aria-deprecated-role",
+      "aria-hidden-body",
+      "aria-hidden-focus",
+      "aria-prohibited-attr",
+      "aria-required-attr",
+      "aria-roles",
+      "aria-valid-attr-value",
+      "aria-valid-attr",
+      "avoid-inline-spacing",
+      "button-name",
+      "bypass",
+      "color-contrast",
+      "document-title",
+      "duplicate-id-aria",
+      "empty-heading",
+      "form-field-multiple-labels",
+      "heading-order",
+      "html-has-lang",
+      "html-lang-valid",
+      "image-alt",
+      "image-redundant-alt",
+      "label-title-only",
+      "label",
+      "landmark-main-is-top-level",
+      "landmark-no-duplicate-main",
+      "landmark-one-main",
+      "landmark-unique",
+      "link-name",
+      "meta-viewport-large",
+      "meta-viewport",
+      "nested-interactive",
+      "page-has-heading-one",
+      "presentation-role-conflict",
+      "region",
+      "skip-link",
+      "tabindex"
+    ],
+    "incomplete": []
+  }
+]

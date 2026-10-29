@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import RouteAccessibility from '@/components/RouteAccessibility';
 
 export const metadata: Metadata = {
   title: 'La Mesa Perfecta — Gestoría de eventos y catering',
@@ -18,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           rel="stylesheet"
         />
       </head>
-      <body className="font-sans">{children}</body>
+      <body className="font-sans">{children}<RouteAccessibility /></body>
     </html>
   );
 }

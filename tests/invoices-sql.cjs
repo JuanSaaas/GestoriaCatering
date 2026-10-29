@@ -1,0 +1,53 @@
+// Integration test against real embedded PostgreSQL. Separate from *.test.cjs
+// so the application has no new npm dependency. See docs/FACTURAS-IA.md.
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const {randomUUID}=require('node:crypto');
+const {PGlite}=require('../tmp/facturas-sql-tests/node_modules/@electric-sql/pglite');
+(async()=>{
+  const db=new PGlite();
+  try {
+    await db.exec('create role anon; create role authenticated; create role service_role bypassrls;');
+    await db.exec(fs.readFileSync('supabase/migracion_facturas_ia.sql','utf8'));
+    const register=async n=>(await db.query('insert into factura_documentos(sha256,archivo_nombre) values($1,$2) returning *',[String(n).padStart(64,'0'),`FAC-${n}.pdf`])).rows[0];
+    const claim=async(doc,token=randomUUID())=>({token,row:(await db.query('select * from reclamar_documento_factura($1,$2,1800)',[doc.sha256,token])).rows[0]});
+    const doc=await register(1),lease=await claim(doc);
+    assert.ok(lease.row);
+    assert.equal((await claim(doc)).row,undefined,'second worker cannot claim same document');
+    const invoice={numero_factura:'FAC-001',fecha_emision:'2026-10-23',proveedor_nombre:'Proveedor ficticio',proveedor_identificacion:'B12345678',base_imponible:100,impuestos:[{nombre:'IVA',porcentaje:21,importe:21}],importe_total:121,moneda:'EUR',observaciones:null};
+    const save=async(d,l,data=invoice,warnings=[]) => (await db.query('select guardar_factura($1,$2,$3,$4::jsonb,$5::text[]) as result',[d.id,l.token,'google/gemini-2.5-flash',JSON.stringify(data),warnings])).rows[0].result;
+    await assert.rejects(save(doc,{token:randomUUID()}),/Bloqueo caducado/);
+    const saved=await save(doc,lease);assert.equal(saved.estado,'completada');
+    assert.equal((await claim(doc)).row,undefined,'confirmed documents cannot be processed again');
+    const copy=await register(2),copyLease=await claim(copy);
+    const duplicate=await save(copy,copyLease,{...invoice,proveedor_identificacion:'B-12345678'});
+    assert.equal(duplicate.estado,'duplicada');assert.equal(duplicate.id,saved.id);
+    assert.equal((await db.query('select count(*)::int as n from facturas')).rows[0].n,1);
+    const nextYear=await register(3),yearLease=await claim(nextYear);
+    assert.equal((await save(nextYear,yearLease,{...invoice,fecha_emision:'2027-10-23'})).estado,'completada');
+    const fail=await register(4),failLease=await claim(fail);
+    await db.query('select fallar_documento_factura($1,$2,$3,$4,true)',[fail.id,failLease.token,'limite_uso','Límite temporal']);
+    assert.equal((await claim(fail)).row,undefined,'backoff prevents immediate retry');
+    await db.query('select reintentar_documento_factura($1)',[fail.id]);assert.ok((await claim(fail)).row);
+    const cooldown=await register(7),cooldownLease=await claim(cooldown);
+    await db.query('update factura_documentos set intentos=max_intentos where id=$1',[cooldown.id]);
+    await db.query('select fallar_documento_factura($1,$2,$3,$4,true)',[cooldown.id,cooldownLease.token,'modelos_agotados','Todos limitados']);
+    const waiting=(await db.query('select estado,intentos,siguiente_intento>now() as waiting from factura_documentos where id=$1',[cooldown.id])).rows[0];
+    assert.equal(waiting.estado,'reintento');assert.equal(waiting.intentos,0);assert.equal(waiting.waiting,true);
+    assert.equal((await claim(cooldown)).row,undefined,'bounded retry cycles have a cooldown');
+    await db.query("update factura_documentos set siguiente_intento=now()-interval '1 second' where id=$1",[cooldown.id]);
+    assert.ok((await claim(cooldown)).row,'recoverable quota failures resume without a human requeue');
+    const expired=await register(5),expiredLease=await claim(expired);
+    await db.query("update factura_documentos set bloqueo_hasta=now()-interval '1 minute' where id=$1",[expired.id]);
+    const renewed=await claim(expired);assert.ok(renewed.row);assert.notEqual(renewed.token,expiredLease.token);
+    await assert.rejects(save(expired,expiredLease),/Bloqueo caducado/);
+    const invalid=await register(6),invalidLease=await claim(invalid);
+    await assert.rejects(save(invalid,invalidLease,{...invoice,numero_factura:'FAC-bad',moneda:'euros'}));
+    assert.equal((await db.query('select estado from factura_documentos where id=$1',[invalid.id])).rows[0].estado,'procesando','failed insert never completes the document');
+    await db.exec('set role anon');
+    await assert.rejects(db.query('select * from facturas'),/permission denied/);
+    await assert.rejects(db.query('select reintentar_documento_factura($1)',[doc.id]),/permission denied/);
+    await db.exec('reset role');
+    console.log('OK PostgreSQL: migration, leases, stale-token rejection, semantic duplicates, year separation, backoff, requeue, atomic rollback and anonymous access restrictions.');
+  } finally {await db.close();}
+})().catch(error=>{console.error(error.message);process.exitCode=1;});

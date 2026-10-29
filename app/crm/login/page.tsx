@@ -47,7 +47,8 @@ function LoginForm() {
 
   return (
     <div className="crm-shell min-h-screen !bg-[#f5f1e9] text-slate-950">
-      <main className="flex min-h-dvh items-center justify-center px-4 py-8 sm:px-6">
+      <a href="#contenido" className="skip-link">Saltar al contenido principal</a>
+      <main id="contenido" tabIndex={-1} className="flex min-h-dvh items-center justify-center px-4 py-8 sm:px-6">
         <section className="w-full max-w-md rounded-2xl border border-[#ded7cc] bg-white p-6 shadow-sm sm:p-10" aria-labelledby="login-title">
           <div className="mb-8">
             <span className="inline-flex h-12 w-12 items-center justify-center text-neutral-700"><LockClosedIcon aria-hidden="true" className="h-6 w-6" /></span>

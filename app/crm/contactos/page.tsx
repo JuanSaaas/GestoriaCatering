@@ -130,7 +130,7 @@ export default function ContactosPage() {
             {loadError} <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>
           </div>
         )}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" aria-busy={loading}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-3" aria-busy={loading}>
           {gruposFiltrados.map(({ empresa, personas }) => {
             const principal = personas[0];
             if (!principal) return null;
@@ -155,12 +155,12 @@ export default function ContactosPage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-2 pt-2 border-t border-neutral-100">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-neutral-100">
                   <div className="min-w-0">
                     <div className="text-[11px] text-neutral-500">Contacto principal</div>
                     <div className="text-sm font-medium truncate">{principal.nombre}</div>
                   </div>
-                  <span className="text-xs font-medium text-neutral-500 whitespace-nowrap bg-neutral-100 rounded-full px-2 py-1">
+                  <span className="text-xs font-medium text-neutral-500 bg-neutral-100 rounded-full px-2 py-1">
                     {personas.length} persona{personas.length === 1 ? '' : 's'}
                   </span>
                 </div>

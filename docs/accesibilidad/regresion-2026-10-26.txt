@@ -1,0 +1,37 @@
+Web, acceso y 12 rutas del CRM: HTTP 200 y destino de salto correcto.
+✔ esquema actual: guarda todas las respuestas ampliadas en el mensaje sin duplicarlas (2.8486ms)
+✔ cliente sin empresa_id: conserva el nombre de empresa y el resto del contacto (0.7297ms)
+✔ no reintenta ni omite campos ante errores de permisos, red o validación (0.7181ms)
+✔ esquema actualizado: mantiene las columnas originales sin añadir texto (1.6308ms)
+OK: autenticación, fichas y foto, fichajes, vacaciones, incorporación, contratación con CV, evaluaciones, PDF firmado, informe y persistencia.
+✔ tests\hr-api.test.cjs (847.2326ms)
+✔ respuesta vacía o HTML: mensaje legible, sin error de JSON (36.5154ms)
+✔ sesión expirada, fallo configurado y estructura inesperada (4.123ms)
+✔ Vercel: carga, modifica y recupera documentos sin escribir en disco (46.5059ms)
+✔ guardados concurrentes: evita sobrescribir el cambio de otra instancia (55.1746ms)
+✔ API GET: un fallo de almacenamiento siempre devuelve JSON controlado (220.2499ms)
+✔ Vercel sin clave: error explícito, sin retroceder a archivos locales (57.086ms)
+✔ horas: semana lunes-domingo, mes y turnos que cruzan limites (34.3532ms)
+✔ horas: cambio de hora y domingo pertenecen a la misma semana (2.898ms)
+✔ firma: admite otro firmante pero exige nombre y conformidad (1.0997ms)
+✔ horarios generales: una ultima jornada por empleado, independientemente del orden (0.365ms)
+✔ fichaje: impide entradas duplicadas y salidas sin entrada (2.0452ms)
+✔ vacaciones: valida fechas, evita solapamientos y registra aprobacion (0.7926ms)
+✔ contratacion: exige CV, crea correo unico y checklist una sola vez (2.2244ms)
+✔ evaluaciones: notas de 1 a 5, comentario obligatorio y trimestre unico (0.7154ms)
+✔ incorporacion: check persistente y rechazo de tareas ajenas (0.4536ms)
+✔ facturas: moneda ausente no se inventa, formatos españoles y crédito (30.465ms)
+✔ facturas: filtros acotados y sin operadores PostgREST introducidos por la búsqueda (1.1889ms)
+✔ facturas API: lectura y reintento exigen sesión (49.9387ms)
+✔ facturas API: estado vacío real y errores controlados sin secretos (40.3642ms)
+✔ facturas API: protege reintentos frente a origen externo y JSON inválido (14.1734ms)
+✔ facturas API: solo confirma reintento después de persistirlo (16.8382ms)
+✔ facturas: falta de configuración produce mensaje útil sin usar el cliente público (92.9365ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1163.1971

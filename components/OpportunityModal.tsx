@@ -37,7 +37,7 @@ export default function OpportunityModal({
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState('');
   const [failed, setFailed] = useState(false);
-  const dialogRef = useDialog<HTMLElement>(() => { if (!busy) onClose(); });
+  const dialogRef = useDialog<HTMLDivElement>(() => { if (!busy) onClose(); });
   async function perform(action: () => Promise<void>, success: string) {
     if (busy) return;
     setBusy(true); setNotice(''); setFailed(false);
@@ -140,9 +140,9 @@ export default function OpportunityModal({
   return (
     <div
       className="fixed inset-0 z-50 bg-ink/40 animate-fade-in"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onClick={(e) => e.target === e.currentTarget && !busy && onClose()}
     >
-      <aside
+      <div
         ref={dialogRef}
         tabIndex={-1}
         aria-busy={busy}
@@ -170,7 +170,7 @@ export default function OpportunityModal({
                 {c.tipo_cliente === 'empresa' || oportunidad.empresa ? `Contacto: ${c.nombre}` : 'Cliente particular'}
               </p>
             </div>
-            <button onClick={onClose} aria-label="Cerrar" className="p-1.5 -mr-1.5 rounded-lg text-ink-soft hover:bg-surface shrink-0">
+            <button disabled={busy} onClick={onClose} aria-label="Cerrar" className="p-1.5 -mr-1.5 rounded-lg text-ink-soft hover:bg-surface shrink-0">
               <Icon name="close" className="w-5 h-5" />
             </button>
           </div>
@@ -206,8 +206,8 @@ export default function OpportunityModal({
           </Section>
 
           <Section title="Fase">
-            <select
-              aria-label="Estado"
+            <label htmlFor="opportunity-state" className="block font-medium mb-2">Estado de la oportunidad</label>
+            <select id="opportunity-state"
               className={inputCls}
               value={oportunidad.estado}
               onChange={(e) => onEstadoChange(oportunidad.id, e.target.value as Oportunidad['estado'])}
@@ -264,6 +264,7 @@ export default function OpportunityModal({
                       <button
                         disabled={busy}
                         onClick={() => deleteTask(t.id)}
+                        aria-label={`Eliminar tarea «${t.titulo}»`}
                         className="text-xs text-neutral-500 hover:text-warning  transition"
                       >
                         Eliminar
@@ -274,7 +275,7 @@ export default function OpportunityModal({
               })}
             </ul>
             <label htmlFor="new-task" className="block text-sm font-medium mt-4">Nueva tarea</label>
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
               <input id="new-task"
                 className={inputCls}
                 placeholder="Ej. Llamar para confirmar menú"
@@ -282,7 +283,7 @@ export default function OpportunityModal({
                 onChange={(e) => setNewTask(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addTask()}
               />
-              <button disabled={busy || !newTask.trim()} onClick={addTask} className={btnGhost}>Añadir tarea</button>
+              <button disabled={busy} onClick={() => { if (!newTask.trim()) { setFailed(true); setNotice('⚠ Escribe el título de la tarea antes de añadirla.'); document.getElementById('new-task')?.focus(); return; } addTask(); }} className={btnGhost}>Añadir tarea</button>
             </div>
           </Section>
 
@@ -297,7 +298,7 @@ export default function OpportunityModal({
               ))}
             </div>
             <label htmlFor="new-note" className="block text-sm font-medium mt-4">Nueva nota</label>
-            <div className="flex gap-2 mt-2">
+            <div className="flex flex-col sm:flex-row gap-2 mt-2">
               <input id="new-note"
                 className={inputCls}
                 placeholder="Ej. Llamada de seguimiento, cambió el menú a…"
@@ -305,13 +306,13 @@ export default function OpportunityModal({
                 onChange={(e) => setNewNote(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addNote()}
               />
-              <button disabled={busy || !newNote.trim()} onClick={addNote} className={btnGhost}>Añadir nota</button>
+              <button disabled={busy} onClick={() => { if (!newNote.trim()) { setFailed(true); setNotice('⚠ Escribe el contenido de la nota antes de añadirla.'); document.getElementById('new-note')?.focus(); return; } addNote(); }} className={btnGhost}>Añadir nota</button>
             </div>
           </Section>
         </div>
 
         {/* Pie */}
-        <div className="flex justify-between px-6 py-4 border-t border-line bg-surface/60">
+        <div className="flex flex-wrap gap-3 justify-between px-6 py-4 border-t border-line bg-surface/60">
           <button
             disabled={busy}
             onClick={deleteOpportunity}
@@ -319,9 +320,9 @@ export default function OpportunityModal({
           >
             Eliminar oportunidad
           </button>
-          <button onClick={onClose} className={btnGhost}>Cerrar</button>
+          <button disabled={busy} onClick={onClose} className={btnGhost}>Cerrar</button>
         </div>
-      </aside>
+      </div>
     </div>
   );
 }

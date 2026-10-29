@@ -48,7 +48,7 @@ export function Icon({ name, className = 'w-4 h-4' }: { name: IconName; classNam
 
 /* ---------- Avatar con iniciales ---------- */
 
-const AVATAR_COLORS = ['#1F2937', '#2563EB', '#4F46E5', '#0891B2'];
+const AVATAR_COLORS = ['#1F2937', '#2563EB', '#4F46E5', '#0E7490'];
 
 function iniciales(nombre: string) {
   const parts = nombre.trim().split(/\s+/).filter(Boolean);
@@ -85,7 +85,7 @@ export function Avatar({ nombre, size = 28 }: { nombre?: string | null; size?: n
 /* ---------- Clases reutilizables ---------- */
 
 export const inputCls =
-  'w-full min-h-12 h-12 px-4 text-sm bg-white border border-neutral-300 rounded-lg text-black placeholder:text-neutral-500 ' +
+  'w-full min-h-12 px-4 py-3 text-base bg-white border border-neutral-500 rounded-lg text-black placeholder:text-neutral-600 ' +
   'focus:outline-none focus:border-[var(--crm-accent)] focus:ring-2 focus:ring-[var(--crm-accent-soft)] transition disabled:bg-neutral-50';
 export const labelCls = 'flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2';
 export const btnPrimary =

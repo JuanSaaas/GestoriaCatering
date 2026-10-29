@@ -1,0 +1,140 @@
+[
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#1D4ED8",
+    "fondo": "#e1e7fa",
+    "ratio": 5.43
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#1D4ED8",
+    "fondo": "#d8dff1",
+    "ratio": 5.02
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#115E59",
+    "fondo": "#dfeae9",
+    "ratio": 6.17
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#115E59",
+    "fondo": "#d7e1e0",
+    "ratio": 5.68
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#6D28D9",
+    "fondo": "#ece2fa",
+    "ratio": 5.69
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#6D28D9",
+    "fondo": "#e3daf1",
+    "ratio": 5.27
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#92400E",
+    "fondo": "#f0e6df",
+    "ratio": 5.77
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#92400E",
+    "fondo": "#e8ddd6",
+    "ratio": 5.32
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#166534",
+    "fondo": "#e0eae4",
+    "ratio": 5.79
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#166534",
+    "fondo": "#d7e2db",
+    "ratio": 5.36
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#b91c1c",
+    "fondo": "#f6e1e1",
+    "ratio": 5.17
+  },
+  {
+    "uso": "Estado, fondo alpha 22",
+    "texto": "#b91c1c",
+    "fondo": "#edd8d8",
+    "ratio": 4.75
+  },
+  {
+    "uso": "Avatar",
+    "texto": "#ffffff",
+    "fondo": "#0E7490",
+    "ratio": 5.36
+  },
+  {
+    "uso": "Borde de campo",
+    "texto": "#767676",
+    "fondo": "#ffffff",
+    "ratio": 4.54
+  },
+  {
+    "uso": "Barra",
+    "texto": "#0072B2",
+    "fondo": "#ffffff",
+    "ratio": 5.19
+  },
+  {
+    "uso": "Contorno de serie naranja",
+    "texto": "#111827",
+    "fondo": "#E69F00",
+    "ratio": 7.88
+  },
+  {
+    "uso": "Portada marca",
+    "texto": "#715021",
+    "fondo": "#d9cbb7",
+    "ratio": 4.59
+  },
+  {
+    "uso": "Texto sobre fotografía con capa negra 65% (peor fondo blanco)",
+    "texto": "#f7f1e4",
+    "fondo": "#595959",
+    "ratio": 6.22
+  },
+  {
+    "uso": "Servicios: texto claro sobre peor fotografia con capa negra 65%",
+    "texto": "#F7F2ED",
+    "fondo": "#595959",
+    "ratio": 6.3
+  },
+  {
+    "uso": "Servicios: numero grande sobre peor fotografia con capa negra 65%",
+    "texto": "#C9A876",
+    "fondo": "#595959",
+    "ratio": 3.12
+  },
+  {
+    "uso": "Navegacion publica sobre fondo solido",
+    "texto": "#6B5F52",
+    "fondo": "#F7F2ED",
+    "ratio": 5.58
+  },
+  {
+    "uso": "Texto de graficos y foco",
+    "texto": "#111827",
+    "fondo": "#ffffff",
+    "ratio": 17.74
+  },
+  {
+    "uso": "Leyenda secundaria de graficos",
+    "texto": "#4a5562",
+    "fondo": "#ffffff",
+    "ratio": 7.59
+  }
+]

@@ -175,7 +175,7 @@ export default function AssignmentFields({
               {nombreEmpresa.trim() && (
                 <CompanyLogo nombre={nombreEmpresa} size={28} />
               )}
-              <div className="w-full"><label htmlFor="quick-company-name" className={labelCls}>Nombre de la empresa *</label><input id="quick-company-name"
+              <div className="w-full"><label htmlFor="quick-company-name" className={labelCls}>Nombre de la empresa (obligatorio)</label><input id="quick-company-name" autoComplete="organization" aria-required="true" aria-invalid={!!error && !nombreEmpresa.trim()} aria-describedby={error ? 'assignment-error' : undefined}
                 className={inputCls}
                 placeholder="Nombre de la empresa *"
                 value={nombreEmpresa}
@@ -192,7 +192,7 @@ export default function AssignmentFields({
               onKeyDown={onEnter(crearEmpresa)}
             /></div>
             <div className="flex gap-2">
-              <button type="button" className={btnGhost} onClick={crearEmpresa} disabled={saving || !nombreEmpresa.trim()}>
+              <button type="button" className={btnGhost} onClick={crearEmpresa} disabled={saving}>
                 {saving ? 'Guardando…' : 'Crear y asignar'}
               </button>
               <button type="button" className={btnGhost} onClick={() => setCreandoEmpresa(false)}>
@@ -238,7 +238,7 @@ export default function AssignmentFields({
 
         {creandoEmpleado && (
           <div className="mt-2 p-3 rounded-lg bg-surface border border-line space-y-2 animate-fade-in">
-            <div className="w-full"><label htmlFor="quick-employee-name" className={labelCls}>Nombre y apellidos *</label><input id="quick-employee-name"
+            <div className="w-full"><label htmlFor="quick-employee-name" className={labelCls}>Nombre y apellidos (obligatorio)</label><input id="quick-employee-name" autoComplete="name" aria-required="true" aria-invalid={!!error && !nombreEmpleado.trim()} aria-describedby={error ? 'assignment-error' : undefined}
               className={inputCls}
               placeholder="Nombre y apellidos *"
               value={nombreEmpleado}
@@ -246,7 +246,7 @@ export default function AssignmentFields({
               onKeyDown={onEnter(crearEmpleado)}
               autoFocus
             /></div>
-            <div className="w-full"><label htmlFor="quick-employee-email" className={labelCls}>Correo electrónico *</label><input id="quick-employee-email"
+            <div className="w-full"><label htmlFor="quick-employee-email" className={labelCls}>Correo electrónico (obligatorio)</label><input id="quick-employee-email" autoComplete="email" aria-required="true" aria-invalid={!!error && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEmpleado.trim())} aria-describedby={error ? 'assignment-error' : undefined}
               className={inputCls}
               type="email"
               placeholder="Email *"
@@ -274,7 +274,7 @@ export default function AssignmentFields({
       </div>
 
       {error && (
-        <div role="alert" className="text-sm px-3 py-2 rounded-lg bg-[#FBEAE8] text-wine-dark border border-wine/20">
+        <div id="assignment-error" role="alert" className="text-sm px-3 py-2 rounded-lg bg-[#FBEAE8] text-wine-dark border border-wine/20">
           ⚠ {error}
         </div>
       )}

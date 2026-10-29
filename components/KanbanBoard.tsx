@@ -18,7 +18,7 @@ export default function KanbanBoard({
   const [over, setOver] = useState<EstadoOportunidad | null>(null);
 
   return (
-    <div className="flex gap-4 px-6 pb-10 overflow-x-auto items-start">
+    <div role="region" aria-label="Oportunidades por fase. Abre una oportunidad para cambiar su fase sin arrastrar." tabIndex={0} className="flex flex-col md:flex-row gap-4 px-6 pb-10 md:overflow-x-auto items-stretch md:items-start">
       {ESTADOS.map((est) => {
         const items = oportunidades.filter((o) => o.estado === est.key);
         const total = items.reduce((s, o) => s + (Number(o.presupuesto_estimado) || 0), 0);
@@ -27,7 +27,7 @@ export default function KanbanBoard({
           <div
             key={est.key}
             style={{ borderTopColor: est.color }}
-            className={`rounded-xl min-w-[264px] flex-1 max-w-[340px] border transition-colors ${
+            className={`rounded-xl w-full md:min-w-[264px] flex-1 md:max-w-[340px] border transition-colors ${
               activa ? 'bg-[var(--crm-accent-soft)] border-[var(--crm-accent)]/40' : 'bg-slate-100 border-transparent border-t-[3px]'
             }`}
             onDragOver={(e) => {
@@ -46,10 +46,10 @@ export default function KanbanBoard({
           >
             <div className="px-3.5 pt-3.5 pb-2.5">
               <div className="flex items-center justify-between">
-                <h3 style={{ color: est.color }} className="flex items-center gap-2 text-sm font-semibold">
+                <h2 style={{ color: est.color }} className="flex items-center gap-2 text-sm font-semibold">
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: est.color }} />
                   {est.label}
-                </h3>
+                </h2>
                 <span className="text-xs font-medium text-slate-600 bg-white rounded-full px-2 py-0.5 shadow-card">
                   {items.length}
                 </span>
@@ -59,7 +59,7 @@ export default function KanbanBoard({
             <div className="px-2.5 pb-2.5 flex flex-col gap-2.5 min-h-[72px]">
               {items.length === 0 && (
                 <div className="text-xs text-slate-500 text-center py-5 border border-dashed border-slate-300 rounded-lg bg-white/55">
-                  Arrastra aquí una oportunidad
+                  Sin oportunidades en esta fase. Para mover una, abre su ficha y cambia el estado.
                 </div>
               )}
               {items.map((o) => (

@@ -13,7 +13,7 @@ module.exports = {
         'ink-soft': '#6B5F52',
         wine: '#7A1F2B',
         'wine-dark': '#54151E',
-        gold: '#AE8148',
+        gold: '#805B2E',
         'gold-light': '#C9A876',
         olive: '#4B5E45',
         // Paleta de la interfaz del CRM: blanco / negro / aviso / espera

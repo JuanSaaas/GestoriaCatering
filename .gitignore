@@ -12,3 +12,13 @@ artifacts/rrhh/
 
 .env.local
 .next-*/
+
+# Facturas: documentos, entornos Python y secretos del agente
+automation/facturas/.env
+automation/facturas/.venv/
+__pycache__/
+*.pyc
+
+# Archivos locales de auditoría y compilación
+/tmp/
+*.tsbuildinfo

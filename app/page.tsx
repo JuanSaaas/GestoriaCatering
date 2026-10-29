@@ -7,8 +7,10 @@ import SiteHeader from '@/components/SiteHeader';
 
 export default function HomePage() {
   return (
-    <main className="bg-paper text-ink">
+    <>
+      <a href="#contenido" className="skip-link">Saltar al contenido principal</a>
       <SiteHeader />
+    <main id="contenido" tabIndex={-1} className="bg-paper text-ink">
       <Hero />
 
       <section className="border-b border-[var(--line)]">
@@ -25,15 +27,15 @@ export default function HomePage() {
         id="servicios"
         scrollSpan={90}
         base={
-          <section id="propuesta" className="grid grid-cols-1 md:grid-cols-[42%_58%] items-stretch bg-paper-2 h-full">
-            <div className="bg-[#1a1512] h-full">
+          <section id="propuesta" className="grid grid-cols-1 md:grid-cols-[42%_58%] items-stretch bg-paper-2">
+            <div className="bg-[#1a1512] min-h-64">
               <img
                 src="/salon-eventos.png"
                 alt="Mesa preparada para un evento de La Mesa Perfecta"
                 className="w-full h-full object-cover object-[50%_30%]"
               />
             </div>
-            <div className="flex items-center px-6 md:px-14 py-10 md:py-14 bg-paper-2 overflow-y-auto h-full">
+            <div className="flex items-center px-6 md:px-14 py-10 md:py-14 bg-paper-2">
               <div className="max-w-[560px]">
                 <span className="block text-xs uppercase tracking-[0.2em] text-gold mb-5">Nuestra propuesta</span>
                 <h2 className="font-serif text-3xl md:text-4xl mb-5 leading-tight">Del primer boceto a la última copa</h2>
@@ -88,6 +90,7 @@ export default function HomePage() {
         </div>
       </section>
 
+    </main>
       <footer className="max-w-[1200px] mx-auto px-6 md:px-10 py-10 flex flex-col md:flex-row items-center justify-between gap-5">
         <img src="/logo-full.png" alt="La Mesa Perfecta" className="h-20 md:h-24 w-auto max-w-[260px] object-contain" />
         <div className="text-center md:text-right text-ink-soft text-sm">
@@ -95,6 +98,6 @@ export default function HomePage() {
           <div>Proyecto de práctica de curso.</div>
         </div>
       </footer>
-    </main>
+    </>
   );
 }

@@ -21,17 +21,26 @@ export default function EmpleadoPerfilPage() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [saveFailed, setSaveFailed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
   async function load() {
+    setLoading(true);
+    setLoadError('');
+    try {
     const id = params.id;
-    const [{ data: cli }, { data: emp }, { data: oportunidades }] = await Promise.all([
+    const [{ data: cli, error: cliError }, { data: emp, error: empError }, { data: oportunidades, error: opsError }] = await Promise.all([
       supabase.from('clientes').select('*').eq('id', id).single(),
       supabase.from('empresas').select('*').order('nombre'),
       supabase.from('oportunidades').select(OPORTUNIDAD_SELECT).eq('cliente_id', id).order('created_at', { ascending: false }),
     ]);
+    if (cliError || !cli) throw new Error(cliError?.code === 'PGRST116' ? 'No se encontró este contacto.' : 'No se pudo cargar el perfil. Revisa tu conexión y vuelve a intentarlo.');
+    if (empError || opsError) throw new Error('No se pudieron cargar los datos del perfil. Vuelve a intentarlo.');
     setContacto(cli as Cliente);
     setEmpresas((emp as Empresa[]) || []);
     setOps((oportunidades as unknown as Oportunidad[]) || []);
+    } catch (error) { setLoadError(error instanceof Error ? error.message : 'No se pudo cargar el perfil.'); }
+    finally { setLoading(false); }
   }
 
   useEffect(() => {
@@ -65,10 +74,14 @@ export default function EmpleadoPerfilPage() {
     finally { setSaving(false); }
   }
 
-  if (!contacto) {
+  if (loading || loadError || !contacto) {
     return (
       <CrmShell>
-        <div className="p-8 text-sm text-neutral-500">Cargando perfil…</div>
+        <div className="p-8 text-neutral-600">
+          <h1 className="text-2xl font-semibold text-neutral-900 mb-4">Ficha de contacto</h1>
+          <p role={loading ? 'status' : 'alert'}>{loading ? 'Cargando perfil…' : loadError || 'No se encontró este contacto.'}</p>
+          {!loading && <button type="button" className="underline mt-2" onClick={load}>Reintentar</button>}
+        </div>
       </CrmShell>
     );
   }
@@ -110,7 +123,6 @@ export default function EmpleadoPerfilPage() {
           </div>
         </div>
 
-        <p className="text-sm text-neutral-600 mb-4">Los campos con * son obligatorios.</p>
         {saveMessage && <p role={saveFailed ? 'alert' : 'status'} className="mb-4 text-sm">{saveMessage}</p>}
         <ValidatedForm onSubmit={guardar} className="grid sm:grid-cols-2 gap-4 mb-10">
           <div>
@@ -167,14 +179,14 @@ export default function EmpleadoPerfilPage() {
           {ops.map((o) => {
             const est = ESTADOS.find((e) => e.key === o.estado);
             return (
-              <div key={o.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-neutral-200">
+              <div key={o.id} className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg border border-neutral-200">
                 <div className="min-w-0">
                   <div className="text-sm font-medium">{eventoLabel(o)}</div>
                   <div className="text-xs text-neutral-500">
                     {fmtDate(o.fecha_evento)} · {o.origen === 'formulario_web' ? 'Formulario web' : 'CRM'}
                   </div>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex flex-wrap min-w-0 items-center gap-3">
                   <span className="text-sm tabular-nums">{fmtMoney(o.presupuesto_estimado)}</span>
                   <span
                     className="text-xs px-2 py-0.5 rounded-full"
