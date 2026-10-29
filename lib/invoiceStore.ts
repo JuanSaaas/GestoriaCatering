@@ -9,7 +9,7 @@ export class InvoiceStorageError extends Error {
 function database() {
   const url = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || '').trim();
   const key = (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || '').trim();
-  if (!url || !key) throw new InvoiceStorageError('Falta conectar Facturas con Supabase. Administración debe configurar la clave de servidor y ejecutar la migración de facturas.');
+  if (!url || !key) throw new InvoiceStorageError('Falta conectar Facturas con Supabase: configura la URL del proyecto y una clave privada de servidor (SUPABASE_SECRET_KEY o SUPABASE_SERVICE_ROLE_KEY).');
   try { if (new URL(url).protocol !== 'https:') throw new Error(); }
   catch { throw new InvoiceStorageError('La conexión de Facturas debe utilizar una dirección HTTPS válida.'); }
   return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });

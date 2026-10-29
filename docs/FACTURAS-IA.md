@@ -1,5 +1,36 @@
 # Automatización de facturas · La Mesa Perfecta
 
+## Estado de la conexión · 29/10/2026
+
+Se ha aplicado `activar_facturas_ia` (versión `20261029103634`) en Supabase `GestoriaCatering`
+(`odentjiuagcrdqozccva`), creando las cuatro tablas y cinco funciones del módulo.
+Comprobado con consultas: RLS activo, acceso anónimo y authenticated revocado,
+SELECT/INSERT/UPDATE y funciones disponibles para service_role. Las cuatro tablas
+están vacías. La prueba de lectura y reintento inexistente con service_role fue
+correcta y se ejecutó dentro de una transacción con rollback.
+
+El análisis de seguridad solo señala que estas tablas tienen RLS sin políticas:
+es intencionado porque el módulo se sirve exclusivamente desde el backend y no
+se conceden privilegios al cliente público. No se han abierto las facturas al
+navegador para evitar utilizar la clave privada.
+
+**Pendiente:** guardar una clave privada existente del proyecto en
+`SUPABASE_SECRET_KEY` o `SUPABASE_SERVICE_ROLE_KEY`. Para desarrollo, usar
+`.env.local`; para la web publicada, configurar también la variable en el
+proyecto Vercel correspondiente y volver a desplegar. La conexión administrativa
+del asistente permite migraciones, pero no proporciona esa clave al servidor web.
+La URL pública ya configurada se reutiliza sin cambiar de proyecto.
+
+Verificación de solo lectura, sin mostrar claves ni contenido de facturas:
+
+```powershell
+node scripts/check-facturas-supabase.cjs
+```
+
+La conexión de la aplicación solo se dará por terminada cuando esa comprobación
+y `/api/crm/facturas` respondan correctamente en el entorno configurado. El estado
+descrito el 23/10/2026 más abajo es histórico; la migración ya está aplicada.
+
 Implementación del 23/10/2026. La integración añade «Facturas» al CRM sin cambiar
 las tablas ni las operaciones comerciales o de RRHH. Se ha seguido el flujo escrito
 en la solicitud; no había una imagen de arquitectura adjunta que se pudiera contrastar.
