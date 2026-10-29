@@ -1,5 +1,17 @@
 # Accesibilidad de La Mesa Perfecta
 
+## Tooltip simplificado · 29/10/2026
+
+Por petición del usuario, el cuadro emergente de eventos se reduce a un rectángulo
+compacto que muestra únicamente «Categoría: cantidad», por ejemplo «Boda: 3».
+Su ancho se adapta al contenido; no incluye porcentajes, presupuestos ni párrafos.
+Se conservan el foco visible, la apertura con teclado/tacto, aria-describedby,
+Escape y el listado de datos alternativo. Este ajuste sustituye el diseño del
+cuadro informativo ampliado descrito en la revisión anterior.
+Compilación de producción correcta. Comprobado en navegador: «Boda: 3» en un
+cuadro de aproximadamente 82×42 px, «Otro: 14» y cierre con Escape.
+Captura actual: [tooltip sencillo](graficos-tooltip-simple-2026-10-29.png).
+
 ## Gráficos centrados y detalle de eventos · 29/10/2026
 
 Los tres widgets superiores de Resumen mantienen su título arriba y centran el

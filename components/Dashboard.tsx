@@ -159,8 +159,8 @@ function EventTypeBars({ data }: { data: EventTypeSummary[] }) {
       const tooltip = tooltipRef.current;
       if (!bar || !tooltip) return;
       const rect = bar.getBoundingClientRect();
-      const width = Math.min(360, window.innerWidth - 32);
-      const height = Math.min(tooltip.scrollHeight, window.innerHeight - 32);
+      const width = Math.min(tooltip.offsetWidth, window.innerWidth - 32);
+      const height = Math.min(tooltip.offsetHeight, window.innerHeight - 32);
       const beside = rect.left >= width + 16 || window.innerWidth - rect.right >= width + 16;
       if (beside) {
         setTooltipPosition({ left: rect.left >= width + 16 ? rect.left - width : rect.right,
@@ -202,13 +202,9 @@ function EventTypeBars({ data }: { data: EventTypeSummary[] }) {
           </button>)}
         </div>
         {selected && <div ref={tooltipRef} id={tooltipId} role="tooltip"
-          className="event-chart-tooltip fixed z-[60] overflow-y-auto rounded-lg border border-slate-500 bg-slate-900 p-4 text-base text-white shadow-lg"
-          style={{ width: 'min(360px, calc(100vw - 32px))', visibility: tooltipPosition ? 'visible' : 'hidden', ...tooltipPosition }}>
-            <p className="font-semibold">{selected.label} · {count(selected.n)}</p>
-            <p className="mt-1">{share(selected.n)} de las {total} oportunidades abiertas.</p>
-            <p className="mt-1">{selected.estimatedAmount === null ? 'Sin presupuesto indicado.' : `Presupuesto estimado informado: ${fmtMoney(selected.estimatedAmount)}.`}</p>
-            {selected.key === 'otro' && <p className="mt-1">{selected.descriptions.length ? `Tipos registrados: ${selected.descriptions.join(', ')}.` : 'Eventos de otras categorías, distintos de bodas, corporativos, comuniones y cumpleaños.'}</p>}
-            <p className="mt-2 text-sm">Solicitudes todavía abiertas. No incluye las oportunidades ganadas ni las perdidas.</p>
+          className="event-chart-tooltip fixed z-[60] overflow-y-auto rounded border border-slate-500 bg-slate-900 px-3 py-2 text-sm font-medium text-white shadow-md"
+          style={{ width: 'max-content', maxWidth: 'calc(100vw - 32px)', visibility: tooltipPosition ? 'visible' : 'hidden', ...tooltipPosition }}>
+            <p>{selected.label}: {selected.n}</p>
         </div>}
       </div>
     </div>
