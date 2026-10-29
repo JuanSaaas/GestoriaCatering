@@ -117,12 +117,14 @@ button[class*="text-white"], button[class*="text-paper"] { border-color: current
   input, select, textarea, button { border-width: 2px; }
 }
 @media (forced-colors: active) {
+  .event-type-bar { background-color: Highlight !important; border-color: CanvasText !important; }
   .chart-visual { display: none; } /* The adjacent text contains every value. */
   button, input, select, textarea, a.inline-flex, a.inline-block { border: 2px solid ButtonText; }
   :focus-visible { outline: 3px solid Highlight !important; box-shadow: none !important; }
   [aria-current], [aria-selected='true'], [aria-pressed='true'] { outline: 2px solid Highlight; }
   [aria-invalid='true'], .error-summary { border: 2px solid Mark !important; }
 }
+.event-chart-tooltip p { color: inherit; }
 
 .hr-module input[type='file']::file-selector-button {
   margin-right: 12px;

@@ -1,5 +1,36 @@
 # Accesibilidad de La Mesa Perfecta
 
+## Gráficos centrados y detalle de eventos · 29/10/2026
+
+Los tres widgets superiores de Resumen mantienen su título arriba y centran el
+gráfico en el espacio disponible. El gráfico de eventos presenta una barra por
+categoría con nombre y cantidad, sin el listado duplicado encima. Cada fila
+dispone de un botón nativo de 48 px: al pasar el puntero, enfocar con Tab o tocar,
+aparece información específica con categoría, número de oportunidades abiertas,
+porcentaje y presupuesto informado. «Otro» detalla los tipos registrados; los
+tipos antiguos no reconocidos también se incluyen ahí para no perder solicitudes.
+Los presupuestos ausentes no se convierten en un cero inventado.
+
+El detalle usa role=tooltip y aria-describedby, permanece al mover el puntero
+hacia él, se cierra con Escape y se recoloca junto a la barra dentro del viewport.
+Su texto puede desplazarse si no cabe. «Ver todos los datos del gráfico» ofrece
+la alternativa en texto con un control details/summary nativo. Las barras siguen
+disponibles en colores forzados y no se requiere distinguir colores para leerlas.
+Criterios relacionados: 1.1.1, 1.4.1, 1.4.3, 1.4.10, 1.4.13, 2.1.1 y 2.4.7.
+
+Comprobado en navegador local: Boda y Corporativo muestran su detalle correcto;
+Tab cambia de categoría y Escape cierra; el listado alternativo coincide con los
+recuentos. A 320×800 px, documento de 305 px útiles sin desbordamiento, cinco
+objetivos de 48 px y detalle de «Otro» dentro de x=16–304 e y=76–466. Texto blanco
+sobre #0f172a: 17,85:1; barras #0072B2 sobre blanco: 5,19:1, colores ya usados en el CRM.
+Dos pruebas de agregación cubren estados cerrados, tipos antiguos, recuentos
+vacíos, descripciones repetidas y presupuestos ausentes. Compilación de producción
+y 29 pruebas de regresión correctas. Falta recorrido con un
+lector de pantalla real y comprobación del modo de colores forzados del sistema.
+No se declara conformidad WCAG completa.
+
+Captura: [detalle de las barras](graficos-detalle-2026-10-29.png).
+
 ## Ajuste de subrayados · 29/10/2026
 
 A petición expresa del usuario, todos los enlaces, botones y controles summary

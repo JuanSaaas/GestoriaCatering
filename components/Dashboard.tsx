@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Chart, registerables, type Plugin } from 'chart.js';
 import { UserIcon, BuildingOffice2Icon, ChartBarIcon } from '@heroicons/react/24/outline';
 
 Chart.register(...registerables);
 
 import type { Empresa, Oportunidad } from '@/lib/types';
-import { ESTADOS, TIPO_EVENTO_LABEL } from '@/lib/types';
+import { ESTADOS } from '@/lib/types';
+import { summarizeEventTypes, type EventTypeSummary } from '@/lib/dashboardCharts';
 import { fmtMoney, Icon } from './ui';
 
 const OBJETIVO_PIPELINE = 60000;
@@ -137,69 +138,86 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
   );
 }
 
-function EventTypeBars({ data }: { data: { label: string; n: number }[] }) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+function EventTypeBars({ data }: { data: EventTypeSummary[] }) {
+  const [active, setActive] = useState<number | null>(null);
+  const tooltipId = useId();
+  const helpId = useId();
+  const chartRef = useRef<HTMLDivElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const barRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [tooltipPosition, setTooltipPosition] = useState<{ left: number; top: number; maxHeight: number } | null>(null);
+  const total = data.reduce((sum, item) => sum + item.n, 0);
+  const maximum = Math.max(1, ...data.map((item) => item.n));
+  const selected = active === null ? null : data[active];
+  const count = (n: number) => `${n} ${n === 1 ? 'oportunidad abierta' : 'oportunidades abiertas'}`;
+  const share = (n: number) => `${(total ? n / total * 100 : 0).toLocaleString('es-ES', { maximumFractionDigits: 1 })} %`;
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const chart = new Chart(canvasRef.current, {
-      type: 'bar',
-      plugins: [barValues],
-      data: {
-        labels: data.map((d) => d.label),
-        datasets: [{
-          label: 'Oportunidades abiertas',
-          data: data.map((d) => d.n),
-          backgroundColor: MONEY_CHART_COLOR,
-          hoverBackgroundColor: MONEY_CHART_COLOR,
-          borderColor: '#111827',
-          borderWidth: 2,
-          borderRadius: 4,
-          maxBarThickness: 18,
-          categoryPercentage: 0.65,
-        }],
-      },
-      options: {
-        indexAxis: 'y',
-        responsive: true,
-        animation: false,
-        maintainAspectRatio: false,
-        layout: { padding: { right: 40 } },
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#111827',
-            padding: 12,
-            cornerRadius: 6,
-            displayColors: false,
-            callbacks: { label: (context) => `${context.parsed.x} oportunidades abiertas` },
-          },
-        },
-        scales: {
-          x: {
-            beginAtZero: true,
-            suggestedMax: Math.max(1, ...data.map((d) => d.n)),
-            border: { display: false },
-            grid: { color: '#EEF2F7' },
-            ticks: { precision: 0, maxTicksLimit: 5, color: '#475569', font: { size: 16 }, padding: 8 },
-          },
-          y: {
-            border: { display: false },
-            grid: { display: false },
-            ticks: { color: '#475569', padding: 8, font: { size: 16 }, autoSkip: false },
-          },
-        },
-      },
-    });
-    return () => chart.destroy();
-  }, [data]);
+    if (active === null) { setTooltipPosition(null); return; }
+    const position = () => {
+      const bar = barRefs.current[active];
+      const tooltip = tooltipRef.current;
+      if (!bar || !tooltip) return;
+      const rect = bar.getBoundingClientRect();
+      const width = Math.min(360, window.innerWidth - 32);
+      const height = Math.min(tooltip.scrollHeight, window.innerHeight - 32);
+      const beside = rect.left >= width + 16 || window.innerWidth - rect.right >= width + 16;
+      if (beside) {
+        setTooltipPosition({ left: rect.left >= width + 16 ? rect.left - width : rect.right,
+          top: Math.max(16, Math.min(rect.top, window.innerHeight - height - 16)), maxHeight: window.innerHeight - 32 });
+      } else {
+        const below = window.innerHeight - rect.bottom - 16;
+        const above = rect.top - 16;
+        const placeBelow = below >= height || below >= above;
+        const maxHeight = Math.max(44, placeBelow ? below : above);
+        setTooltipPosition({ left: Math.max(16, Math.min(rect.left, window.innerWidth - width - 16)),
+          top: placeBelow ? rect.bottom : Math.max(16, rect.top - Math.min(height, maxHeight)), maxHeight });
+      }
+    };
+    position();
+    window.addEventListener('resize', position);
+    window.addEventListener('scroll', position, true);
+    return () => { window.removeEventListener('resize', position); window.removeEventListener('scroll', position, true); };
+  }, [active, data]);
 
-  return (
-    <div><section className="mb-4" aria-label="Datos de oportunidades por tipo de evento"><h3 className="font-semibold">Oportunidades abiertas</h3><ul>{data.map((item) => <li key={item.label}>{item.label}: {item.n} oportunidades</li>)}</ul></section><div className="chart-visual relative h-[220px] w-full">
-      <canvas ref={canvasRef} role="img" aria-label={`Oportunidades por tipo de evento: ${data.map((d) => `${d.label}: ${d.n}`).join(', ')}`} />
-    </div></div>
-  );
+  return <div className="flex flex-1 min-w-0 flex-col">
+    <div className="flex flex-1 items-center justify-center py-6">
+      <div ref={chartRef} role="group" aria-label="Oportunidades abiertas por tipo de evento" aria-describedby={helpId}
+        className="relative w-full max-w-xl"
+        onPointerLeave={() => { if (!chartRef.current?.contains(document.activeElement)) setActive(null); }}
+        onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setActive(null); }}
+        onKeyDown={(event) => { if (event.key === 'Escape') { setActive(null); event.stopPropagation(); } }}>
+        <div className="space-y-1">
+          {data.map((item, index) => <button key={item.key} type="button"
+            ref={(element) => { barRefs.current[index] = element; }}
+            className="grid w-full min-h-12 grid-cols-[minmax(0,6.5rem)_minmax(0,1fr)_3ch] items-center gap-2 rounded-lg px-1 py-2 text-left hover:bg-slate-50 focus-visible:bg-slate-50"
+            aria-label={`${item.label}: ${count(item.n)}`}
+            aria-describedby={active === index ? tooltipId : undefined}
+            onPointerEnter={() => setActive(index)} onFocus={() => setActive(index)} onClick={() => setActive(index)}>
+            <span className="text-sm text-slate-700">{item.label}</span>
+            <span aria-hidden="true" className="block h-5 w-full rounded bg-slate-100">
+              <span className="event-type-bar block h-full rounded border border-slate-900" style={{ width: `${item.n / maximum * 100}%`, backgroundColor: MONEY_CHART_COLOR, borderWidth: item.n ? 1 : 0 }} />
+            </span>
+            <span aria-hidden="true" className="text-sm font-semibold tabular-nums text-slate-900">{item.n}</span>
+          </button>)}
+        </div>
+        {selected && <div ref={tooltipRef} id={tooltipId} role="tooltip"
+          className="event-chart-tooltip fixed z-[60] overflow-y-auto rounded-lg border border-slate-500 bg-slate-900 p-4 text-base text-white shadow-lg"
+          style={{ width: 'min(360px, calc(100vw - 32px))', visibility: tooltipPosition ? 'visible' : 'hidden', ...tooltipPosition }}>
+            <p className="font-semibold">{selected.label} · {count(selected.n)}</p>
+            <p className="mt-1">{share(selected.n)} de las {total} oportunidades abiertas.</p>
+            <p className="mt-1">{selected.estimatedAmount === null ? 'Sin presupuesto indicado.' : `Presupuesto estimado informado: ${fmtMoney(selected.estimatedAmount)}.`}</p>
+            {selected.key === 'otro' && <p className="mt-1">{selected.descriptions.length ? `Tipos registrados: ${selected.descriptions.join(', ')}.` : 'Eventos de otras categorías, distintos de bodas, corporativos, comuniones y cumpleaños.'}</p>}
+            <p className="mt-2 text-sm">Solicitudes todavía abiertas. No incluye las oportunidades ganadas ni las perdidas.</p>
+        </div>}
+      </div>
+    </div>
+    <p id={helpId} className="text-sm text-neutral-600">Pasa por una barra, tócala o enfócala con Tab para ver el detalle. Escape cierra la información.</p>
+    <details className="mt-3">
+      <summary className="flex min-h-12 cursor-pointer items-center font-medium">Ver todos los datos del gráfico</summary>
+      <ul className="space-y-3 pt-2">{data.map((item) => <li key={item.key}><strong>{item.label}:</strong> {count(item.n)} · {share(item.n)} del total · presupuesto estimado {fmtMoney(item.estimatedAmount)}.</li>)}</ul>
+    </details>
+  </div>;
 }
 function StatusDonut({ segments, total }: { segments: { label: string; value: number; color: string }[]; total: number }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -288,11 +306,7 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
 
   // Cuántas oportunidades abiertas hay de cada tipo de evento, para ver qué
   // formato de celebración está tirando más del pipeline ahora mismo.
-  const porTipoEvento = Object.keys(TIPO_EVENTO_LABEL).map((key) => ({
-    key,
-    label: TIPO_EVENTO_LABEL[key as keyof typeof TIPO_EVENTO_LABEL],
-    n: abiertas.filter((o) => o.tipo_evento === key).length,
-  }));
+  const porTipoEvento = summarizeEventTypes(oportunidades);
 
   // Evolución de altas de oportunidades en los últimos 6 meses, para ver
   // si el ritmo de entrada de nuevo negocio sube o baja.
@@ -314,23 +328,23 @@ export default function Dashboard({ oportunidades, empresas }: { oportunidades: 
 
   return (
     <div className="grid grid-cols-12 gap-6 px-6 mb-2">
-      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card flex flex-col items-center">
+      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card flex min-w-0 flex-col">
         <h2 className="w-full flex items-center gap-2 text-sm font-medium text-neutral-700 mb-2">
           <Icon name="gauge" className="w-4 h-4" />
           Objetivo comercial (orientativo)
         </h2>
-        <Gauge value={pipeline} goal={OBJETIVO_PIPELINE} />
+        <div className="flex flex-1 min-h-[280px] items-center justify-center py-6"><div className="w-full max-w-[300px]"><Gauge value={pipeline} goal={OBJETIVO_PIPELINE} /></div></div>
       </div>
 
-      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card">
+      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card flex min-w-0 flex-col">
         <h2 className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="layers" className="w-4 h-4" />
           Reparto por estado
         </h2>
-        <StatusDonut segments={segments} total={abiertas.length} />
+        <div className="flex flex-1 min-h-[280px] items-center justify-center py-6"><div className="w-full"><StatusDonut segments={segments} total={abiertas.length} /></div></div>
       </div>
 
-      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card">
+      <div className="col-span-12 lg:col-span-4 bg-white border border-slate-200 rounded-xl p-6 shadow-card flex min-w-0 flex-col">
         <h2 className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-4">
           <Icon name="calendar" className="w-4 h-4" />
           Oportunidades por tipo de evento
