@@ -188,7 +188,7 @@ export default function CrmPage() {
           <div>
             {loadError}
             <div className="text-xs mt-0.5 opacity-80">
-              <button type="button" className="underline" onClick={loadAll}>Reintentar</button>
+              <button type="button" className="no-underline" onClick={loadAll}>Reintentar</button>
             </div>
           </div>
         </div>

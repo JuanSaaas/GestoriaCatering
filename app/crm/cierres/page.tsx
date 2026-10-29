@@ -57,7 +57,7 @@ export default function CierresPage() {
 
         <div className="space-y-8">
           {loading && <p role="status" className="text-sm text-neutral-500">Cargando cierres previstos...</p>}
-          {error && <div role="alert" className="p-4 bg-red-50 text-red-700 rounded-md text-sm">{error}<button className="underline ml-3" onClick={load}>Reintentar</button></div>}
+          {error && <div role="alert" className="p-4 bg-red-50 text-red-700 rounded-md text-sm">{error}<button className="no-underline ml-3" onClick={load}>Reintentar</button></div>}
           {grupos.map(([mes, ops]) => (
             <div key={mes}>
               <h2 className="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3 capitalize">{mes}</h2>
@@ -99,7 +99,7 @@ export default function CierresPage() {
           {!loading && !error && proximos.length === 0 && (
             <div className="text-sm text-neutral-500 py-10 text-center border border-dashed border-neutral-200 rounded-xl">
               <p>No hay oportunidades abiertas con fecha de evento próxima.</p>
-              <Link href="/crm/oportunidades" className="inline-flex min-h-12 items-center underline mt-4">Revisar fechas de las oportunidades</Link>
+              <Link href="/crm/oportunidades" className="inline-flex min-h-12 items-center no-underline mt-4">Revisar fechas de las oportunidades</Link>
             </div>
           )}
         </div>

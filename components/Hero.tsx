@@ -33,7 +33,7 @@ export default function Hero() {
               >
                 Pide tu presupuesto
               </a>
-              <a href="#servicios" className="text-sm text-[#3f342c] hover:text-[#241b16] underline underline-offset-4">
+              <a href="#servicios" className="text-sm text-[#3f342c] hover:text-[#241b16] no-underline underline-offset-4">
                 Ver servicios
               </a>
             </div>

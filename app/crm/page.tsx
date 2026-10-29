@@ -48,7 +48,7 @@ export default function DashboardPage() {
       </div>
 
       {loading && <p role="status" className="px-6 py-4 text-sm text-neutral-500">Cargando resumen...</p>}
-      {error && <div role="alert" className="mx-6 p-4 bg-red-50 text-red-700 rounded-md text-sm">{error}<button className="underline ml-3" onClick={load}>Reintentar</button></div>}
+      {error && <div role="alert" className="mx-6 p-4 bg-red-50 text-red-700 rounded-md text-sm">{error}<button className="no-underline ml-3" onClick={load}>Reintentar</button></div>}
       {!loading && !error && <><DashboardStats empresas={empresas} contactos={contactos} oportunidades={oportunidades} />
 
       <div className="pt-4 pb-8">

@@ -85,7 +85,7 @@ export default function EmpleadoPerfilPage() {
           <p role={loading ? "status" : "alert"}>
           {loading ? 'Cargando perfil...' : loadError || 'No se encontró este contacto.'}
           </p>
-          {!loading && <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>}
+          {!loading && <button type="button" className="no-underline ml-2" onClick={load}>Reintentar</button>}
         </div>
       </CrmShell>
     );

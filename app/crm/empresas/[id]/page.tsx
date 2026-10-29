@@ -80,7 +80,7 @@ export default function EmpresaPerfilPage() {
           <p role={loading ? "status" : "alert"}>
           {loading ? 'Cargando perfil...' : loadError || 'No se encontró esta empresa.'}
           </p>
-          {!loading && <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>}
+          {!loading && <button type="button" className="no-underline ml-2" onClick={load}>Reintentar</button>}
         </div>
       </CrmShell>
     );

@@ -80,10 +80,10 @@ body { line-height: 1.5; overflow-wrap: anywhere; }
 .crm-shell .line-clamp-2 { display: block; overflow: visible; -webkit-line-clamp: unset; }
 .text-xs, .text-sm, .field-error { font-size: 1rem; line-height: 1.5; }
 [class*="text-[10px]"], [class*="text-[11px]"] { font-size: 1rem; line-height: 1.5; }
-a { text-decoration-line: underline; text-underline-offset: .2em; }
-/* Navigation and button-like links gain their underline on interaction. */
-nav a, header a, a.inline-flex, a.inline-block, a.flex, a.block { text-decoration-line: none; }
-a:hover, button:hover, a:focus-visible, button:focus-visible { text-decoration-line: underline; text-decoration-thickness: 2px; }
+/* Shared by every public and CRM link, button and disclosure control. */
+a, button, summary { text-decoration-line: none; text-underline-offset: .2em; }
+a:hover, button:hover, summary:hover,
+a:focus-visible, button:focus-visible, summary:focus-visible { text-decoration-line: underline; text-decoration-thickness: 2px; }
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 3px solid #111827 !important;
   outline-offset: 3px;

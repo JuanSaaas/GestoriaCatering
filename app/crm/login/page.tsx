@@ -63,7 +63,7 @@ function LoginForm() {
             <div>
               <label htmlFor="contrasena" className="mb-2 block text-sm font-medium">Contraseña *</label>
               <input id="contrasena" name="password" type={showPassword ? 'text' : 'password'} className={inputCls} value={contrasena} onChange={(e) => setContrasena(e.target.value)} autoComplete="current-password" required disabled={loading} />
-              <button type="button" className="mt-1 text-sm font-medium text-slate-600 underline underline-offset-4" aria-controls="contrasena" aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>{showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}</button>
+              <button type="button" className="mt-1 text-sm font-medium text-slate-600 no-underline underline-offset-4" aria-controls="contrasena" aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>{showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}</button>
             </div>
             {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">⚠ {error}</p>}
             <button type="submit" className={btnPrimary + ' w-full !bg-[#2a2622] hover:!bg-[#403930]'} disabled={loading}>{loading ? 'Entrando…' : 'Entrar al CRM'}<Icon name="logout" /></button>

@@ -44,7 +44,7 @@ export default function TareasPage() {
     <h1 className="text-2xl font-semibold">Tareas</h1>
     <p className="text-sm text-neutral-600 mt-2 mb-6">{pending} pendientes · {items.length - pending} completadas. Crea tareas desde la ficha de una oportunidad.</p>
     {loading && <p role="status">Cargando tareas…</p>}
-    {error && <p role="alert" className="mb-4 text-sm">{error} <button className="underline ml-2" onClick={load}>Reintentar</button></p>}
+    {error && <p role="alert" className="mb-4 text-sm">{error} <button className="no-underline ml-2" onClick={load}>Reintentar</button></p>}
     {notice && <p role="status" className="mb-4 text-sm">{notice}</p>}
     <div className="bg-white border border-neutral-200 rounded-xl overflow-hidden">
       {items.map((task) => <div key={task.id} className="flex flex-wrap items-center gap-4 p-4 border-b last:border-0">

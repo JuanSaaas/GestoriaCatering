@@ -152,7 +152,7 @@ export default function EmpresasPage() {
 
         {loadError && (
           <div role="alert" className="mb-5 text-sm text-red-700">
-            {loadError} <button type="button" className="underline ml-2" onClick={load}>Reintentar</button>
+            {loadError} <button type="button" className="no-underline ml-2" onClick={load}>Reintentar</button>
           </div>
         )}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3" aria-busy={loading}>
