@@ -14,12 +14,15 @@ es intencionado porque el módulo se sirve exclusivamente desde el backend y no
 se conceden privilegios al cliente público. No se han abierto las facturas al
 navegador para evitar utilizar la clave privada.
 
-**Pendiente:** guardar una clave privada existente del proyecto en
-`SUPABASE_SECRET_KEY` o `SUPABASE_SERVICE_ROLE_KEY`. Para desarrollo, usar
-`.env.local`; para la web publicada, configurar también la variable en el
-proyecto Vercel correspondiente y volver a desplegar. La conexión administrativa
-del asistente permite migraciones, pero no proporciona esa clave al servidor web.
-La URL pública ya configurada se reutiliza sin cambiar de proyecto.
+**Conexión local verificada el 29/10/2026:** clave privada configurada en
+`.env.local` (excluido de Git), lectura correcta de las cuatro tablas y
+`GET /api/crm/facturas` autenticado con respuesta HTTP 200. Las tablas están vacías
+y todavía no hay un agente registrado. No se han enviado documentos a la IA.
+
+**Pendiente para la web publicada:** configurar `SUPABASE_SECRET_KEY` o
+`SUPABASE_SERVICE_ROLE_KEY` también en el proyecto Vercel correspondiente y
+volver a desplegar. El archivo local no configura Vercel automáticamente. La URL
+pública ya configurada se reutiliza sin cambiar de proyecto.
 
 Verificación de solo lectura, sin mostrar claves ni contenido de facturas:
 
@@ -27,9 +30,9 @@ Verificación de solo lectura, sin mostrar claves ni contenido de facturas:
 node scripts/check-facturas-supabase.cjs
 ```
 
-La conexión de la aplicación solo se dará por terminada cuando esa comprobación
-y `/api/crm/facturas` respondan correctamente en el entorno configurado. El estado
-descrito el 23/10/2026 más abajo es histórico; la migración ya está aplicada.
+La conexión local de la aplicación ya supera esa comprobación y la de su API;
+queda comprobar el entorno publicado. El estado descrito el 23/10/2026 más abajo
+es histórico; la migración ya está aplicada.
 
 Implementación del 23/10/2026. La integración añade «Facturas» al CRM sin cambiar
 las tablas ni las operaciones comerciales o de RRHH. Se ha seguido el flujo escrito
