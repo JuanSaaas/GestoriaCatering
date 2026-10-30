@@ -1,5 +1,120 @@
 # Automatización de facturas · La Mesa Perfecta
 
+## Validar y denegar desde la tabla · 30/10/2026
+
+La columna Acciones ofrece ✓ Validar y × Denegar directamente por factura,
+con nombres accesibles y confirmación para denegar. Denegar mantiene los datos
+y el original en Descartadas. No se cambia el estado visual hasta confirmar el
+guardado. Los recuentos se recargan tras la operación. El número de factura abre
+la corrección de datos; se ha retirado el botón Ver factura y las acciones de
+validación de esa ficha para centralizarlas en la tabla.
+
+## Lectura automática y contador · 30/10/2026
+
+La factura de práctica subida estaba en disco, pero el lector no se estaba
+ejecutando. Se ha procesado con Gemini 2.5 Flash y guardado realmente en Supabase:
+`PRACT-2026-001`, proveedor Suministros Demo Catering, S.L., NIF B12345674,
+base 1.000,00 EUR, IVA 210,00 EUR, total 1.210,00 EUR, revisión pendiente y
+original privado disponible. La API del CRM local devuelve HTTP 200 y
+`recuentos.pendiente = 1`. No se han insertado datos manualmente para simular lectura.
+
+`npm run dev` y `npm start` ahora arrancan también el lector mediante
+`scripts/crm-with-reader.cjs`. Requieren el entorno Python y `.env.local`
+configurados. Si se usa un servicio de lectura externo, definir
+`FACTURAS_READER_MODE=external`. `FACTURAS_PYTHON` permite indicar otro ejecutable.
+El bloqueo de sistema operativo `.lector.lock` impide ejecutar dos lectores
+locales sobre la misma carpeta y se libera al terminar el proceso. No sustituye
+los bloqueos transaccionales de Supabase. Se ha dejado el lector activo en este
+equipo, con registros en `.data/facturas/lector.stdout.log` y `lector.stderr.log`.
+
+El listado y sus contadores se consultan cada 10 segundos mientras la página
+está visible; puede pausarse. La actualización en segundo plano conserva filtros,
+no desactiva el botón manual ni interrumpe una ficha o diálogo de subida.
+Al terminar una subida se solicita también una recarga inmediata. «Por revisar»
+cuenta facturas ya leídas pendientes de validar; no se aumenta por un archivo
+que todavía no ha sido extraído.
+
+Comprobado: extracción real del PDF subido, persistencia y lectura de su original,
+29 pruebas Python (incluido bloqueo del lector y recuperación tras error),
+13 pruebas Node y rechazo de una segunda ejecución local del lector.
+
+## Subir desde Facturas a la carpeta de entrada · 30/10/2026
+
+La entrada habitual es ahora **Facturas → Subir facturas → Elegir archivos →
+Guardar facturas**. El botón está junto a Actualizar facturas. Admite PDF,
+JPG/JPEG, PNG y WebP, hasta 20 MB por documento y 10 archivos por tanda.
+La carpeta local está creada en
+`C:\Users\Juan\GestoriaCatering\.data\facturas\entrada` y está excluida de Git.
+Puede configurarse con `FACTURAS_INPUT_DIR`, usando el mismo valor y directorio
+de trabajo para Next.js y el agente Python.
+
+La ruta autenticada `POST /api/crm/facturas/subir` comprueba sesión, origen,
+límite real del cuerpo multipart, tamaño y cabecera del archivo. Guarda con un
+nombre seguro y hash SHA-256, sin utilizar rutas proporcionadas por el navegador.
+Escribe primero un temporal `.part` y publica el archivo completo con enlace
+atómico: el lector ignora los temporales. Confirma existencia y tamaño antes de
+responder. Un reintento del mismo archivo con el mismo nombre no sobrescribe ni
+duplica el original. Cada archivo se envía de forma independiente; un fallo
+conserva los pendientes en la ficha para reintentarlos sin repetir los éxitos.
+
+El aviso de subida distingue **guardado en carpeta** de **datos extraídos**.
+La subida funciona aunque el lector esté parado o Supabase no esté disponible;
+el agente registrará y procesará los archivos al recorrer esa carpeta. No se ha
+puesto en marcha el agente ni enviado documentos a la IA en esta ampliación.
+
+Este modo escribe en el disco del servidor Next.js. En local es la carpeta de
+Juan; una web en otro servidor no escribe en el PC del navegador. Para publicar
+este modo se necesita disco persistente y acceso del agente a la misma carpeta;
+el sistema de archivos efímero/de solo lectura de Vercel no sirve para esta
+persistencia. No se redirige a una carpeta temporal que perdería los documentos.
+
+Verificación: compilación de producción; 4 pruebas nuevas de carga, cabeceras,
+tamaño sin Content-Length, sesión/origen, rutas, bytes guardados y duplicados;
+9 pruebas existentes de Facturas. Subida real de un PDF ficticio desde el
+selector del navegador a una carpeta temporal de pruebas, con comparación de
+bytes correcta. La carpeta real de entrada queda preparada sin documentos de
+prueba. Evidencia visual: `docs/accesibilidad/facturas-subida-2026-10-30.jpg`.
+
+## Corrección del módulo · 30/10/2026
+
+Aplicada en el proyecto `GestoriaCatering` la migración `revision_facturas_proveedores`
+de `supabase/migrations/20261029124958_revision_facturas_proveedores.sql`.
+El aviso de configuración procedía de columnas ausentes (`estado_revision` y
+`archivo_ruta`), confirmado en los registros de PostgreSQL. La ampliación no
+borra registros ni cambia las tablas comerciales.
+
+La factura conserva proveedor, NIF/CIF, número, fecha, base imponible, IVA en
+dinero, total y moneda. El desglose original conserva los porcentajes de IVA.
+`datos_extraidos` mantiene una copia de la extracción inicial, incluso después
+de corregir la factura. La ficha permite guardar correcciones incompletas,
+validar con los campos completos y descartar sin borrar el registro ni su
+original; una descartada puede volver a validarse. Cada guardado comprueba la
+versión para impedir sobrescribir cambios simultáneos.
+
+La tabla muestra NIF, base, IVA, total y estado de revisión; los filtros incluyen
+Por revisar, Validadas y Descartadas. El éxito solo se muestra tras confirmar la
+respuesta guardada, se actualiza la lista y se conserva el foco de teclado.
+Los originales se sincronizan por hash en `facturas-originales`, un bucket
+privado, y se abren desde una ruta autenticada con enlaces de 60 segundos.
+Se admite la respuesta de duplicado de Storage al recuperar una subida anterior,
+sin sobrescribir el original. El IVA admite los Decimal serializados como texto
+por Python y conserva `null` si no consta, en vez de inventar cero.
+
+Comprobado: compilación de producción, 9 pruebas Node, 27 pruebas Python,
+pruebas PostgreSQL de ambas migraciones y guardado/revisión/concurrencia,
+API local autenticada HTTP 200 para los cuatro filtros de revisión y función
+real de guardado accesible al servidor. El comprobador
+`node scripts/check-facturas-supabase.cjs` ahora verifica también las columnas
+de revisión y su función sin modificar registros. Supabase sigue con cero
+facturas y documentos: las pruebas pobladas de interfaz usan un proveedor ficticio
+en un servidor local aislado que no escribe en Supabase.
+
+**Límites actuales:** no se ha publicado esta versión de la web, ejecutado
+inferencia ni procesado una factura real en esta revisión. La entrada de
+documentos sigue requiriendo el agente Python en ejecución y Tesseract para
+imágenes/PDF escaneados. No se ha activado un servicio permanente ni instalado
+OCR. Consultar la revisión de accesibilidad para las pruebas manuales pendientes.
+
 ## Estado de la conexión · 29/10/2026
 
 Se ha aplicado `activar_facturas_ia` (versión `20261029103634`) en Supabase `GestoriaCatering`

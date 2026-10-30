@@ -22,9 +22,9 @@ test('facturas: filtros acotados y sin operadores PostgREST introducidos por la 
   const parsed=invoices.invoiceFilters(new URL('https://example.invalid?q=hello,(id.eq.x)*_%25'));
   assert.ok(!/[,().%_*]/.test(parsed.query));
 });
+class InvoiceStorageError extends Error {constructor(message,status=503){super(message);this.status=status;}}
 function routes(overrides={}) {
-  class InvoiceStorageError extends Error {constructor(message,status=503){super(message);this.status=status;}}
-  return compile('app/api/crm/facturas/route.ts',{'@/lib/invoiceStore':{InvoiceStorageError,getInvoices:async()=>({facturas:[],documentos:[],intentos:[],total:0,agente:null,pagina:1}),retryInvoiceDocument:async()=>{},...overrides}});
+  return compile('app/api/crm/facturas/route.ts',{'@/lib/invoices':invoices,'@/lib/invoiceStore':{InvoiceStorageError,getInvoices:async()=>({facturas:[],documentos:[],intentos:[],total:0,agente:null,pagina:1}),retryInvoiceDocument:async()=>{},...overrides}});
 }
 const session='lmp_crm_session=lmp-crm-session-v1';
 test('facturas API: lectura y reintento exigen sesión',async()=>{
@@ -59,4 +59,26 @@ test('facturas: falta de configuración produce mensaje útil sin usar el client
   const store=compile('lib/invoiceStore.ts',{'server-only':{},'./invoices':invoices});
   await assert.rejects(store.getInvoices(new URL('https://example.invalid')),/Falta conectar Facturas/);
   await assert.rejects(store.retryInvoiceDocument('../invalid'),/documento válido/);
+});
+
+const invoiceId='9fa774b5-6e33-40b0-af3d-4e5ad826222f';
+const reviewData={proveedor_nombre:'Proveedor de prueba',proveedor_identificacion:'B12345678',numero_factura:'FAC-001',fecha_emision:'2026-10-30',base_imponible:'100,00',iva_importe:'21,00',importe_total:'121,00',moneda:'EUR'};
+test('facturas: revisión valida fecha real, importes, datos ausentes y campos permitidos',()=>{
+  const input=invoices.invoiceReviewInput({factura_id:invoiceId,version:0,accion:'validar',datos:reviewData});
+  assert.equal(input.datos.iva_importe,21);
+  assert.throws(()=>invoices.invoiceReviewInput({...input,datos:{...reviewData,fecha_emision:'2026-02-30'}}),/fecha válida/);
+  assert.throws(()=>invoices.invoiceReviewInput({...input,datos:{...reviewData,iva_importe:'21,005'}}),/dos decimales/);
+  assert.throws(()=>invoices.invoiceReviewInput({...input,datos:{...reviewData,iva_importe:''}}),/Completa/);
+  assert.throws(()=>invoices.invoiceReviewInput({...input,datos:{...reviewData,estado_revision:'validada'}}),/no permitidos/);
+  assert.equal(invoices.invoiceReviewInput({...input,accion:'guardar',datos:{...reviewData,iva_importe:''}}).datos.iva_importe,null);
+});
+test('facturas API: devuelve la versión persistida y conserva conflictos como 409',async()=>{
+  let seen;
+  const saved={id:invoiceId,revision_version:2,estado_revision:'validada'};
+  let route=routes({reviewInvoice:async input=>{seen=input;return saved;}});
+  const request=()=>new NextRequest('http://localhost/api/crm/facturas',{method:'POST',headers:{cookie:session,origin:'http://localhost','content-type':'application/json'},body:JSON.stringify({factura_id:invoiceId,version:1,accion:'validar',datos:reviewData})});
+  const response=await route.POST(request());assert.equal(response.status,200);
+  assert.deepEqual((await response.json()).factura,saved);assert.equal(seen.datos.iva_importe,21);
+  route=routes({reviewInvoice:async()=>{throw new InvoiceStorageError('La factura ha cambiado',409);}});
+  const failed=await route.POST(request());assert.equal(failed.status,409);assert.equal((await failed.json()).ok,undefined);
 });

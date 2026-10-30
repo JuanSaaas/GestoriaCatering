@@ -230,3 +230,262 @@ y comprobar Tesseract. No se declara una auditoría WCAG completa ni se da por
 superado el checklist ausente de la guía ERP.
 
 Puesta en marcha: [FACTURAS-IA.md](../FACTURAS-IA.md).
+
+## Facturas: revisión y persistencia · 30/10/2026
+
+Alcance: `components/InvoiceModule.tsx`, API de Facturas y del original,
+`lib/invoices.ts`, `lib/invoiceStore.ts`, sincronización Python y migración de
+revisión. Se conservan La Mesa Perfecta, los datos comerciales y los cambios
+previos. Consultadas ambas skills WCAG, el temario textual de 53 diapositivas,
+anexo y checklist ampliado. No se ha revisado el PDF ausente ni se han editado
+las fuentes originales. Las cuatro referencias de la skill ERP siguen ausentes;
+no se declara superado su checklist de 20 puntos.
+
+| Barrera | Prioridad | Criterio WCAG | Cambio y comprobación | Estado |
+| --- | --- | --- | --- | --- |
+| El listado quedaba bloqueado por columnas sin activar | Bloqueante funcional | No se atribuye un criterio automático | Migración aplicada, API autenticada HTTP 200 y estado vacío real | Corregido |
+| La ficha no comunicaba el registro guardado a la lista y no compilaba | Alta | 4.1.3 | Callback de guardado, mensaje de éxito tras confirmación; guardar incompleta y validar después en navegador con datos ficticios | Corregido |
+| Al desactivar el botón durante el guardado se perdía el foco | Alta | 2.4.3, 2.4.7 | Se devuelve al botón que lanzó la acción; comprobado dentro del diálogo tras guardar | Corregido |
+| Las correcciones y la revisión no se distinguían en la lista | Media | 1.4.1, 4.1.2 | Estados con símbolo y texto, filtros nativos y recuentos | Corregido |
+| Riesgo de perder datos ante errores o cambios simultáneos | Alta | 3.3.1, 3.3.3, 3.3.4 | Errores conservan campos; versiones en PostgreSQL, descarte recuperable; NIF vacío enfoca el campo con error asociado | Comprobado con tests y ficha ficticia |
+
+Evidencias: navegador integrado Chromium, rutas locales `/crm/facturas` a
+1280×720 y 320×800. La API real no contiene registros. Una pasarela local
+aislada sirve `PRUEBA-001`, sin crear facturas de prueba en la base real.
+Comprobados apertura de ficha, error NIF vacío, guardado incompleto, corrección,
+validación posterior, recuentos/lista y cierre por Escape con retorno al botón.
+Reflujo: ancho del documento 305 px en listado vacío y 320 px con tabla/ficha
+para una ventana de 320 px; la tabla mantiene desplazamiento propio por teclado.
+El guardado mantiene el foco dentro del diálogo.
+
+Axe 4.14.0 mediante `scripts/a11y-preview.cjs`: cero infracciones y cero revisiones
+incompletas en listado vacío de escritorio y listado con factura ficticia a 320 px.
+Contrastes medidos con el script original: `#525252` sobre blanco 7,81:1;
+`#737373` 4,74:1; rojo `#b91c1c` 6,47:1; verde `#14532d` 9,11:1.
+Se reutilizan controles, foco y estilos de movimiento reducido del proyecto.
+
+Checklist específico: semántica ✓; nombres de controles ✓; etiquetas y errores
+asociados ✓; estados textuales ✓; teclado parcial ✓ (Escape/retorno y foco al
+guardar); contraste de los pares indicados ✓; 320 px ✓. No aplica multimedia,
+gráficos nuevos o gestos complejos. Pendientes NVDA/Narrador, recorrido completo
+Tab/Shift+Tab y selector de fecha, zoom real 200/400 %, espaciado de texto,
+daltonismo, colores forzados y lectura del original con documentos reales.
+No se afirma conformidad WCAG completa ni equivalencia entre reflujo y zoom.
+
+## Subida de facturas desde el CRM · 30/10/2026
+
+Alcance: botón junto a Actualizar facturas, `InvoiceUploadDialog`, ruta
+`/api/crm/facturas/subir` y `lib/invoiceUploads.ts`. Patrón de diálogo con
+`useDialog`, controles de `ui.tsx` y `ValidatedForm`; selector nativo de archivos
+con etiqueta visible, obligatorio y ayuda de formatos/tamaño. Mantiene la
+identidad de La Mesa Perfecta. No se modifican las fuentes docentes originales.
+
+| Barrera | Prioridad | Criterio | Corrección / prueba | Estado |
+| --- | --- | --- | --- | --- |
+| No se podían subir documentos desde Facturas | Bloqueante funcional | Sin asignación automática | Botón Subir facturas y guardado en carpeta, verificado con PDF desde navegador y comparación de bytes | Corregido |
+| Riesgo de interpretar subida como lectura completada | Alta | 3.3.2, 4.1.3 | Mensajes distintos: guardada en carpeta y pendiente de lectura; progreso por archivo y resultado con símbolo/texto | Corregido |
+| Falta de selección / formato / tamaño incorrecto | Alta | 3.3.1, 3.3.3 | Errores concretos junto al selector, asociados con aria-describedby; foco en el campo, selección conservada ante fallo | Implementado; vacío probado en navegador y servidor con tests |
+| Diálogo y controles inaccesibles por teclado | Alta | 2.1.1, 2.4.3, 2.4.7, 4.1.2 | Nombre del diálogo, foco inicial, Escape/retorno al botón; foco permanece en Guardar tras terminar | Comprobación parcial correcta |
+
+Navegador integrado Chromium a 1280×720 y 320×800. Selector nativo: flujo real
+Elegir archivos → PDF ficticio → Guardar facturas → éxito; archivo confirmado en
+carpeta temporal aislada. No se crean registros de prueba en Supabase. Alturas
+medidas: Cerrar y Guardar 48 px; selector 56 px. A 320 px, documento 320 px y
+diálogo 288 px. Escape devuelve el foco a Subir facturas.
+
+Axe 4.14.0 en el diálogo vacío: cero infracciones; una revisión manual de contraste
+del párrafo introductorio por detección de superposición. La captura muestra el
+párrafo dentro del diálogo blanco, sin superposición de texto. Se comprobaron los
+estilos reales: texto `rgb(17,24,39)` sobre diálogo `rgb(255,255,255)`; el script de
+contraste original confirma que supera 4,5:1. Esta comprobación manual resuelve el
+aviso para ese párrafo. Evidencia: [diálogo de subida](facturas-subida-2026-10-30.jpg).
+
+Pendientes: recorrido completo con NVDA/Narrador y selector nativo del sistema,
+zoom real 200/400 %, colores forzados y simulaciones de visión.
+Sin multimedia ni animaciones nuevas. No se declara
+conformidad WCAG completa ni se afirma haber superado el checklist ERP ausente.
+
+## Contador tras lectura de factura · 30/10/2026
+
+Se mantiene la diferencia entre subida y extracción confirmada, en vez de
+incrementar el contador sin una factura guardada. Verificada la API real con
+`Por revisar: 1` para la factura de práctica subida por el usuario. Se ha puesto
+en marcha el lector y añadido su arranque con el CRM.
+
+Actualización automática cada 10 segundos, con botón visible para pausar/reanudar
+(WCAG 2.2.2). No se consulta con la página oculta ni durante la edición de una
+ficha o una subida. Las recargas automáticas conservan el contenido, los filtros
+y el foco; no desactivan controles ni anuncian «Cargando» en cada ciclo. Los
+recuentos siguen en región de estado y los errores conservan los últimos datos
+(4.1.3). Se reutilizan los controles de ui.tsx y los colores medidos previamente.
+Pendientes: NVDA/Narrador con cambios de contador, recorrido completo por teclado,
+zoom y colores forzados. No se afirma conformidad WCAG completa.
+
+Verificado en el CRM de desarrollo: `Por revisar: 1`, fila PRACT-2026-001 con
+base 1.000,00 EUR, IVA 210,00 EUR y total 1.210,00 EUR. Probados pausa y
+reanudación de la actualización automática sin pérdida de la fila ni del foco.
+Evidencia: [contador y factura leída](facturas-contador-2026-10-30.jpg).
+
+## Acciones de revisión en cada fila · 30/10/2026
+
+Se sustituye la columna Detalle / Ver factura por Acciones con botones ✓ Validar
+y × Denegar. Los iconos tienen aria-label con acción, número y proveedor, título
+al pasar el puntero y zona mínima de 48×48 px; no dependen solo del color
+(1.4.1, 2.5.8, 4.1.2). Se reutiliza btnGhost y el foco visible del proyecto.
+Contraste medido sobre blanco: verde #15803d 5,02:1; rojo #b91c1c 6,47:1.
+
+Denegar pide confirmación nombrando la factura y explicando que conserva datos y
+original. Se mantiene el estado anterior ante error y se actualizan fila y
+recuentos solo tras confirmar la respuesta. Las operaciones usan la versión del
+registro y los mismos permisos del servidor (3.3.4). El resultado se anuncia y los
+errores quedan junto a la acción (3.3.1, 4.1.3). La recarga automática se pausa
+durante el guardado. Si una fila sale del filtro, el foco vuelve al título de la
+lista; en otro caso permanece en el grupo de acciones (2.4.3, 2.4.7).
+
+Se conserva la corrección de datos pulsando el número de factura. La ficha pasa
+a tener Guardar correcciones, con las decisiones de validar/denegar en la tabla.
+Comprobado en navegador con una factura ficticia aislada: validación, denegación
+confirmada, recuentos, edición conservada, estado vacío al validar bajo el filtro
+Por revisar y retorno de foco a invoice-list-heading. Las facturas reales no se
+han validado ni denegado durante estas pruebas. TypeScript y las pruebas de API
+y PostgreSQL pasan. Pendientes: NVDA/Narrador, zoom 200/400 %, colores forzados y
+auditoría automática específica de los nuevos controles. Las referencias ERP
+siguen ausentes y no se declara conformidad WCAG completa.
+
+Medición en ventana de 820 px: ambos botones 48×48 px, documento 805 px sin
+desbordamiento de página. La tabla conserva anchura legible y desplazamiento
+horizontal propio; encabezados y estados evitan partir palabras.
+Evidencia: [acciones directas de la factura](facturas-acciones-2026-10-30.jpg).
+
+
+### Tamaño de los iconos de revisión · 30/10/2026
+
+Se sustituyen los caracteres ✓ y × por iconos SVG CheckIcon y XMarkIcon de
+28×28 px y trazo 2,5 para evitar que hereden el texto pequeño del botón.
+Se mantienen controles de 48×48 px, colores medidos, nombres accesibles y foco.
+Los SVG son decorativos (aria-hidden); la acción se anuncia con el nombre del
+botón. Comprobación de TypeScript; revisión visual y lector de pantalla pendientes.
+
+
+### Tarjetas de contadores de Facturas · 30/10/2026
+
+Resumen con tres tarjetas responsivas, etiquetas y cifras en dl/dt/dd, iconos
+Heroicons ClockIcon, CheckIcon y XMarkIcon decorativos. Conserva anuncios de
+estado, cifras tabulares y textos de apoyo; estados distinguibles sin color.
+Una columna en móvil y tres desde sm. No son botones ni se añaden paradas de
+teclado. TypeScript comprobado; revisión visual, zoom y lector pendientes.
+
+
+### Retirada de la explicación de automatización · 30/10/2026
+
+Por petición del usuario se elimina de Facturas el bloque completo de
+Automatización de documentos, su estado y las instrucciones desplegables.
+El lector y la carga de datos siguen funcionando. No se añaden controles ni
+colores; se conserva la jerarquía de títulos del listado. TypeScript comprobado.
+
+
+### Cabecera del listado de facturas · 30/10/2026
+
+Se retira el texto explicativo del intervalo automático y se alinea el botón de
+pausa/reanudación a la derecha del título Facturas de proveedores. La cabecera
+permite salto de línea en pantallas estrechas; conserva el título h2, el nombre
+dinámico del botón y su manejo por teclado. TypeScript comprobado.
+
+
+### Contadores sin degradados · 30/10/2026
+
+Tarjetas de resumen con fondo blanco plano y sin sombra; contenedores de iconos
+con rellenos sólidos y background-image desactivado. Se conservan etiquetas,
+Heroicons y los colores cuyos contrastes se midieron anteriormente.
+
+
+### Iconos del resumen sin contenedor · 30/10/2026
+
+Los tres Heroicons del resumen se presentan en azul uniforme (#2563eb),
+sin recuadro, relleno ni sombra, siguiendo la referencia del usuario.
+Tamaño 20 px y trazo 1,75; son decorativos y se conservan etiquetas y cifras.
+No se modifican las acciones de validar/denegar. TypeScript comprobado;
+contraste medido sobre blanco con el script de la skill.
+
+
+### Decisiones confirmadas sin botones repetidos · 30/10/2026
+
+Solo las facturas pendientes muestran Aceptar/Rechazar. Tras confirmar el
+guardado se sustituyen por una etiqueta no interactiva Aceptada/Rechazada,
+con Heroicon y texto blanco sobre verde #15803d o rojo #b91c1c sólidos.
+Se elimina cualquier degradado, sombra o atenuación de color en estas acciones.
+Contrastes previamente medidos: 5,02:1 y 6,47:1. Se conserva el retorno del foco
+al grupo o al título si la fila sale del filtro y el aviso de resultado.
+La corrección de datos sigue accesible por el número de factura.
+TypeScript y pruebas de API comprobados; lector de pantalla pendiente.
+
+
+### Estado de factura sin duplicación · 30/10/2026
+
+Se unifican Revisión y Acciones en una sola columna Estado. Las pendientes
+muestran Por revisar y sus acciones; las resueltas muestran una única etiqueta.
+Aceptada usa verde claro #dcfce7 con texto #166534; Rechazada rojo claro #fee2e2
+con texto #991b1b, sin degradados. Conserva Heroicons, texto y foco de acciones.
+TypeScript y contraste comprobados; revisión con lector de pantalla pendiente.
+
+
+### Retirada de paneles técnicos de Facturas · 30/10/2026
+
+A petición del usuario se retiran Documentos y reintentos y Actividad de los
+modelos de la pantalla comercial. Se elimina el controlador de reintento manual
+que solo usaba ese panel. La cola, el historial y los reintentos automáticos del
+lector se conservan en el backend. No se modifican registros ni permisos.
+Se mantiene la jerarquía del listado y sus avisos de error/éxito. TypeScript
+comprobado; no se añaden colores ni controles.
+
+
+### Subida simplificada y aviso temporal · 30/10/2026
+
+Se eliminan explicaciones técnicas y confirmaciones duplicadas del diálogo de
+subida. Se conservan etiqueta, obligatoriedad nativa, formatos/límites, progreso,
+resultado resumido y errores detallados persistentes con archivos pendientes.
+El aviso verde del listado se oculta tras 3 segundos, según petición expresa del
+usuario; la confirmación del diálogo y los datos guardados siguen disponibles.
+Temporizador con limpieza al cambiar el aviso o desmontar. TypeScript comprobado;
+prueba con lector de pantalla y percepción del aviso temporal pendientes.
+
+
+### Confirmación breve al denegar · 30/10/2026
+
+Por petición del usuario, el aviso se simplifica a «¿Seguro que deseas denegar
+la factura [número]?». Mantiene identificación del registro y las opciones
+nativas de aceptar/cancelar. No cambia el guardado ni la conservación del original.
+
+
+### Confirmación integrada de denegación · 30/10/2026
+
+Se sustituye window.confirm por diálogo de la página para eliminar el encabezado
+del navegador. Reutiliza useDialog: nombre accesible, foco contenido, Escape,
+fondo inerte y retorno al botón. Incluye Cancelar y Denegar factura, colores
+planos y controles de 48 px. TypeScript comprobado; prueba manual con lector
+de pantalla pendiente.
+
+
+### Estilo común Aceptar/Rechazar · 30/10/2026
+
+DecisionControl unifica vacaciones y facturas: blanco plano, borde de 2 px,
+texto e icono Heroicons verdes o rojos (contrastes previos 5,02:1 y 6,47:1),
+controles de 48 px con nombre accesible. Tras decidir se muestra una etiqueta
+no interactiva Aceptada/Rechazada con el mismo estilo, sin repetir decisiones.
+Se conserva la persistencia y confirmación existentes. TypeScript comprobado;
+recorrido manual con lector de pantalla pendiente.
+
+
+## Ventas: presupuestos y pedidos · 30/10/2026
+
+Módulo independiente de Oportunidades, con navegación Presupuestos/Pedidos/Clientes,
+formularios de una columna por pasos (FormSteps, ValidatedForm, SearchableSelect),
+diálogos con useDialog y confirmaciones internas para confirmar/cancelar.
+Revisión previa, totales calculados en servidor, versiones contra sobrescritura,
+y errores que conservan campos (3.3.1, 3.3.3, 3.3.4). Mensajes de estado y tablas
+con caption/th/scope y contenedor desplazable por teclado (1.3.1, 4.1.3).
+Recorrido de prueba local: alta por pasos, guardado, confirmación y pedido de
+solo lectura. No se han creado ventas ficticias en Supabase. Se reutilizan
+colores y controles del proyecto; pendientes axe específico, NVDA, zoom, reflujo
+y recorrido de teclado completo. No se afirma conformidad WCAG total ni se da
+por revisado el checklist ERP ausente.

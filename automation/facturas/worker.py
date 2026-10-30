@@ -9,6 +9,7 @@ from .config import ConfigurationError, Settings
 from .documents import Document, DocumentError, extract_document, read_snapshot
 from .models import Failure, ModelRouter, ProcessingError
 from .storage import StorageError, Store, saving_tool
+from .reader_lock import reader_lock, ReaderAlreadyRunning
 
 logger = logging.getLogger("facturas")
 SUFFIXES = {".pdf", ".jpg", ".jpeg", ".png", ".webp"}
@@ -34,6 +35,7 @@ class Worker:
         document_id = job["id"]
         logger.info("documento=%s evento=inicio", document_id)
         try:
+            self.store.store_original(document_id, token, data, path.suffix.lower(), sha256)
             document = self.extract(data, path.suffix.lower(), self.settings)
             invoice, model = self.router.extract(document, lambda *args: self.store.attempt(document_id, token, *args))
             from langsmith import tracing_context
@@ -129,7 +131,11 @@ def main():
             worker.stopping = True
         signal.signal(signal.SIGINT, stop)
         signal.signal(signal.SIGTERM, stop)
-        return worker.run(args.once)
+        with reader_lock(settings.input_dir):
+            return worker.run(args.once)
+    except ReaderAlreadyRunning:
+        logger.info('evento=lector_ya_en_marcha')
+        return 0
     except (ConfigurationError, ProcessingError) as exc:
         logger.error("%s", exc)
         return 1

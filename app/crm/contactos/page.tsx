@@ -1,16 +1,20 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Cliente, Empresa, Oportunidad } from '@/lib/types';
 import { loadCrmDirectory } from '@/lib/crmDirectory';
 import CrmShell from '@/components/CrmShell';
+import NewSalesRecord from '@/components/NewSalesRecord';
 import CompanyLogo from '@/components/CompanyLogo';
 import { Avatar, Icon, btnGhost, inputCls } from '@/components/ui';
 
 type Contacto = Cliente & { empresa_rel?: Empresa | null };
 
 export default function ContactosPage() {
+  const [showNew, setShowNew] = useState(false);
+  const salesView = usePathname().startsWith('/crm/ventas');
   const [contactos, setContactos] = useState<Contacto[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [ops, setOps] = useState<Oportunidad[]>([]);
@@ -102,12 +106,13 @@ export default function ContactosPage() {
       <div className="px-6 py-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-semibold">Contactos</h1>
+            <h1 className="text-2xl font-semibold">{salesView ? 'Clientes' : 'Contactos'}</h1>
             <p className="text-sm text-neutral-500 mt-1">
               {loading ? 'Cargando contactos...' : `${totalMostrado} persona${totalMostrado === 1 ? '' : 's'} en ${gruposFiltrados.length} empresa${gruposFiltrados.length === 1 ? '' : 's'}`}
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {salesView && <button type="button" className={btnGhost} onClick={() => setShowNew(true)}>Nuevo cliente</button>}
             <button className={btnGhost} onClick={exportarCSV} type="button">
               <Icon name="download" className="w-4 h-4" /> Exportar CSV
             </button>
@@ -197,6 +202,6 @@ export default function ContactosPage() {
           </div>
         )}
       </div>
-    </CrmShell>
+    {showNew && <NewSalesRecord kind="cliente" onClose={() => setShowNew(false)} onSaved={() => load()} />}</CrmShell>
   );
 }

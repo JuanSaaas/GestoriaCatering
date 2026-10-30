@@ -69,6 +69,9 @@ No inventes ni completes datos ausentes: usa null. No uses el nombre del archivo
 como prueba de un dato. Fecha ISO YYYY-MM-DD; importes numéricos sin separador de
 miles; moneda ISO de tres letras solo si aparece inequívocamente en el documento.
 Desglosa IVA, otros impuestos y retenciones en impuestos (retenciones negativas).
+Para el IVA usa nombre="IVA", su porcentaje si está escrito y el importe en dinero.
+El NIF/CIF y nombre que se solicitan son los del proveedor emisor de la factura,
+no los datos del cliente receptor. Diferencia base imponible, IVA y total.
 Respeta signos de facturas rectificativas. No calcules importes que no estén escritos.
 Si hay varios documentos/facturas independientes, el documento no es una factura,
 o no resulta legible: todos los campos a null, impuestos=[], y explica el motivo

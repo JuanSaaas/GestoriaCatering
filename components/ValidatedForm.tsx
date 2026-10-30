@@ -22,7 +22,7 @@ function message(control: Control) {
 }
 
 /** Inline feedback shared by public and internal forms; keeps native constraints. */
-export default function ValidatedForm({ onSubmit, children, ...props }: FormHTMLAttributes<HTMLFormElement>) {
+export default function ValidatedForm({ onSubmit, children, showRequiredHint = true, ...props }: FormHTMLAttributes<HTMLFormElement> & { showRequiredHint?: boolean }) {
   const prefix = useId();
   const counter = useRef(0);
   const [issues, setIssues] = useState<Issue[]>([]);
@@ -76,7 +76,7 @@ export default function ValidatedForm({ onSubmit, children, ...props }: FormHTML
     setSubmitted(false);
     onSubmit?.(event);
   }}>
-    <p className="text-base text-neutral-600 mb-4">Los campos con * son obligatorios.</p>
+    {showRequiredHint && <p className="text-base text-neutral-600 mb-4">Los campos con * son obligatorios.</p>}
     {submitted && visibleIssues.length > 0 && <div role="alert" className="error-summary">
       <p className="font-semibold">⚠ Revisa los campos indicados. Tus respuestas se conservan.</p>
       <ul>{visibleIssues.map((issue) => <li key={issue.id}><a href={`#${issue.control.id}`} onClick={(event) => {

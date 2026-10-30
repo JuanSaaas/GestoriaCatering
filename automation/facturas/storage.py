@@ -12,6 +12,7 @@ class StorageError(Exception):
 
 class Store:
     def __init__(self, settings: Settings, client=None):
+        self.storage_url = settings.supabase_url + '/storage/v1/object/facturas-originales/'
         self.client = client or httpx.Client(base_url=settings.supabase_url + "/rest/v1/", timeout=30,
             headers={"apikey": settings.supabase_key, "Authorization": "Bearer " + settings.supabase_key, "Content-Type": "application/json"})
 
@@ -56,6 +57,31 @@ class Store:
         warnings = invoice.warnings()
         return self.rpc("guardar_factura", {"p_documento_id": document_id, "p_token": token, "p_modelo": model,
             "p_datos": invoice.model_dump(mode="json"), "p_advertencias": warnings})
+
+    def store_original(self, document_id, token, data: bytes, suffix: str, sha256: str):
+        types = {'.pdf': 'application/pdf', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp'}
+        if suffix not in types or len(sha256) != 64 or any(c not in '0123456789abcdef' for c in sha256):
+            raise StorageError('No se pudo identificar el original de la factura.')
+        path = sha256 + suffix
+        try:
+            response = self.client.request('POST', self.storage_url + path,
+                content=data, headers={'Content-Type': types[suffix], 'x-upsert': 'false'})
+            duplicate = False
+            if response.status_code in (400, 409):
+                try:
+                    error = response.json()
+                    duplicate = isinstance(error, dict) and (error.get('error') == 'Duplicate' or error.get('code') in {'KeyAlreadyExists', 'ResourceAlreadyExists'})
+                except ValueError:
+                    pass
+            if not duplicate:
+                response.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise StorageError('No se pudo sincronizar el original privado. Se conserva el archivo para reintento.') from exc
+        result = self.request('PATCH', 'factura_documentos',
+            params={'id': 'eq.' + document_id, 'bloqueo_token': 'eq.' + token, 'estado': 'eq.procesando'},
+            headers={'Prefer': 'return=representation'}, json={'archivo_ruta': path})
+        if not result:
+            raise StorageError('El bloqueo del documento cambió antes de confirmar su original.')
 
 
 def saving_tool(store: Store, document_id: str, token: str, model: str):

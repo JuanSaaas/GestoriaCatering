@@ -217,6 +217,38 @@ class DocumentTests(unittest.TestCase):
             self.assertEqual(file.read_bytes(), data)
 
 
+class OriginalStorageTests(unittest.TestCase):
+    def test_original_upload_and_duplicate_recovery_confirm_the_lease(self):
+        for status, body in [(200, {}), (400, {'error':'Duplicate'}), (409, {'code':'ResourceAlreadyExists'})]:
+            with self.subTest(status=status):
+                requests = []
+                def handle(request):
+                    requests.append(request)
+                    return httpx.Response(status, json=body) if request.method == 'POST' else httpx.Response(200, json=[{'id':'doc'}])
+                with httpx.Client(base_url='https://example.invalid/rest/v1/', transport=httpx.MockTransport(handle)) as client:
+                    Store(settings(), client=client).store_original('doc','token',b'original','.pdf','a'*64)
+                self.assertEqual([r.method for r in requests], ['POST','PATCH'])
+                self.assertIn('bloqueo_token=eq.token',str(requests[1].url))
+                self.assertEqual(requests[0].headers['x-upsert'],'false')
+
+    def test_other_upload_errors_do_not_confirm_the_original(self):
+        requests = []
+        def handle(request):
+            requests.append(request)
+            return httpx.Response(400,json={'error':'InvalidMimeType'})
+        with httpx.Client(base_url='https://example.invalid/rest/v1/',transport=httpx.MockTransport(handle)) as client:
+            with self.assertRaises(StorageError):
+                Store(settings(),client=client).store_original('doc','token',b'original','.pdf','a'*64)
+        self.assertEqual(len(requests),1)
+
+    def test_original_is_not_confirmed_when_lease_changes(self):
+        def handle(request):
+            return httpx.Response(200,json={} if request.method == 'POST' else [])
+        with httpx.Client(base_url='https://example.invalid/rest/v1/',transport=httpx.MockTransport(handle)) as client:
+            with self.assertRaises(StorageError):
+                Store(settings(),client=client).store_original('doc','old-token',b'original','.pdf','a'*64)
+
+
 class WorkerTests(unittest.TestCase):
     def test_storage_confirmation_failure_keeps_original_and_lease(self):
         with tempfile.TemporaryDirectory() as folder:

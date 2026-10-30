@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import type { Oportunidad, EstadoOportunidad, Empresa, Empleado } from '@/lib/types';
@@ -14,6 +15,7 @@ import { Avatar, Icon, eventoLabel, inputCls, tituloOportunidad } from '@/compon
 type FiltroEmpleado = 'todos' | 'sin_asignar' | string;
 
 export default function CrmPage() {
+  const salesView = usePathname().startsWith('/crm/ventas');
   const [oportunidades, setOportunidades] = useState<Oportunidad[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [empleados, setEmpleados] = useState<Empleado[]>([]);
@@ -52,6 +54,8 @@ export default function CrmPage() {
   useEffect(() => {
     const openId = new URLSearchParams(window.location.search).get('abrir');
     if (openId) setSelectedId(openId);
+    const commercial = new URLSearchParams(window.location.search).get('comercial');
+    if (commercial) setFiltro(commercial);
     loadAll();
     loadCatalogos();
 
@@ -139,7 +143,7 @@ export default function CrmPage() {
       <div className="px-6 pt-6 pb-5">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold">Oportunidades</h1>
+            <h1 className="text-2xl font-semibold">{salesView ? 'Mi flujo' : 'Oportunidades'}</h1>
             <p className="text-sm text-neutral-500 mt-0.5">
               Abre una tarjeta para consultar sus datos y cambiar la fase. También puedes arrastrarla entre columnas.{' '}
               {visibles.length === oportunidades.length

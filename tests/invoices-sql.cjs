@@ -9,6 +9,8 @@ const {PGlite}=require('../tmp/facturas-sql-tests/node_modules/@electric-sql/pgl
   try {
     await db.exec('create role anon; create role authenticated; create role service_role bypassrls;');
     await db.exec(fs.readFileSync('supabase/migracion_facturas_ia.sql','utf8'));
+    await db.exec('create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);');
+    await db.exec(fs.readFileSync('supabase/migrations/20261029124958_revision_facturas_proveedores.sql','utf8'));
     const register=async n=>(await db.query('insert into factura_documentos(sha256,archivo_nombre) values($1,$2) returning *',[String(n).padStart(64,'0'),`FAC-${n}.pdf`])).rows[0];
     const claim=async(doc,token=randomUUID())=>({token,row:(await db.query('select * from reclamar_documento_factura($1,$2,1800)',[doc.sha256,token])).rows[0]});
     const doc=await register(1),lease=await claim(doc);
@@ -18,6 +20,12 @@ const {PGlite}=require('../tmp/facturas-sql-tests/node_modules/@electric-sql/pgl
     const save=async(d,l,data=invoice,warnings=[]) => (await db.query('select guardar_factura($1,$2,$3,$4::jsonb,$5::text[]) as result',[d.id,l.token,'google/gemini-2.5-flash',JSON.stringify(data),warnings])).rows[0].result;
     await assert.rejects(save(doc,{token:randomUUID()}),/Bloqueo caducado/);
     const saved=await save(doc,lease);assert.equal(saved.estado,'completada');
+    const extracted=(await db.query('select * from facturas where id=$1',[saved.id])).rows[0];
+    assert.equal(Number(extracted.iva_importe),21);
+    assert.equal(extracted.estado_revision,'pendiente');
+    assert.equal(Number((await db.query(`select factura_iva('[{"nombre":"IVA","importe":"21.00"},{"nombre":"IVA","importe":"10.50"}]') as iva`)).rows[0].iva),31.5);
+    assert.equal((await db.query(`select factura_iva('[{"nombre":"IVA","importe":null}]') as iva`)).rows[0].iva,null);
+    assert.equal((await db.query(`select factura_iva('[]') as iva`)).rows[0].iva,null);
     assert.equal((await claim(doc)).row,undefined,'confirmed documents cannot be processed again');
     const copy=await register(2),copyLease=await claim(copy);
     const duplicate=await save(copy,copyLease,{...invoice,proveedor_identificacion:'B-12345678'});
@@ -44,10 +52,24 @@ const {PGlite}=require('../tmp/facturas-sql-tests/node_modules/@electric-sql/pgl
     const invalid=await register(6),invalidLease=await claim(invalid);
     await assert.rejects(save(invalid,invalidLease,{...invoice,numero_factura:'FAC-bad',moneda:'euros'}));
     assert.equal((await db.query('select estado from factura_documentos where id=$1',[invalid.id])).rows[0].estado,'procesando','failed insert never completes the document');
+    const review=async(version,action,data)=> (await db.query('select revisar_factura($1,$2,$3,$4::jsonb) as result',[saved.id,version,action,JSON.stringify(data)])).rows[0].result;
+    const correction={proveedor_nombre:'Proveedor corregido',proveedor_identificacion:'B12345678',numero_factura:'FAC-001',fecha_emision:'2026-10-23',base_imponible:100,iva_importe:21,importe_total:121,moneda:'EUR'};
+    await assert.rejects(review(0,'validar',{...correction,iva_importe:null}),/Completa/);
+    const corrected=await review(0,'guardar',{...correction,proveedor_nombre:null});
+    assert.equal(corrected.revision_version,1);assert.equal(corrected.estado_revision,'pendiente');
+    await assert.rejects(review(0,'validar',correction),/ha cambiado/);
+    const validated=await review(1,'validar',correction);
+    assert.equal(validated.estado_revision,'validada');assert.equal(validated.proveedor_nombre,'Proveedor corregido');
+    assert.deepEqual(validated.datos_extraidos,extracted.datos_extraidos,'corrections preserve the extraction snapshot');
+    assert.equal((await db.query('select proveedor_nombre from facturas where id=$1',[saved.id])).rows[0].proveedor_nombre,'Proveedor corregido','saved changes survive another read');
+    const discarded=await review(2,'descartar',{});
+    assert.equal(discarded.estado_revision,'descartada');assert.equal(discarded.proveedor_nombre,'Proveedor corregido');
+    assert.equal((await review(3,'validar',correction)).estado_revision,'validada','a discarded invoice can be restored');
     await db.exec('set role anon');
     await assert.rejects(db.query('select * from facturas'),/permission denied/);
     await assert.rejects(db.query('select reintentar_documento_factura($1)',[doc.id]),/permission denied/);
+    await assert.rejects(review(4,'validar',correction),/permission denied/);
     await db.exec('reset role');
-    console.log('OK PostgreSQL: migration, leases, stale-token rejection, semantic duplicates, year separation, backoff, requeue, atomic rollback and anonymous access restrictions.');
+    console.log('OK PostgreSQL: migrations, extraction snapshot, IVA numeric/string/null, persisted corrections, validation, concurrent edits, discard/restore, leases, duplicates, backoff, rollback and anonymous access restrictions.');
   } finally {await db.close();}
 })().catch(error=>{console.error(error.message);process.exitCode=1;});
