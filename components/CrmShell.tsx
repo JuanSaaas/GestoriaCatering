@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Icon, type IconName } from './ui';
 import { useDialog } from './useDialog';
+import SalesNavigation, { SALES_LINKS } from './SalesNavigation';
 
 function MobileMenu({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
   const ref = useDialog<HTMLDivElement>(onClose);
@@ -86,7 +87,9 @@ export default function CrmShell({
 
   const NavLinks = () => (
     <nav aria-label="Menú principal" className="flex-1 min-h-0 overflow-y-auto px-3 py-2 space-y-2">
-      {NAV.map((item) => (
+      {NAV.map((item) => item.href === '/crm/ventas' ? (
+        <SalesNavigation key={item.href} pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+      ) : (
         <Link
           key={item.href}
           href={item.href}
@@ -192,11 +195,8 @@ export default function CrmShell({
         <nav aria-label="Ruta de navegación" className="px-6 pt-6 text-sm text-neutral-600 flex gap-2 flex-wrap">
           <Link href="/crm" className="hover:underline">Inicio</Link>
           {pathname !== '/crm' && <><span aria-hidden="true">›</span><Link href={NAV.find((item) => item.href !== '/crm' && pathname.startsWith(item.href))?.href || '/crm/contactos'} className="hover:underline">{NAV.find((item) => item.href !== '/crm' && pathname.startsWith(item.href))?.label || 'Contactos'}</Link></>}
-          {pathname.split('/').length > 3 && <><span aria-hidden="true">›</span><span aria-current="page">{pathname.startsWith('/crm/ventas') ? pathname.endsWith('/pedidos') ? 'Pedidos' : pathname.endsWith('/clientes') ? 'Clientes' : 'Ventas' : 'Ficha'}</span></>}
+          {pathname.startsWith('/crm/ventas/') ? <><span aria-hidden="true">›</span><Link href={SALES_LINKS.find(item=>pathname.startsWith(item.href))?.href||'/crm/ventas/clientes'} aria-current={pathname.split('/').length===4?'page':undefined}>{SALES_LINKS.find(item=>pathname.startsWith(item.href))?.label||'Clientes'}</Link>{pathname.split('/').length>4&&<><span aria-hidden="true">›</span><span aria-current="page">Ficha</span></>}</> : pathname.split('/').length > 3 && <><span aria-hidden="true">›</span><span aria-current="page">Ficha</span></>}
         </nav>
-        {pathname.startsWith('/crm/ventas') && <nav aria-label="Apartados de Ventas" className="flex flex-wrap gap-2 border-b border-neutral-300 bg-white px-6 py-3">
-          {([{ href: '/crm/ventas', label: 'Presupuestos' }, { href: '/crm/ventas/pedidos', label: 'Pedidos' }, { href: '/crm/ventas/clientes', label: 'Clientes' }]).map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href ? 'page' : undefined} className={`inline-flex min-h-12 items-center rounded-lg border px-4 font-medium ${pathname === item.href ? 'border-blue-700 bg-blue-50 text-blue-800' : 'border-neutral-300 text-neutral-700 hover:bg-neutral-50'}`}>{item.label}</Link>)}
-        </nav>}
         {children}
       </main>
       {confirmLogout && <LogoutDialog busy={loggingOut} error={logoutError} onCancel={() => setConfirmLogout(false)} onConfirm={handleLogout} />}

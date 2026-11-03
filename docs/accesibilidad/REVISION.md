@@ -476,6 +476,117 @@ Se conserva la persistencia y confirmación existentes. TypeScript comprobado;
 recorrido manual con lector de pantalla pendiente.
 
 
+## Ventas: ajuste al trabajo de catering · 01/11/2026
+
+Revisión posterior solicitada por el usuario: la copia de estructura todavía
+requería adaptar el trabajo diario al negocio. Cambios limitados a Ventas:
+
+- Recuperación del lugar, franja e indicaciones alimentarias que el formulario
+  público conserva en la sección «Datos del evento» del mensaje cuando faltan
+  columnas. Se priorizan los campos explícitos; no se usan lugares simulados.
+  Las indicaciones se muestran junto a la solicitud y se incorporan a las notas
+  mediante una acción explícita, conservando las notas escritas.
+- Acción por línea «Usar N comensales», sin modificar automáticamente cantidades
+  de personal/equipamiento. Total medio por invitado con IVA cuando hay invitados.
+- Pedidos abre en próximos eventos por fecha del evento, excluyendo cancelados;
+  permanecen Todos y las vistas por fecha de confirmación. Estado visible también
+  en pedidos, con símbolo y palabra; invitados visibles en el listado.
+- Fases con lenguaje del negocio (Enviado al cliente / Evento confirmado).
+- Se retira de Ventas el acceso a facturas de proveedores copiado de la referencia;
+  se ofrece Ver presupuestos. No cambia el módulo de Facturas.
+
+Criterios: 1.3.1 (datos y etiquetas), 1.4.1 (estados textuales), 2.1.1 y 2.5.8
+(botones nativos de 48 px), 3.3.2/3.3.4 (instrucciones, revisión y copia explícita),
+4.1.3 (se conservan avisos de resultado). No se añaden colores ni movimiento.
+Once pruebas de Ventas/PostgreSQL superadas, incluidas compatibilidad del
+formulario web y exclusión de cancelaciones en Próximos eventos. Se mantiene
+el alcance pendiente de auditoría manual de la revisión anterior: NVDA, zoom
+200 %, colores forzados y todos los estados con registros reales.
+Compilación y TypeScript comprobados. Revisión visual del listado de Pedidos
+en escritorio y respuesta real de su API (200) con Próximos eventos; sin crear
+registros de prueba en la base real. Captura: output/ventas/pedidos-eventos.jpg.
+
+## Ventas: adaptación de la referencia · 01/11/2026
+
+Tras recibir acceso de demostración se inspeccionaron el menú Ventas, los
+listados Presupuestos/Pedidos/Productos, el alta de presupuesto, una ficha
+enviada con líneas/datos/fases y el formulario de producto. No se guardaron
+cambios en la referencia. Esta revisión sustituye el bloqueo de acceso de la
+primera fase descrita más abajo.
+
+Menú definitivo: Presupuestos, Pedidos y Productos y servicios. Adaptación a La
+Mesa Perfecta: evento, fecha, invitados, lugar y oportunidad del cliente;
+catálogo por categorías de catering sin inventar tarifas. Se conservan las
+rutas anteriores de clientes y los demás módulos.
+
+| Página / barrera | Prioridad | WCAG | Corrección / evidencia | Estado |
+| --- | --- | --- | --- | --- |
+| Desplegable y orientación | Media | 1.3.1, 2.1.1, 2.4.4, 4.1.2 | Botón nativo con estado, enlaces activos y migas de pan; apertura con Enter y cierre del menú móvil con Escape | Probado a 320 px |
+| Alta larga y errores | Alta | 3.3.1, 3.3.2, 3.3.3, 3.3.4 | FormSteps de una columna, ValidatedForm, SearchableSelect y useDialog; error de cliente obligatorio asociado; conservación al volver entre pasos; revisión previa con totales visibles | Recorrido en navegador sin guardar |
+| Confirmación y archivo | Alta | 3.3.4, 4.1.3 | Diálogos con registro y consecuencias; resultado comprobado por id, mensajes de estado y versiones contra sobrescrituras | API y PostgreSQL probados |
+| Fases y contraste | Media | 1.4.1, 1.4.3 | Texto, símbolo y fase numerada; blanco/#171717 17,93:1; #92400e/blanco 7,09:1; #b91c1c/blanco 6,47:1; blanco/#1d4ed8 6,70:1 | Fórmula WCAG medida con Node |
+| Buscador comprimido en escritorio | Alta | 1.4.10 | Base de anchura para búsqueda y acciones en fila independiente; corregido tras inspección visual | Sin desbordamiento a 1280 px |
+| Reflujo y foco de producto | Alta | 1.4.10, 2.4.7, 2.5.8 | Controles de 48 px, formulario de una columna y desplazamiento vertical del diálogo; Tab llega a Cerrar y Escape devuelve el foco a Crear producto | Probado a 320 × 800 |
+| Compatibilidad de opciones | Alta | 3.3.1, 4.1.3 | La consulta inicial asumía ubicacion_evento en oportunidades, columna ausente en el esquema real; corregida para admitir campos opcionales | Error/reintento y recuperación comprobados |
+
+Pruebas completadas: TypeScript, compilación de producción, siete pruebas de
+cálculo/validación/API y prueba PostgreSQL de migración, conservación de registros,
+envío, confirmación sin duplicados, versiones y archivo/restauración. En navegador
+se recorrieron cliente/evento, condiciones, líneas, descuento y revisión. Ejemplo
+sin guardar: 100 × 80 €, descuento 10 %, IVA 10 % → base 7.200 €, IVA 720 €,
+total 7.920 €. No se crearon ventas ni tarifas ficticias en la base real.
+
+Axe 4.14.0 en Chromium/IAB, 01/11/2026: Presupuestos vacío a 1280 × 720 y
+320 × 800 sin infracciones; catálogo vacío y diálogo de producto a 320 × 800
+sin infracciones. Axe dejó revisión manual de contraste para un enlace lateral
+parcialmente oculto por el contenedor desplazable y para la marca del encabezado
+móvil; no se afirma que sean comprobaciones superadas. Anchuras DOM medidas:
+1280/1280 en escritorio y 305/320 en móvil (sin desbordamiento de página).
+Captura final: output/ventas/presupuestos.jpg.
+
+Base: migración 20261101114544 aplicada a GestoriaCatering, esquema verificado
+por consulta. RLS activa y sin acceso anon/authenticated en ventas_productos;
+solo servidor. El asesor devuelve el aviso informativo de tabla sin políticas,
+intencionado para este modelo privado. El CLI no estaba disponible; se conservó
+el SQL con el identificador de la migración remota.
+
+La ejecución general dio 40 pruebas superadas y dos fallos ajenos a Ventas:
+hr-api requiere un servidor y HR_DATA_DIR de pruebas; subida real de facturas
+respondió 503 en el entorno restringido. No se alteraron esos módulos.
+
+Límites funcionales: Marcar como enviado registra un envío ya realizado por el
+equipo; no envía correos. Exportar recorre todos los documentos filtrados; los
+importes del pie se etiquetan como importes de la página actual. No se simula
+el filtro Míos porque la sesión compartida no identifica al comercial.
+
+Pendientes: NVDA, simulaciones de daltonismo/visión borrosa, alto contraste,
+zoom real 200 %, espaciado de texto y revisión de todos los estados con datos.
+No aplica multimedia nueva. No se afirma conformidad WCAG completa; las cuatro
+referencias ERP ausentes y las ilustraciones del PDF no incluido siguen sin
+revisarse.
+
+### Primera fase: menú desplegable · 01/11/2026
+
+Alcance: acceso lateral a los apartados existentes Presupuestos, Pedidos y
+Clientes, en escritorio y menú móvil. Se retiran las pestañas duplicadas.
+No se modifican los datos, formularios ni los demás módulos. La reproducción
+del contenido de la referencia queda pendiente: su URL de presupuestos
+redirige a /auth/login y no se han podido inspeccionar sus pantallas privadas.
+
+| Componente / barrera | Prioridad | Criterios | Cambio y evidencia | Estado |
+| --- | --- | --- | --- | --- |
+| Ventas no se desplegaba | Media | 2.1.1, 4.1.2 | Botón nativo, aria-expanded y aria-controls; lista oculta al cerrar; Escape cierra y devuelve el foco | Código revisado |
+| Orientación dentro de Ventas | Media | 1.3.1, 1.4.1, 2.4.4 | Enlaces con nombre, aria-current, subrayado y negrita para el activo; apertura inicial en rutas de Ventas | Código revisado |
+| Tamaño y contraste | Media | 1.4.3, 2.5.8 | Controles de 48 px; texto #525252 sobre blanco 7,81:1 y sobre #f5f5f5 7,17:1; negro sobre #f5f5f5 19,26:1; línea #737373 sobre blanco 4,74:1 | Fórmula WCAG medida con Node, Python no disponible |
+
+Validación: TypeScript sin errores y las tres pruebas existentes de Ventas
+superadas. Se heredan foco visible, reducción de movimiento y colores forzados
+del CSS común. Pendientes: recorrido real de Tab/Shift+Tab/Enter/Espacio/Escape
+en escritorio y móvil, lector NVDA, zoom 200 %, reflujo a 320 CSS px,
+alto contraste, simulaciones visuales y axe/WAVE sobre el nuevo desplegable.
+No se afirma conformidad completa. Las cuatro referencias ERP siguen ausentes;
+no se ha pasado su checklist ni se han revisado ilustraciones del PDF no incluido.
+
 ## Ventas: presupuestos y pedidos · 30/10/2026
 
 Módulo independiente de Oportunidades, con navegación Presupuestos/Pedidos/Clientes,

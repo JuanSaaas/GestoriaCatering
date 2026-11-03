@@ -1,2 +1,2 @@
-import SalesModule from '@/components/SalesModule';
-export default function VentasPage(){ return <SalesModule />; }
+import { redirect } from 'next/navigation';
+export default function VentasPage(){ redirect('/crm/ventas/presupuestos'); }
