@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Cliente, Empresa, Oportunidad } from '@/lib/types';
@@ -8,13 +7,12 @@ import { loadCrmDirectory } from '@/lib/crmDirectory';
 import CrmShell from '@/components/CrmShell';
 import NewSalesRecord from '@/components/NewSalesRecord';
 import CompanyLogo from '@/components/CompanyLogo';
-import { Avatar, Icon, btnGhost, inputCls } from '@/components/ui';
+import { Avatar, Icon, btnGhost, btnPrimary, inputCls } from '@/components/ui';
 
 type Contacto = Cliente & { empresa_rel?: Empresa | null };
 
 export default function ContactosPage() {
   const [showNew, setShowNew] = useState(false);
-  const salesView = usePathname().startsWith('/crm/ventas');
   const [contactos, setContactos] = useState<Contacto[]>([]);
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [ops, setOps] = useState<Oportunidad[]>([]);
@@ -106,28 +104,30 @@ export default function ContactosPage() {
       <div className="px-6 py-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-semibold">{salesView ? 'Clientes' : 'Contactos'}</h1>
+            <h1 className="text-2xl font-semibold">Clientes</h1>
             <p className="text-sm text-neutral-500 mt-1">
               {loading ? 'Cargando contactos...' : `${totalMostrado} persona${totalMostrado === 1 ? '' : 's'} en ${gruposFiltrados.length} empresa${gruposFiltrados.length === 1 ? '' : 's'}`}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            {salesView && <button type="button" className={btnGhost} onClick={() => setShowNew(true)}>Nuevo cliente</button>}
+        </div>
+
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+          <div className="relative w-full min-w-0 sm:max-w-sm">
+            <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
+            <label htmlFor="list-search" className="block text-sm font-medium text-neutral-700 mb-2">Buscar clientes</label>
+            <input id="list-search" type="search"
+              className={`${inputCls} pl-9`}
+              placeholder="Buscar empresa o persona…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <button className={btnGhost} onClick={exportarCSV} type="button">
               <Icon name="download" className="w-4 h-4" /> Exportar CSV
             </button>
+            <button type="button" className={btnPrimary} onClick={() => setShowNew(true)}><Icon name="plus" className="w-4 h-4" /> Nuevo cliente</button>
           </div>
-        </div>
-
-        <div className="relative mb-5 max-w-sm">
-          <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
-          <label htmlFor="list-search" className="block text-sm font-medium text-neutral-700 mb-2">Buscar contactos</label>
-              <input id="list-search" type="search"
-            className={`${inputCls} pl-9`}
-            placeholder="Buscar empresa o persona…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
         </div>
 
         {loadError && (
@@ -197,8 +197,8 @@ export default function ContactosPage() {
 
         {!loading && !loadError && totalMostrado === 0 && (
           <div className="text-sm text-neutral-500 py-10 text-center border border-dashed border-neutral-200 rounded-xl">
-            <p>{query.trim() ? 'No hay contactos que coincidan con la búsqueda.' : 'Todavía no hay contactos. Crea una oportunidad para registrar el primero.'}</p>
-            {query.trim() ? <button type="button" className={`${btnGhost} mt-4`} onClick={() => setQuery('')}>Limpiar búsqueda</button> : <Link href="/crm/oportunidades" className={`${btnGhost} mt-4`}>Crear una oportunidad</Link>}
+            <p>{query.trim() ? 'No hay clientes que coincidan con la búsqueda.' : 'Todavía no hay clientes. Registra el primero para comenzar.'}</p>
+            <button type="button" className={`${btnGhost} mt-4`} onClick={() => query.trim() ? setQuery('') : setShowNew(true)}>{query.trim() ? 'Limpiar búsqueda' : 'Añadir primer cliente'}</button>
           </div>
         )}
       </div>

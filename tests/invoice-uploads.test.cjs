@@ -35,12 +35,30 @@ test('subida real: guarda bytes en carpeta, confirma duplicados y no permite sal
     const saved=await first.json();assert.equal(saved.ok,true);assert.equal(saved.duplicada,false);
     assert.equal(path.basename(saved.archivo),saved.archivo);
     assert.deepEqual(await fsp.readFile(path.join(folder,saved.archivo)),bytes);
-    const again=await route.POST(request(form()));assert.equal((await again.json()).duplicada,true);
+    const again=await route.POST(request(form()));assert.equal(again.status,409);
+    const duplicate=await again.json();assert.equal(duplicate.duplicada,true);assert.equal(duplicate.code,'FACTURA_DUPLICADA');assert.equal(duplicate.ok,false);
+    const renamed=new FormData();renamed.append('archivo',new Blob([bytes],{type:'application/pdf'}),'otra-copia.pdf');
+    assert.equal((await route.POST(request(renamed))).status,409,'renombrar no permite duplicar');
     assert.equal((await fsp.readdir(folder)).length,1,'no temporary file or repeated original remains');
   } finally {
     assert.ok(folder.startsWith(root+path.sep));
     await fsp.rm(folder,{recursive:true,force:true});
   }
+});
+
+test('subida: reconoce originales antiguos y resuelve subidas simultáneas del mismo contenido',async()=>{
+  const root=path.resolve('tmp');await fsp.mkdir(root,{recursive:true});
+  const folder=await fsp.mkdtemp(path.join(root,'invoice-upload-tests-'));
+  try {
+    const store=compile('lib/invoiceUploads.ts',{'server-only':{}},{FACTURAS_INPUT_DIR:folder});
+    const bytes=Buffer.from('%PDF- prueba concurrente');
+    const results=await Promise.all(['primera.pdf','segunda.pdf'].map(name=>store.saveInvoiceUpload(name,bytes)));
+    assert.equal(results.filter(r=>r.duplicada).length,1);
+    const sha=require('node:crypto').createHash('sha256').update(bytes).digest('hex');
+    await fsp.rename(path.join(folder,results[0].archivo),path.join(folder,`nombre-antiguo-${sha}.pdf`));
+    assert.equal((await store.saveInvoiceUpload('nuevo-nombre.pdf',bytes)).duplicada,true);
+    assert.equal((await fsp.readdir(folder)).length,1);
+  } finally {assert.ok(folder.startsWith(root+path.sep));await fsp.rm(folder,{recursive:true,force:true});}
 });
 
 test('subida API: protege sesión y origen y no escribe peticiones inválidas',async()=>{

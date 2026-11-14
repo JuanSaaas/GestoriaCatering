@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
     if (files.length !== 1 || typeof files[0] === 'string') throw new InvoiceUploadError('Selecciona una factura por envío.');
     const file = files[0];
     const saved = await saveInvoiceUpload(file.name, Buffer.from(await file.arrayBuffer()));
+    if (saved.duplicada) return NextResponse.json({ ok: false, code: 'FACTURA_DUPLICADA', error: 'Esta factura ya se había subido. Se conserva el original y no se ha creado otra copia. Puedes consultarla en Facturas.', ...saved }, { status: 409, headers: { 'Cache-Control': 'no-store' } });
     return NextResponse.json({ ok: true, ...saved }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
     return NextResponse.json({ error: error instanceof InvoiceUploadError ? error.message : 'No se pudo guardar la factura. Inténtalo de nuevo.' }, { status: error instanceof InvoiceUploadError ? error.status : 503 });

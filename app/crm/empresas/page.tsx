@@ -108,14 +108,6 @@ export default function EmpresasPage() {
               {loading ? 'Cargando empresas...' : `${filtradas.length} empresa${filtradas.length === 1 ? '' : 's'} en cartera`}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button className={btnGhost} onClick={exportarCSV} type="button">
-              <Icon name="download" className="w-4 h-4" /> Exportar CSV
-            </button>
-            <button className={showForm ? btnGhost : btnPrimary} aria-expanded={showForm} onClick={() => setShowForm((v) => !v)} type="button">
-              <Icon name="plus" className="w-4 h-4" /> Nueva empresa
-            </button>
-          </div>
         </div>
 
         {notice && <p role="status" className="mb-4 text-sm">{notice}</p>}
@@ -139,15 +131,25 @@ export default function EmpresasPage() {
           </ValidatedForm>
         )}
 
-        <div className="relative mb-5 max-w-sm">
-          <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
-          <label htmlFor="list-search" className="block text-sm font-medium text-neutral-700 mb-2">Buscar empresas</label>
-              <input id="list-search" type="search"
-            className={`${inputCls} pl-9`}
-            placeholder="Buscar por nombre, sector o ciudad…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+          <div className="relative w-full min-w-0 sm:max-w-sm">
+            <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
+            <label htmlFor="list-search" className="block text-sm font-medium text-neutral-700 mb-2">Buscar empresas</label>
+            <input id="list-search" type="search"
+              className={`${inputCls} pl-9`}
+              placeholder="Buscar por nombre, sector o ciudad…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button className={btnGhost} onClick={exportarCSV} type="button">
+              <Icon name="download" className="w-4 h-4" /> Exportar CSV
+            </button>
+            <button className={showForm ? btnGhost : btnPrimary} aria-expanded={showForm} onClick={() => setShowForm((v) => !v)} type="button">
+              <Icon name="plus" className="w-4 h-4" /> Nueva empresa
+            </button>
+          </div>
         </div>
 
         {loadError && (

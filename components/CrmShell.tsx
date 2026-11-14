@@ -34,12 +34,12 @@ function LogoutDialog({ busy, error, onCancel, onConfirm }: {
 
 const NAV: { href: string; label: string; icon: IconName }[] = [
   { href: '/crm', label: 'Resumen', icon: 'gauge' },
-  { href: '/crm/empresas', label: 'Empresas', icon: 'building' },
-  { href: '/crm/contactos', label: 'Contactos', icon: 'user' },
-  { href: '/crm/ventas', label: 'Ventas', icon: 'trend' },
   { href: '/crm/oportunidades', label: 'Oportunidades', icon: 'layers' },
-  { href: '/crm/cierres', label: 'Cierres previstos', icon: 'calendar' },
+  { href: '/crm/empresas', label: 'Empresas', icon: 'building' },
+  { href: '/crm/contactos', label: 'Clientes', icon: 'user' },
   { href: '/crm/tareas', label: 'Tareas', icon: 'check' },
+  { href: '/crm/cierres', label: 'Cierres previstos', icon: 'calendar' },
+  { href: '/crm/ventas', label: 'Ventas', icon: 'trend' },
   { href: '/crm/facturas', label: 'Facturas', icon: 'archive' },
   { href: '/crm/rrhh', label: 'Recursos humanos', icon: 'guests' },
 ];
@@ -120,7 +120,6 @@ export default function CrmShell({
             <span className="text-[11px] font-semibold tracking-[0.18em] uppercase text-neutral-500">CRM</span>
           </div>
         </div>
-        <p className="px-6 py-4 text-xs text-neutral-600">Gestión de eventos y equipo</p>
         <NavLinks />
         <div className="p-3 border-t border-neutral-200 shrink-0">
           {typeof live === 'boolean' && (
@@ -192,7 +191,7 @@ export default function CrmShell({
 
       {/* Contenido */}
       <main id="crm-contenido" tabIndex={-1} className="flex-1 min-w-0 md:pl-60">
-        <nav aria-label="Ruta de navegación" className="px-6 pt-6 text-sm text-neutral-600 flex gap-2 flex-wrap">
+        <nav aria-label="Ruta de navegación" className="crm-breadcrumb px-6 pt-6 text-sm text-neutral-600 flex items-center gap-2 flex-wrap">
           <Link href="/crm" className="hover:underline">Inicio</Link>
           {pathname !== '/crm' && <><span aria-hidden="true">›</span><Link href={NAV.find((item) => item.href !== '/crm' && pathname.startsWith(item.href))?.href || '/crm/contactos'} className="hover:underline">{NAV.find((item) => item.href !== '/crm' && pathname.startsWith(item.href))?.label || 'Contactos'}</Link></>}
           {pathname.startsWith('/crm/ventas/') ? <><span aria-hidden="true">›</span><Link href={SALES_LINKS.find(item=>pathname.startsWith(item.href))?.href||'/crm/ventas/clientes'} aria-current={pathname.split('/').length===4?'page':undefined}>{SALES_LINKS.find(item=>pathname.startsWith(item.href))?.label||'Clientes'}</Link>{pathname.split('/').length>4&&<><span aria-hidden="true">›</span><span aria-current="page">Ficha</span></>}</> : pathname.split('/').length > 3 && <><span aria-hidden="true">›</span><span aria-current="page">Ficha</span></>}

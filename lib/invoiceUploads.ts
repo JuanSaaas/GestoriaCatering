@@ -1,6 +1,6 @@
 import 'server-only';
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, writeFile, link, unlink, stat } from 'node:fs/promises';
+import { mkdir, writeFile, link, unlink, stat, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 export const MAX_INVOICE_BYTES = 20 * 1024 * 1024;
@@ -25,13 +25,20 @@ export async function saveInvoiceUpload(name: string, bytes: Buffer) {
   const extension = validateInvoiceFile(name, bytes);
   const sha = createHash('sha256').update(bytes).digest('hex');
   const original = name.replace(/\\/g, '/').split('/').pop() || 'factura';
-  const stem = path.basename(original, path.extname(original)).normalize('NFKC').replace(/[^\p{L}\p{N}_-]+/gu, '-').slice(0, 80).replace(/^-+|-+$/g, '') || 'factura';
   const directory = path.resolve(process.env.FACTURAS_INPUT_DIR || '.data/facturas/entrada');
-  const filename = `${stem}-${sha}${extension}`;
+  // Una misma copia conserva su identidad aunque cambie el nombre del archivo.
+  const filename = `factura-${sha}${extension === '.jpeg' ? '.jpg' : extension}`;
   const destination = path.join(directory, filename);
   const temporary = path.join(directory, `.subida-${randomUUID()}.part`);
   try {
     await mkdir(directory, { recursive: true });
+    // Compatibilidad con originales guardados antes de usar nombres por contenido.
+    const existing = (await readdir(directory)).find((entry) => /\.(pdf|jpe?g|png|webp)$/i.test(entry) && entry.includes(`-${sha}.`));
+    if (existing) {
+      const saved = await stat(path.join(directory, existing));
+      if (!saved.isFile() || saved.size !== bytes.length) throw new Error('No se pudo confirmar el archivo.');
+      return { nombre: original, archivo: existing, bytes: saved.size, duplicada: true };
+    }
     await writeFile(temporary, bytes, { flag: 'wx', mode: 0o600 });
     let duplicate = false;
     try { await link(temporary, destination); }

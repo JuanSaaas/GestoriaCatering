@@ -10,12 +10,26 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   if (request.cookies.get('lmp_crm_session')?.value !== (process.env.CRM_SESSION_TOKEN || 'lmp-crm-session-v1')) return new NextResponse('No autorizado', { status: 401 });
   try {
-  const state = await getHr();
+  const source = await getHr();
+  const employeeId = request.nextUrl.searchParams.get('empleado');
+  const employee = source.employees.find((item) => item.id === employeeId);
+  if (employeeId !== null && !employee) return NextResponse.json({ error: 'No se encontró el empleado. Vuelve a su ficha para descargar el informe.' }, { status: 404 });
+  // Filtra todas las secciones antes de componer el PDF; nunca incluye datos ajenos.
+  const state = employee ? {
+    ...source,
+    employees: [employee],
+    attendance: source.attendance.filter((item) => item.employeeId === employee.id),
+    vacations: source.vacations.filter((item) => item.employeeId === employee.id),
+    evaluations: source.evaluations.filter((item) => item.employeeId === employee.id),
+    files: source.files.filter((item) => item.employeeId === employee.id),
+    candidates: source.candidates.filter((item) => item.employeeId === employee.id),
+  } : source;
   const pdf = await PDFDocument.create();
   const normal = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
   const clean = (s: string) => s.replace(/[^\x20-\x7E\u00A0-\u00FF]/g, ' ');
   const stamp = new Date().toLocaleString('es-ES', { timeZone: 'Europe/Madrid' });
+  const date = (value: string) => new Date(`${value}T12:00:00`).toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' });
   let page = pdf.addPage([595, 842]); let y = 748;
   function header() {
     page.drawRectangle({ x: 0, y: 790, width: 595, height: 52, color: rgb(0.145, 0.388, 0.922) });
@@ -46,15 +60,14 @@ export async function GET(request: NextRequest) {
     }
   }
   function section(title: string) { room(80); y -= 16; line(title, true); }
-  line('Proyecto de clase: módulo RRHH integrado en el CRM propio.');
-  line('Este informe documenta el simulador. No acredita una instancia de Odoo Online.');
+  line(employee ? `Informe individual: ${employee.name}` : 'Informe general de recursos humanos', true);
   section('1. Fichas de empleados');
-  for (const e of state.employees) line(`${e.name} | ${e.role} | ${e.department} | ${e.email} | Alta: ${e.startDate} | Foto: ${e.photoId ? 'subida' : 'sin foto'}`);
+  for (const e of state.employees) line(`${e.name} | ${e.role} | ${e.department} | ${e.email} | Alta: ${date(e.startDate)} | Foto: ${e.photoId ? 'subida' : 'sin foto'}`);
   section('2. Horarios y vacaciones');
   if (!state.attendance.length) line('Sin fichajes registrados.');
   for (const a of state.attendance) line(`${state.employees.find((e) => e.id === a.employeeId)?.name} | Entrada: ${new Date(a.in).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })} | Salida: ${a.out ? new Date(a.out).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' }) : 'jornada abierta'}`);
   if (!state.vacations.length) line('Sin solicitudes de vacaciones.');
-  for (const v of state.vacations) line(`${state.employees.find((e) => e.id === v.employeeId)?.name} | ${v.start} a ${v.end} | ${v.status} | ${v.reason}`);
+  for (const v of state.vacations) line(`${state.employees.find((e) => e.id === v.employeeId)?.name} | ${date(v.start)} a ${date(v.end)} | ${v.status} | ${v.reason}`);
   section('3. Tareas de incorporación');
   for (const e of state.employees) { room(24 + e.checklist.length * 17); line(e.name, true); for (const c of e.checklist) line(`${c.done ? '[Completada]' : '[Pendiente]'} ${c.title}`); }
   section('4. Selección y contratación');
@@ -70,7 +83,8 @@ export async function GET(request: NextRequest) {
   for (const f of files) line(`${state.employees.find((e) => e.id === f.employeeId)?.name} | ${f.name} | ${f.signedAt ? `Conformidad de ${f.signer} el ${new Date(f.signedAt).toLocaleString('es-ES', { timeZone: 'Europe/Madrid' })}` : 'Pendiente de firma'}`);
   line('Firma de simulación sin certificado digital. Se conserva el original y se genera una copia con el registro de conformidad.');
   for (const [i, p] of pdf.getPages().entries()) p.drawText(`${i + 1} / ${pdf.getPageCount()}`, { x: 520, y: 28, size: 9, font: normal, color: rgb(0.5, 0.5, 0.5) });
-  return new NextResponse(new Uint8Array(await pdf.save()), { headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="informe-rrhh.pdf"', 'Cache-Control': 'private, no-store' } });
+  const filename = employee ? `informe-${employee.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase()}.pdf` : 'informe-rrhh.pdf';
+  return new NextResponse(new Uint8Array(await pdf.save()), { headers: { 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${filename}"`, 'Cache-Control': 'private, no-store' } });
   } catch (error) {
     return NextResponse.json({ error: hrErrorMessage(error, 'No se pudo generar el informe de Recursos humanos.') }, { status: error instanceof HrStorageError ? error.status : 503 });
   }

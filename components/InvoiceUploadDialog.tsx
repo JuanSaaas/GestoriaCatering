@@ -5,7 +5,7 @@ import { useDialog } from './useDialog';
 import { btnGhost, btnPrimary, inputCls, labelCls } from './ui';
 import ValidatedForm from './ValidatedForm';
 
-type Result = { nombre: string; mensaje: string; ok: boolean };
+type Result = { nombre: string; mensaje: string; ok: boolean; duplicada?: boolean };
 export default function InvoiceUploadDialog({ onClose, onUploaded }: { onClose: () => void; onUploaded: (count: number) => void }) {
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
@@ -37,20 +37,24 @@ export default function InvoiceUploadDialog({ onClose, onUploaded }: { onClose: 
           const body = new FormData(); body.append('archivo', file);
           const response = await fetch('/api/crm/facturas/subir', { method: 'POST', body, signal: controller.signal });
           const result = await response.json().catch(() => { throw new Error(response.status === 413 ? 'El servidor no admite un archivo de este tamaño. Reduce su tamaño e inténtalo de nuevo.' : 'No se pudo confirmar la subida. Puedes reintentar sin sobrescribir el original.'); });
+          if (response.status === 409 && result.code === 'FACTURA_DUPLICADA') {
+            finished.push({ nombre: file.name, ok: false, duplicada: true, mensaje: result.error });
+            continue;
+          }
           if (!response.ok || result.ok !== true) throw new Error(result.error || 'No se pudo guardar el archivo.');
           finished.push({ nombre: file.name, ok: true, mensaje: result.duplicada ? '✓ Ya estaba guardada en la carpeta de entrada.' : '✓ Guardada en la carpeta de entrada. Pendiente de lectura.' });
         } catch (failure) {
           failed.push(file);
           finished.push({ nombre: file.name, ok: false, mensaje: `⚠ ${failure instanceof Error && failure.name !== 'AbortError' ? failure.message : 'No se pudo confirmar la subida a tiempo. Reintenta; se comprobará si ya está guardada.'}` });
-        } finally { clearTimeout(timer); }
-        setResults([...finished]);
+        } finally { clearTimeout(timer); setResults([...finished]); }
       }
       setFiles(failed);
       if (!failed.length && picker.current) picker.current.value = '';
       if (failed.length) setError('No se pudieron guardar todas las facturas. Se conservan las pendientes para reintentarlas.');
       const count = finished.filter(result => result.ok).length;
       if (count) onUploaded(count);
-      setProgress(failed.length ? `${count} de ${finished.length} facturas guardadas.` : `✓ ${count} ${count === 1 ? 'factura subida. Pendiente' : 'facturas subidas. Pendientes'} de lectura.`);
+      const duplicates = finished.filter(result => result.duplicada).length;
+      setProgress(`${count ? `✓ ${count} ${count === 1 ? 'factura subida' : 'facturas subidas'}. Pendientes de lectura.` : 'No se han añadido facturas nuevas.'}${duplicates ? ` ${duplicates} ${duplicates === 1 ? 'factura ya estaba registrada' : 'facturas ya estaban registradas'}.` : ''}${failed.length ? ` ${failed.length} pendientes de reintentar.` : ''}`);
     } finally {
       pending.current = false; setBusy(false);
       requestAnimationFrame(() => { if (trigger?.isConnected && !dialog.current?.contains(document.activeElement)) trigger.focus(); });
@@ -67,7 +71,7 @@ export default function InvoiceUploadDialog({ onClose, onUploaded }: { onClose: 
           {error && <p id="invoice-upload-error" role="alert" className="mt-2 text-red-700">⚠ {error}</p>}
         </div>
         <p role="status" className="text-neutral-700">{progress}</p>
-        {results.some(result => !result.ok) && <ul aria-label="Resultado de la subida" className="space-y-3">{results.filter(result => !result.ok).map((result, index) => <li key={index} className="border border-neutral-400 rounded-lg p-4 break-words"><p className="font-medium">{result.nombre}</p><p className="mt-2">{result.mensaje}</p></li>)}</ul>}
+        {results.some(result => !result.ok) && <div role="alert"><ul aria-label="Resultado de la subida" className="space-y-3">{results.filter(result => !result.ok).map((result, index) => <li key={index} className={`border rounded-lg p-4 break-words ${result.duplicada ? 'border-amber-700 bg-amber-50 text-amber-900' : 'border-red-700 bg-red-50 text-red-900'}`}><h3 className="font-semibold">{result.duplicada ? '⚠ Factura ya registrada' : '⚠ No se pudo subir la factura'}</h3><p className="mt-2 font-medium">{result.nombre}</p><p className="mt-2">{result.mensaje}</p></li>)}</ul></div>}
         <button type="submit" className={btnPrimary} disabled={busy}>{busy ? 'Subiendo facturas…' : error && files.length ? 'Reintentar subida' : 'Guardar facturas'}</button>
       </ValidatedForm>
     </div>

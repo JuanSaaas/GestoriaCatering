@@ -30,7 +30,7 @@ test('horas: cambio de hora y domingo pertenecen a la misma semana', () => {
   assert.equal(output.workedTime(shift, new Date('2026-10-26T12:00:00Z')).weekMs, 0);
 });
 
-test('firma: admite otro firmante pero exige nombre y conformidad', () => {
+test('firma: valida el nombre del empleado y exige conformidad', () => {
   assert.equal(output.validateSigner('  Responsable RRHH  ', true), 'Responsable RRHH');
   for (const name of ['', '   ', null, 'x'.repeat(201)]) assert.throws(() => output.validateSigner(name, true));
   for (const consent of [false, undefined, 'true']) assert.throws(() => output.validateSigner('Responsable RRHH', consent));

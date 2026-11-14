@@ -600,3 +600,104 @@ solo lectura. No se han creado ventas ficticias en Supabase. Se reutilizan
 colores y controles del proyecto; pendientes axe específico, NVDA, zoom, reflujo
 y recorrido de teclado completo. No se afirma conformidad WCAG total ni se da
 por revisado el checklist ERP ausente.
+
+## 14/11/2026 · Correcciones solicitadas en el PDF del CRM
+
+Alcance: los nueve puntos de «Cosas que mejorar del proyecto.pdf», revisadas
+sus dos páginas y sus capturas. Usuario: equipo comercial y de administración
+de La Mesa Perfecta. Se conservan los cambios previos del espacio de trabajo.
+
+| Pantalla / punto | Hallazgo y prioridad | Regla UX / WCAG relacionada | Corrección | Evidencia y estado |
+| --- | --- | --- | --- | --- |
+| Menú lateral | Texto «Gestión de eventos y equipo» innecesario; baja | UX 13, lenguaje de negocio | Retirado bajo la marca | Código revisado en CrmShell |
+| Ruta de navegación | Separador desalineado respecto a enlaces de 44 px; baja | UX 12, 1.3.1 | Alineación vertical centrada; separadores decorativos siguen ocultos al lector | Código revisado; aspecto en navegador pendiente |
+| Resumen | Listado mensual repetido encima del gráfico; baja | UX 16, 1.1.1 | Retirado de la presentación visual mediante sr-only; se conserva la alternativa textual del gráfico | Código revisado en Dashboard; lector y visual pendientes |
+| Menú lateral | Orden distinto al solicitado; baja | UX 2, navegación coherente | Resumen, Oportunidades, Empresas, Clientes, Tareas, Cierres previstos, Ventas, Facturas, Recursos humanos; mismo componente en móvil | Código revisado; se conserva el desplegable de Ventas |
+| Oportunidades | Botón «Todos» que se solicita retirar; baja | UX 1, 2.1.1, 4.1.2 | Eliminado; pulsar de nuevo un comercial activo desactiva ese filtro; aria-pressed y nombre completo; controles de 48 px | Código revisado; recorrido con teclado pendiente |
+| Empresas y Clientes | Acciones separadas del buscador; baja | UX 3, 1.3.2, 1.4.10 | Buscador, exportación y alta en una fila flexible, con ajuste en pantallas estrechas; alta de clientes disponible también en su sección principal y en el vacío | Código revisado; se reutilizan botones, NewSalesRecord y ValidatedForm; reflujo pendiente |
+| Facturas | Una copia repetida se comunicaba como subida correcta; media | UX 4 y 6, 3.3.1, 3.3.3, 4.1.3 | Respuesta 409 específica, tarjeta «⚠ Factura ya registrada» dentro del diálogo con nombre y explicación; sin contar duplicadas como altas ni reintentarlas | Cinco pruebas de subida pasan: mismo archivo, renombrado, originales antiguos y concurrencia, además de validaciones existentes |
+| RR. HH., informe | Descargar desde una ficha incluía todos los empleados; alta funcional | UX 13, prevención de errores | Enlace con identificador del empleado; filtrado de todas las secciones en servidor; identificador inexistente o vacío devuelve 404; informe general sigue disponible | Pruebas de ruta con datos ajenos protegidos por getters, extracción de texto y render del PDF individual correctos |
+| RR. HH., nómina | Nombre del firmante libre, distinto del titular; alta funcional | UX 11, 3.3.2, 3.3.4 | Nombre del titular precargado y de solo lectura, explicación antes de confirmar; servidor obtiene el nombre de la ficha y conserva la conformidad obligatoria | Prueba con nombre manipulado, rechazo sin conformidad y de firma repetida; PDF firmado revisado |
+
+Archivos de implementación: components/CrmShell.tsx, components/Dashboard.tsx,
+app/crm/oportunidades/page.tsx, app/crm/empresas/page.tsx,
+app/crm/contactos/page.tsx, components/InvoiceUploadDialog.tsx,
+lib/invoiceUploads.ts, app/api/crm/facturas/subir/route.ts,
+components/HrModule.tsx, app/api/crm/rrhh/route.ts y
+app/api/crm/rrhh/informe/route.ts. Los informes utilizan fechas españolas.
+La detección inmediata de duplicados compara el contenido idéntico (SHA-256)
+con originales conservados en la carpeta de entrada; no identifica como iguales
+dos escaneos diferentes de la misma factura. El lector existente mantiene sus
+comprobaciones de factura durante el procesamiento.
+
+### Comprobaciones realizadas
+
+- Compilación de producción en .next-mejoras-pdf-build completada; tipos comprobados.
+- Batería completa: 50 pruebas pasan, incluido el flujo HTTP de RR. HH. con
+  almacenamiento local temporal terminado en rrhh-api-test. No se han modificado
+  datos remotos ni registros reales para las pruebas.
+- git diff --check sin errores de espacios.
+- Informe individual: texto extraído incluye a Marta López y excluye a Daniel
+  Ruiz y Lucía Martín. La página de conformidad contiene «Firmante: Marta López»
+  aunque la petición use otro nombre. PDF de prueba renderizados con Poppler y
+  examinados: sin solapamientos ni texto recortado en los casos probados.
+- Contraste calculado con pautas-wcag/scripts/contraste.py: aviso duplicado
+  #78350f sobre #fffbeb = 8,75:1; borde #b45309 = 4,84:1. Error #7f1d1d
+  sobre #fef2f2 = 9,16:1; borde #b91c1c = 5,91:1.
+
+### Checklist de esta intervención y pruebas pendientes
+
+Pasa en revisión de código: semántica de botones y enlaces; etiquetas de los
+campos modificados; nombre accesible del informe que contiene «Informe PDF»;
+resultado con texto y símbolo; aviso de duplicados con role=alert y progreso
+con role=status; alternativa textual conservada para el gráfico. Contrastes
+nuevos medidos. Se reutilizan useDialog, foco global y preferencias de movimiento
+y colores forzados existentes. No hay gestos, multimedia ni animaciones nuevas.
+
+No probado en navegador: orden y visibilidad real del foco con Tab/Shift+Tab,
+Enter/Espacio y Escape, retorno de foco de los diálogos, NVDA, zoom al 200 %,
+reflujo a 320 CSS px, espaciado de texto, colores forzados y simulación de
+daltonismo. Pendiente axe/WAVE/Lighthouse sobre estas pantallas y comprobación
+visual de alineación y estados vacío, carga, error y éxito. Procedimiento:
+abrir Empresas y Clientes en escritorio y a 320 px, comprobar la barra de
+acciones; recorrer el menú móvil; activar y desactivar un filtro de comercial;
+subir una copia ya existente en un lote mixto; descargar desde dos fichas
+empleadas distintas y revisar ambas salidas; abrir una nómina y revisar su titular.
+
+Límite de la revisión visual: el navegador integrado devolvió
+ERR_CONNECTION_TIMED_OUT al servidor local. Computer Use de Windows se detuvo
+porque no pudo determinar con seguridad la URL activa de Chrome; no se continuó
+con la automatización del navegador. Las pruebas HTTP y de PDF se completaron
+por las herramientas de desarrollo. No se afirma conformidad WCAG completa ni
+se marcan como pasadas las comprobaciones manuales pendientes.
+
+Aplicadas ambas skills de accesibilidad, con prevalencia de Pautas_WCAG, y
+consultados temario, anexo textual y checklist. Las cuatro referencias de la
+skill ERP siguen ausentes: no se afirma haber pasado su checklist de 20 puntos.
+No se han revisado las ilustraciones del PDF docente no incluido ni se han
+editado las fuentes originales.
+
+
+### 14/11/2026 · Ajuste de la barra de Oportunidades
+
+A petición del usuario, se oculta visualmente «Buscar oportunidades» manteniendo
+el label asociado mediante sr-only (excepción solicitada a la etiqueta visible
+de la guía ERP). Botón y buscador comparten alineación por estiramiento en la
+misma fila; la lupa se centra verticalmente en el campo. Se conserva el ajuste
+en varias filas en pantallas estrechas, el filtrado, el foco y los controles
+nativos. Archivo: app/crm/oportunidades/page.tsx. Criterios relacionados:
+1.3.1, 1.4.10 y 4.1.2. Sin cambios de color ni movimiento.
+Comprobado en código: asociación label/input y clases de alineación.
+Pendiente de revisión visual en navegador, zoom al 200 %, ancho de 320 px,
+teclado y anuncio del nombre con NVDA. No se afirma conformidad WCAG completa.
+
+
+### 14/11/2026 · Encabezado de Oportunidades en una fila
+
+Corrección del ajuste anterior: el título y el grupo de botón y buscador
+comparten ahora la primera fila, centrados verticalmente. La descripción
+ocupa una fila propia debajo; se elimina el ancho completo del grupo de
+acciones desde sm para evitar que siempre salte de línea. En ventanas
+estrechas se permite el salto para conservar el reflujo (1.4.10). Se mantiene
+la etiqueta oculta asociada al buscador (1.3.1, 4.1.2). Revisión de código
+y git diff --check realizados; comprobación visual, zoom y NVDA pendientes.

@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       const file = state.files.find((f) => f.id === action.id && f.kind === 'payroll');
       const employee = state.employees.find((e) => e.id === file?.employeeId);
       if (!file || !employee || file.signedAt) throw new Error('Documento no disponible para firmar.');
-      const signer = validateSigner(action.signer, action.accepted);
+      const signer = validateSigner(employee.name, action.accepted);
       const pdf = await PDFDocument.load(await readHrFile(file.id));
       const font = await pdf.embedFont(StandardFonts.Helvetica);
       const page = pdf.addPage([595, 842]);

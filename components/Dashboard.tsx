@@ -132,7 +132,7 @@ function MonthlyBars({ data }: { data: { label: string; value: number }[] }) {
   }, [data]);
 
   return (
-    <div><section className="mb-4" aria-label="Datos de nuevas oportunidades por mes"><h3 className="font-semibold">Oportunidades por mes</h3><ul>{data.map((item) => <li key={item.label}>{item.label}: {item.value} oportunidades</li>)}</ul></section><div className="chart-visual relative h-[250px] w-full">
+    <div><section className="sr-only" aria-label="Datos de nuevas oportunidades por mes"><h3 className="font-semibold">Oportunidades por mes</h3><ul>{data.map((item) => <li key={item.label}>{item.label}: {item.value} oportunidades</li>)}</ul></section><div className="chart-visual relative h-[250px] w-full">
       <canvas ref={canvasRef} role="img" aria-label={`Nuevas oportunidades por mes: ${data.map((d) => `${d.label}: ${d.value}`).join(', ')}`} />
     </div></div>
   );

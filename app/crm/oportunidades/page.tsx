@@ -134,24 +134,16 @@ export default function CrmPage() {
   }, [oportunidades, query, filtro]);
 
   const chip = (activo: boolean) =>
-    `inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-sm border transition whitespace-nowrap ${
+    `inline-flex items-center gap-1.5 min-h-12 px-3 rounded-full text-sm border transition whitespace-nowrap ${
       activo ? 'bg-black text-white border-black' : 'bg-white text-neutral-500 border-neutral-200 hover:border-neutral-400'
     }`;
 
   return (
     <CrmShell live={live} onNew={() => setShowNew(true)}>
       <div className="px-6 pt-6 pb-5">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold">{salesView ? 'Mi flujo' : 'Oportunidades'}</h1>
-            <p className="text-sm text-neutral-500 mt-0.5">
-              Abre una tarjeta para consultar sus datos y cambiar la fase. También puedes arrastrarla entre columnas.{' '}
-              {visibles.length === oportunidades.length
-                ? `${oportunidades.length} oportunidades`
-                : `${visibles.length} de ${oportunidades.length} oportunidades`}
-            </p>
-          </div>
-          <div className="flex w-full min-w-0 flex-wrap gap-2 items-end justify-end">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="text-2xl font-semibold">{salesView ? 'Mi flujo' : 'Oportunidades'}</h1>
+          <div className="flex w-full min-w-0 flex-wrap gap-2 items-stretch sm:w-auto sm:flex-nowrap">
             <button
               onClick={() => setShowNew(true)}
               className="inline-flex min-h-12 py-3 items-center justify-center gap-1.5 rounded-lg bg-[var(--crm-accent)] px-4 text-sm font-medium text-white shadow-sm transition hover:brightness-110"
@@ -159,9 +151,9 @@ export default function CrmPage() {
               <Icon name="plus" className="w-4 h-4" />
               Nueva oportunidad
             </button>
-            <div className="relative w-full min-w-0 sm:max-w-80">
-              <Icon name="search" className="w-4 h-4 absolute left-3 bottom-4 text-neutral-400" />
-              <label htmlFor="list-search" className="block text-base font-medium mb-2">Buscar oportunidades</label>
+            <div className="relative flex w-full min-w-0 sm:w-80">
+              <Icon name="search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <label htmlFor="list-search" className="sr-only">Buscar oportunidades</label>
               <input id="list-search" type="search"
                 className={`${inputCls} pl-9`}
                 placeholder="Buscar empresa, contacto, empleado…"
@@ -171,13 +163,16 @@ export default function CrmPage() {
             </div>
           </div>
         </div>
+        <p className="text-sm text-neutral-500 mt-2">
+          Abre una tarjeta para consultar sus datos y cambiar la fase. También puedes arrastrarla entre columnas.{' '}
+          {visibles.length === oportunidades.length
+            ? `${oportunidades.length} oportunidades`
+            : `${visibles.length} de ${oportunidades.length} oportunidades`}
+        </p>
 
         <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-1">
-          <button aria-pressed={filtro === 'todos'} className={chip(filtro === 'todos')} onClick={() => setFiltro('todos')}>
-            Todos
-          </button>
           {empleados.map((e) => (
-            <button key={e.id} aria-pressed={filtro === e.id} className={chip(filtro === e.id)} onClick={() => setFiltro(e.id)}>
+            <button key={e.id} aria-label={`Filtrar por ${e.nombre}`} aria-pressed={filtro === e.id} className={chip(filtro === e.id)} onClick={() => setFiltro(filtro === e.id ? 'todos' : e.id)}>
               <Avatar nombre={e.nombre} size={18} /> {e.nombre.split(' ')[0]}
             </button>
           ))}
