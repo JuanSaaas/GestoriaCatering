@@ -29,7 +29,7 @@ export function useDialog<T extends HTMLElement>(onClose: () => void) {
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const controls = () => Array.from(dialog.querySelectorAll<HTMLElement>('button, input, select, textarea, a[href], [tabindex]')).filter((element) => !element.matches(':disabled, [type="hidden"]') && element.tabIndex >= 0 && !element.closest('[inert]') && element.getClientRects().length > 0 && getComputedStyle(element).visibility !== 'hidden');
-    (dialog.querySelector<HTMLElement>('[autofocus]') || dialog).focus();
+    (dialog.querySelector<HTMLElement>('[autofocus], [data-dialog-autofocus]') || dialog).focus();
     function key(event: KeyboardEvent) {
       if (dialogs[dialogs.length - 1] !== dialog) return;
       if (event.key === 'Escape') { event.preventDefault(); close.current(); }
@@ -46,6 +46,9 @@ export function useDialog<T extends HTMLElement>(onClose: () => void) {
       background.forEach(({ element, inert }) => { element.inert = inert; });
       document.body.style.overflow = overflow;
       document.removeEventListener('keydown', key);
+      // Strict Mode rehearses effects while the dialog is still mounted.
+      // Restoring focus then would blur an untouched field and show an error.
+      if (dialog.isConnected) return;
       if (previous?.isConnected && !previous.closest('[inert]')) previous.focus();
       else {
         const destination = dialogs[dialogs.length - 1] || document.querySelector<HTMLElement>('main h1, main');

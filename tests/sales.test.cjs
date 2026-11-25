@@ -1,6 +1,19 @@
 const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const ts=require('typescript');const {NextRequest}=require('next/server');
 function compile(file,requires={},env={}){const out={};new Function('exports','require','process',ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2017,esModuleInterop:true}}).outputText)(out,n=>n in requires?requires[n]:require(n),{env});return out;}
 const sales=compile('lib/sales.ts');
+test('Fechas CRM: admite fecha simple y confirmación con hora, en horario de Madrid',()=>{
+ const source=fs.readFileSync('components/ui.tsx','utf8');
+ const ast=ts.createSourceFile('ui.tsx',source,ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);
+ const formatter=ast.statements.find(node=>ts.isFunctionDeclaration(node)&&node.name?.text==='fmtDate');
+ const out={};
+ new Function('exports',ts.transpileModule(formatter.getText(ast),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2017}}).outputText)(out);
+ assert.equal(out.fmtDate('2026-11-04'),'04/11/2026');
+ assert.equal(out.fmtDate('2026-11-04T10:30:00.000Z'),'04/11/2026');
+ assert.equal(out.fmtDate('2026-11-04T23:30:00+00:00'),'05/11/2026');
+ assert.equal(out.fmtDate('2026-07-04T22:30:00Z'),'05/07/2026');
+ assert.equal(out.fmtDate(null),'Sin fecha');
+ assert.equal(out.fmtDate('fecha incorrecta'),'Sin fecha');
+});
 const salesEvent=compile('lib/salesEvent.ts',{'./types':compile('lib/types.ts')});
 test('Ventas: próximos eventos filtra por fecha del evento y excluye cancelaciones',async()=>{const calls=[];const chain={select:()=>chain,eq:(...a)=>{calls.push(['eq',...a]);return chain},gte:(...a)=>{calls.push(['gte',...a]);return chain},neq:(...a)=>{calls.push(['neq',...a]);return chain},order:(...a)=>{calls.push(['order',...a]);return chain},range:()=>chain,abortSignal:async()=>({data:[],count:0,error:null})};const r=compile('app/api/crm/ventas/documentos/route.ts',{'@/lib/sales':sales,'@supabase/supabase-js':{createClient:()=>({from:()=>chain})}},{SUPABASE_URL:'https://example.invalid',SUPABASE_SECRET_KEY:'test-only'});const response=await r.GET(new NextRequest('http://localhost/api/crm/ventas/documentos?tipo=pedido&periodo=proximos&orden=evento',{headers:{cookie:'lmp_crm_session=lmp-crm-session-v1'}}));assert.equal(response.status,200);assert.ok(calls.some(c=>c[0]==='gte'&&c[1]==='fecha_evento'));assert.ok(calls.some(c=>c[0]==='neq'&&c[1]==='estado'&&c[2]==='cancelado'));assert.ok(calls.some(c=>c[0]==='order'&&c[1]==='fecha_evento'&&c[2].ascending===true));});
 test('Ventas: recupera respuestas reales del formulario web desde el mensaje compatible',()=>{const result=salesEvent.salesOpportunityPrefill({id:'sin-demo',cliente_id:'cliente',tipo_evento:'boda',fecha_evento:null,num_invitados:80,comercial_id:null,mensaje:'Mensaje del cliente\n\nDatos del evento:\nFranja horaria: Noche\nUbicación del evento: Finca elegida por el cliente\nRestricciones alimentarias o alergias: Sin frutos secos\nDos menús vegetarianos\nCómo nos conoció: Instagram'});assert.equal(result.ubicacion,'Finca elegida por el cliente');assert.equal(result.evento,'Boda');assert.match(result.notas,/Noche/);assert.match(result.notas,/Dos menús vegetarianos/);assert.doesNotMatch(result.notas,/Instagram/);});

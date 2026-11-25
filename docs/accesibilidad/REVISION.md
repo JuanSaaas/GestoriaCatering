@@ -600,6 +600,86 @@ solo lectura. No se han creado ventas ficticias en Supabase. Se reutilizan
 colores y controles del proyecto; pendientes axe específico, NVDA, zoom, reflujo
 y recorrido de teclado completo. No se afirma conformidad WCAG total ni se da
 por revisado el checklist ERP ausente.
+# Resumen de revisión de formularios · 04/11/2026
+
+Texto de confirmación de envío ajustado a petición del usuario (04/11/2026):
+«Se enviará el presupuesto a [cliente] y quedará registrado como Enviado».
+Frase breve, destinatario explícito y resultado descrito (3.3.2). El envío sigue
+siendo ficticio; el aviso posterior conserva esa aclaración. Cambio solo de
+texto, sin modificar lógica, foco o controles. Pendiente lectura con NVDA.
+
+Envío ficticio de presupuestos (04/11/2026): «Enviar presupuesto» abre la
+confirmación con referencia del documento y nombre del cliente. El texto aclara
+que se simula el envío y se registra el estado Enviado sin correo real (3.3.2,
+3.3.4). Durante la operación se muestra «Enviando…»; el aviso role=status
+identifica el presupuesto y destinatario y confirma la simulación (4.1.3).
+Se mantiene la operación existente con control de versión, restricción a
+borradores y comprobación de respuesta antes de anunciar éxito. No se añade
+servicio de correo ni se alteran datos remotos durante la implementación.
+Pendiente: probar confirmación, cancelación, error y éxito por teclado y NVDA
+en navegador. No se afirma conformidad WCAG completa.
+
+Retirada de «Duplicar presupuesto» (04/11/2026): se elimina el botón de las
+fichas de Ventas y su callback en SalesModule. Se conserva el orden DOM de las
+acciones restantes (2.4.3), sin nuevos controles ni colores. Revisión de código;
+pendiente comprobación visual y recorrido de teclado en la ficha.
+
+Ajuste de barra de Ventas (04/11/2026): en escritorio, acciones con anchura
+automática y margen izquierdo automático para compartir fila con ordenación
+y búsqueda; filtros a la izquierda, acciones a la derecha. En pantallas
+estrechas se conserva el salto de línea y el orden DOM/teclado (1.3.2, 2.4.3),
+sin reducir los controles. Colores, nombres y foco se conservan.
+Pendiente de comprobación visual a 320 CSS px, zoom 200 % y escritorio
+(1.4.10); no se afirma conformidad completa por esta revisión de código.
+
+Corrección posterior del listado y las fichas de Ventas (04/11/2026): se retiran
+columna, filtro y datos visibles de Comercial, además de su columna del CSV,
+sin borrar asignaciones guardadas. Encabezados y celdas mantienen su orden
+(1.3.1). Pago vacío se describe como «Pendiente de acordar» y se unifica el
+título de observaciones. Barrera media: «Invalid Date» en confirmaciones;
+fmtDate ahora distingue fecha simple de fecha con hora, usa Europe/Madrid y
+muestra «Sin fecha» para valores ausentes o ilegibles. No se sustituye una
+confirmación ausente por la fecha del presupuesto (lenguaje comprensible).
+Verificación: TypeScript sin errores, once pruebas de Ventas superadas,
+incluyendo regresión para fechas simples, timestamps, cambio de día en Madrid,
+horario de verano y fechas ausentes o ilegibles; diff sin errores de espacios.
+Pendiente: inspección visual del listado, correspondencia de columnas con NVDA,
+teclado, zoom y axe en navegador; no se afirma conformidad WCAG completa.
+
+Ampliación en SalesEditor: se retira el selector Comercial del formulario
+(se conserva la asignación existente o procedente de la solicitud). El paso
+«Fechas y pago» permite escribir forma de pago, anticipo y plazos. Las notas
+se identifican como observaciones del presupuesto y se explica su destino.
+Ayudas asociadas mediante aria-describedby (3.3.2); observaciones vacías
+omitidas del resumen. El selector de catálogo es una acción de incorporación,
+no un dato del documento: se excluye de la revisión, manteniendo las líneas
+añadidas con etiquetas que identifican su producto o servicio (1.3.1, 3.3.4).
+Prioridad: media para la revisión engañosa del catálogo; baja para claridad
+de los campos. Código de guardado revisado: condiciones y notas persisten
+en ventas_documentos; confirmar el pedido conserva ambos campos.
+Validación de esta ampliación: TypeScript sin errores y las diez pruebas
+existentes de Ventas superadas (`node --test tests/sales.test.cjs`).
+Pendiente: recorrido real con productos, pago y observaciones, guardado y
+reapertura, teclado y NVDA. No se han modificado datos remotos.
+
+Alcance: paso final compartido de `components/FormSteps.tsx` y estilos en
+`components/FormSteps.module.css`.
+
+| Barrera / recomendación | Prioridad | Criterios relacionados | Cambio y comprobación | Estado |
+| --- | --- | --- | --- | --- |
+| Etiquetas y valores con poca jerarquía visual | Baja | 1.3.1, 3.3.4 | Etiquetas en negrita, valores sangrados, filas separadas en una columna; se conserva la lista semántica dl/dt/dd y la revisión antes de enviar | Código revisado |
+| Legibilidad del resumen | Baja | 1.4.3, 1.4.4, 1.4.10 | Texto de 1 rem, interlineado 1,5, sin alturas fijas y ruptura de cadenas largas; contraste #111827 sobre #f8fafc de 16,96:1 y ayuda #4a5562 sobre blanco de 7,59:1 | Contraste medido con fórmula WCAG en Node; Python no disponible |
+
+Validación: `npx tsc --noEmit` y `git diff --check` sin errores. No se han
+añadido controles ni cambiado la navegación, la captura de datos o el guardado.
+Se conserva el foco en el encabezado al entrar en la revisión.
+
+Pendiente en navegador: aspecto con datos reales, Tab/Shift+Tab, NVDA, zoom
+200 %, reflujo a 320 CSS px, espaciado personalizado, colores forzados y axe.
+No se afirma conformidad WCAG completa. Las cuatro referencias ERP siguen
+ausentes; no se afirma haber pasado su checklist ni revisado ilustraciones
+del PDF no incluido. No aplica multimedia ni movimiento nuevo.
+
 
 ## 14/11/2026 · Correcciones solicitadas en el PDF del CRM
 
@@ -701,3 +781,125 @@ acciones desde sm para evitar que siempre salte de línea. En ventanas
 estrechas se permite el salto para conservar el reflujo (1.4.10). Se mantiene
 la etiqueta oculta asociada al buscador (1.3.1, 4.1.2). Revisión de código
 y git diff --check realizados; comprobación visual, zoom y NVDA pendientes.
+
+### 17/11/2026 · Diseñador Web (comprobaciones del 16/11/2026)
+
+Alcance: `/crm/disenador-web`, galería y borradores, editor de bloques, diálogos,
+vistas previas y cuatro plantillas. Se aplican las dos skills WCAG conservadas,
+el temario textual, anexo y checklist de implementación. No se han revisado las
+ilustraciones del PDF no incluido. Las cuatro referencias de la skill de UX
+siguen ausentes: no se afirma haber pasado su checklist de veinte puntos.
+Se conservan todas las revisiones anteriores de este archivo.
+
+| Componente / barrera | Prioridad | Criterios | Cambio y evidencia | Estado |
+| --- | --- | --- | --- | --- |
+| Galería: el nombre accesible no contenía «Explorar diseño» | Alta | 2.5.3 | Axe detectó cuatro casos; el nombre ahora incluye el texto visible y el nombre de la plantilla | Corregido en código; repetición aislada pendiente |
+| Vista previa y alta simultáneas podían dejar controles inertes al cerrar | Bloqueante | 2.1.1, 2.4.3 | Se evita apilar los dos diálogos; se reutiliza useDialog para foco, Escape y restauración. Se añade comunicación de Escape desde el iframe aislado | Corregido; falta recorrido manual completo |
+| Botón de edición alteraba la retícula de la portada | Media | 1.3.2, 1.4.10 | Se sitúa fuera del flujo; el lienzo conserva el ancho de ordenador/tablet/móvil y se escala al panel | Corregido y comprobado visualmente |
+| Arrastre como única opción de ordenar | Alta | 2.1.1, 2.5.7 | Botones Subir/Bajar con nombre por bloque y anuncio de posición; el arrastre es adicional | Implementado; pruebas manuales de todo el recorrido pendientes |
+| Controles, etiquetas y resultados | Alta | 1.3.1, 3.3.1, 3.3.2, 4.1.2, 4.1.3 | Etiquetas asociadas, errores junto a URLs/imágenes, ValidatedForm en alta, avisos de guardado y error, confirmaciones con nombre | Axe del editor sin infracciones detectadas |
+| Contraste | Alta | 1.4.3, 1.4.11 | Script aportado: #315748/blanco 8,12:1; #e3c58e/#191d19 10,27:1; #718077/blanco 4,15:1 para bordes. Se exige 4,5:1 en texto y fondo al guardar; estados incluyen texto y símbolo | Pares iniciales medidos; falta revisar todas las personalizaciones con personas |
+| Reflujo del editor | Alta | 1.4.4, 1.4.10 | A 320×850 px: ancho interior 320 y scrollWidth 305, sin desbordamiento horizontal. Paneles en columna | Comprobado a 320 px; zoom real 200/400 % pendiente |
+| Plantillas dentro de iframe | Media | 1.3.1, 4.1.2 | Título de iframe, documento lang=es, h1, navegación, alt y labels. Axe identifica que el iframe debe probarse por separado | Minimalista 1280×720 y corporativa 320×850: cero infracciones y cero incompletos |
+| Movimiento y colores forzados | Media | 2.3.1, 2.3.3 (AAA), 1.4.11 | Sin carruseles automáticos ni destellos; prefers-reduced-motion y forced-colors en módulo y renderizador | Revisado en código; simulación manual pendiente |
+| Formularios de plantilla | Media | 3.3.1, 3.3.2, 4.1.3 | Etiquetas, campos obligatorios y mensaje explícito de demostración; no se simula recepción de solicitudes | Implementado; receptor real pendiente de publicación |
+
+Pruebas automáticas: TypeScript y compilación de producción; 56 pruebas de
+regresión aprobadas, incluidas siete del diseñador. Integración real del diseñador
+con cuatro plantillas: creación, edición, recuperación, duplicado, borrado,
+conflictos de versión y rechazo de solicitudes sin sesión o con origen externo.
+Prueba de RR. HH. aprobada por separado con almacenamiento de prueba aislado.
+
+Navegador usado: navegador integrado (Chromium), escritorio y viewport de
+320 CSS px. Axe 4.14 se ejecutó mediante una vista local de auditoría; esa
+instrumentación no forma parte del producto. El editor devolvió cero
+infracciones y una revisión incompleta de iframe; las dos plantillas indicadas
+se comprobaron por separado. El último ajuste de Escape en iframe se comprobó
+por revisión de código y TypeScript, sin recorrido manual posterior.
+
+Pendiente: repetir axe en la galería corregida y en las plantillas creativa y
+premium; Tab/Shift+Tab/Enter/Espacio por el flujo completo, Escape dentro y fuera
+del iframe y recuperación de foco; lector NVDA/VoiceOver/TalkBack; zoom real
+200/400 %, espaciado de texto, simulación de daltonismo/visión borrosa y alto
+contraste. La herramienta de navegador dejó de estar disponible antes de cerrar
+esas pruebas. No se interpreta una ausencia de errores automáticos como
+conformidad WCAG completa.
+
+No aplica en este módulo: vídeo, audio, subtítulos y transcripción. No se
+introduce contenido que dependa de sonido, tiempo o gestos sin alternativa.
+La sesión conserva la duración existente del CRM; no se ha auditado el sistema
+completo de autenticación. Los proyectos se comparten bajo la única cuenta de
+administración actual; el aislamiento por usuarios independientes requiere
+identidades individuales, explicado en `docs/DISENADOR_WEB.md`.
+
+### 24/11/2026 · Continuación del Diseñador Web
+
+Se añade Deshacer/Rehacer para nombre, bloques, orden, contenido y estilos.
+Historial acotado a cincuenta cambios por sesión de edición; una edición nueva
+tras deshacer elimina la rama de rehacer. La revisión del servidor se mantiene
+fuera del historial. Botones nativos, estado disponible/no disponible y avisos
+con texto en la región de estado (2.1.1, 4.1.2, 4.1.3). Tres nuevas pruebas
+verifican recuperación, ramificación, inmutabilidad y límite.
+
+| Comprobación / barrera | Prioridad | Criterios | Evidencia y resultado |
+| --- | --- | --- | --- |
+| Galería corregida | Alta | 2.5.3 | Axe 4.14 a 1280×720: cero infracciones; ya no aparecen los cuatro nombres que omitían el texto visible |
+| Contraste de galería | Media | 1.4.3 | Ocho incompletos de axe por superposición de miniaturas; falta verificar manualmente los pares sobre el fondo real. No se declara la comprobación completa |
+| Creativa | Alta | 1.3.1, 1.4.3, 4.1.2 | Documento generado, auditado por separado a 1280×720: cero infracciones e incompletos |
+| Premium | Alta | 1.3.1, 1.4.3, 1.4.10, 4.1.2 | Documento generado a 1280×720 y 320×850: cero infracciones e incompletos; a 320 px, scrollWidth 305 |
+| Escape dentro del iframe | Alta | 2.1.1, 2.4.3 | Se enfocó un enlace dentro de la vista previa, Escape cerró el diálogo y devolvió el foco a Explorar diseño |
+| Aviso al salir con cambios | Alta | 2.1.1, 2.4.3, 3.3.4 | Diálogo probado con Tab, Shift+Tab y Escape; se conservó el texto y el foco volvió a Mis páginas web, cero elementos inertes residuales |
+| Error inicial antes de escribir | Media | 3.3.1, 3.3.2 | Detectado en el alta por la limpieza simulada de efectos de Strict Mode; useDialog restaura el foco solo al retirar el diálogo. Verificado: foco en el nombre, sin error prematuro, Escape cierra y libera todos los controles |
+| Historial después de guardar | Media | 3.3.4, 4.1.3 | Título editado, deshecho, rehecho y guardado; historial usado después del éxito sin cambiar la revisión del servidor |
+
+Navegador integrado Chromium. Las auditorías se ejecutan mediante herramientas
+locales de prueba, excluidas del producto. La vista de auditoría es de lectura:
+las escrituras se comprobaron directamente en el CRM, conservando la protección
+de origen de su API. Batería: 59 pruebas aprobadas; integración real repetida
+con cuatro plantillas y limpieza confirmada de sus cinco borradores.
+
+Pendientes: lectores NVDA/VoiceOver/TalkBack, zoom real 200/400 %, espaciado de
+texto, colores forzados y simulación de daltonismo/visión borrosa; los ocho
+incompletos de contraste de la galería; recorrido completo por todas las
+combinaciones de estilos y contenidos editables. No se afirma conformidad WCAG
+completa. No se ha revisado el PDF no incluido ni el checklist UX ausente.
+
+## Imágenes adaptables del Diseñador Web — 25/11/2026
+
+| Barrera | Prioridad | Criterio WCAG | Corrección y prueba |
+| --- | --- | --- | --- |
+| Encuadres fijos y recortes en portadas, secciones, galerías y bloques de imagen | Alta | 1.4.10 (reflujo) | `lib/webRenderer.ts` conserva la proporción original. Edge comprobó 112 imágenes en 32 vistas de las cuatro plantillas, incluidas fotos verticales de prueba, a 320, 375, 600, 601, 768, 900, 1024 y 1200 px. Las imágenes se mantuvieron dentro del ancho disponible y las páginas no tuvieron desplazamiento horizontal. |
+| Miniaturas con los laterales del lienzo fuera de la tarjeta | Media | 1.4.10 (reflujo) | `components/WebDesigner.tsx` y `components/WebDesigner.module.css` ajustan la escala al ancho medido. El componente se verificó de forma aislada en Edge con tarjetas de 228, 262, 320, 350, 460 y 600 px. |
+| Alternativas de las imágenes informativas | Media | 1.1.1 (contenido no textual) | Se conservan las descripciones existentes. La comprobación de las plantillas en Edge confirmó que todas las imágenes de prueba tenían `alt` con texto. |
+
+TypeScript y las 10 pruebas del diseñador pasaron. Esta revisión comprobó el
+HTML generado y el componente de miniaturas en vistas locales de prueba.
+Quedan pendientes la comprobación táctil en dispositivos físicos, el zoom
+real al 200 % y 400 %, el recorrido completo por teclado y la prueba con lector
+de pantalla. El reflujo medido equivale a comprobar el ancho, no el zoom del
+navegador. Esta revisión no acredita conformidad WCAG completa.
+
+### 25/11/2026 · Rediseño adaptable de las plantillas y del módulo
+
+Esta intervención **sustituye** el criterio anterior de «conservar la proporción
+original» de las fotos. Mezclar fotos verticales (576 × 636) y horizontales
+(1536 × 1024) producía tarjetas, columnas y galerías de alturas distintas.
+
+| Barrera | Prioridad | Criterio WCAG | Corrección y prueba |
+| --- | --- | --- | --- |
+| La galería compartía la clase `gallery` entre la sección y su rejilla: el título ocupaba una columna y las fotos quedaban diminutas | Alta | 1.4.10 (reflujo) | Los bloques usan clases con prefijo (`block-gallery`, `photo-grid`) y un contenedor común `.wrap` de 1.200 px |
+| Imágenes de alturas desiguales y filas desalineadas | Alta | 1.4.10 (reflujo) | Marco con proporción fija por dispositivo y recorte centrado. Nueva opción **Encuadre de la imagen → Mostrar la imagen completa** para fotos que no deben recortarse |
+| Bloque Cifras con márgenes laterales distintos; testimonio descentrado; tarjeta suelta en tablet | Media | 1.4.10 (reflujo) | Mismo margen lateral en todos los bloques; columnas calculadas según el número de tarjetas (3 → 3 en tablet, 4 → 2) |
+| Miniaturas que cortaban la portada según el ancho de la tarjeta | Media | 1.4.10 (reflujo) | Miniatura del primer pantallazo de 1.280 px en un marco 16:10 |
+| Editor apretado entre 1.200 y 1.450 px | Media | 1.4.10 (reflujo) | Consultas de contenedor: una columna, lienzo con dos paneles debajo y tres columnas desde 1.280 px de espacio útil |
+
+Comprobado en Chrome con el HTML generado (vista local estática): las cuatro
+plantillas y un documento con los catorce tipos de bloque a 320, 375, 768 y
+1.200 px, **sin desplazamiento horizontal ni elementos fuera del ancho**, y con
+las proporciones de imagen esperadas. TypeScript y las 10 pruebas del diseñador
+pasaron.
+
+Pendiente: no se pudo revisar en pantalla el módulo dentro del CRM (galería,
+editor y diálogos) porque requiere iniciar sesión. Siguen pendientes axe sobre
+el nuevo marcado, el teclado en el selector de dispositivo, el zoom real al
+200 % y 400 % y el lector de pantalla. No se acredita conformidad WCAG completa.

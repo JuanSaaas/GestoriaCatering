@@ -1,4 +1,5 @@
 import { PlusIcon, MagnifyingGlassIcon, BuildingOffice2Icon, UserIcon, CalendarDaysIcon, UserGroupIcon, XMarkIcon, Square3Stack3DIcon, CheckIcon, ArrowTrendingUpIcon, ReceiptPercentIcon, ExclamationTriangleIcon, ChartBarIcon, MapPinIcon, ArrowDownTrayIcon, ArchiveBoxIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
+import { PaintBrushIcon } from '@heroicons/react/24/outline';
 import type { Oportunidad } from '@/lib/types';
 import { TIPO_EVENTO_LABEL } from '@/lib/types';
 
@@ -11,7 +12,10 @@ export function fmtMoney(n: number | null | undefined) {
 
 export function fmtDate(d: string | null) {
   if (!d) return 'Sin fecha';
-  return new Date(d + 'T00:00:00').toLocaleDateString('es-ES', {
+  const date = new Date(/^\d{4}-\d{2}-\d{2}$/.test(d) ? d + 'T00:00:00Z' : d);
+  if (!Number.isFinite(date.getTime())) return 'Sin fecha';
+  return date.toLocaleDateString('es-ES', {
+    timeZone: 'Europe/Madrid',
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -31,6 +35,7 @@ export function tituloOportunidad(o: Oportunidad) {
 /* ---------- Iconos (SVG en línea, sin dependencias) ---------- */
 
 const ICONS = {
+  design: PaintBrushIcon,
   plus: PlusIcon, search: MagnifyingGlassIcon, building: BuildingOffice2Icon,
   user: UserIcon, calendar: CalendarDaysIcon, guests: UserGroupIcon,
   close: XMarkIcon, layers: Square3Stack3DIcon, check: CheckIcon,

@@ -1,0 +1,160 @@
+/* Diseñador Web · La Mesa Perfecta
+   Espaciados en múltiplos de 8 px. Las rejillas usan consultas de contenedor:
+   el ancho real depende de la barra lateral del CRM, no solo de la ventana. */
+.root{
+  --ink:#18251e;--muted:#47564c;--line:#d4dbd5;--line-strong:#718077;--surface:#fff;--canvas:#eef1ee;--brand:#315748;--brand-soft:#e7ede8;--focus:#17395c;
+  padding:2rem;max-width:1800px;margin:auto;color:var(--ink);font-size:1rem;line-height:1.6
+}
+.heading,.gallerySection,.workspace,.canvas{container-type:inline-size}
+.root h1{font-size:clamp(1.75rem,4cqi,2.75rem);font-weight:650;letter-spacing:-.035em;line-height:1.15;margin:.25rem 0}
+.root h2{font-size:1.375rem;line-height:1.3;font-weight:650;letter-spacing:-.02em;margin:0}
+.root h3{font-size:1.125rem;font-weight:650;line-height:1.35;margin:0}
+.root p{margin:.5rem 0 0;color:var(--muted)}
+.root button:focus-visible,.root input:focus-visible,.root textarea:focus-visible,.root select:focus-visible,.root summary:focus-visible,.root iframe:focus-visible{outline:3px solid var(--focus);outline-offset:3px;box-shadow:0 0 0 6px #fff}
+.root button{border:1px solid var(--line-strong);font-size:1rem}
+.root button[aria-pressed=true]{border:2px solid var(--brand);background:var(--brand-soft);color:var(--ink)}
+
+/* Cabecera del módulo */
+.heading,.sectionHeading,.row,.previewToolbar{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.heading{padding-bottom:1.5rem;border-bottom:1px solid var(--line);margin-bottom:1.5rem}
+.heading>div{min-width:0}
+.kicker{font-size:.8125rem!important;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)!important;margin:0!important}
+.badge{display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--line-strong);background:#edf2ee;padding:.25rem .75rem;border-radius:2rem;font-size:.875rem;color:#263e30;white-space:normal;margin:0}
+.toolbar{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:flex-end}
+.toolbar .badge{margin-inline:.5rem}
+
+/* Galería de plantillas */
+.gallerySection{outline:none}
+.sectionHeading{margin-bottom:1.5rem;align-items:flex-end}
+.templates{display:grid;grid-template-columns:minmax(0,1fr);gap:1.5rem}
+.templateCard,.project{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:1rem;overflow:hidden;min-width:0;box-shadow:0 1px 2px #20292308,0 8px 24px #2029230a;transition:box-shadow .2s,transform .2s}
+.templateCard:hover,.project:hover{box-shadow:0 2px 4px #2029230d,0 16px 40px #20292314}
+.templatePreview{display:block;position:relative;width:100%;padding:1.5rem 1.5rem 0;background:var(--canvas);border:0!important;border-bottom:1px solid var(--line)!important;text-align:left;cursor:pointer}
+.templateCard:nth-child(2) .templatePreview{background:#dfe6ee}
+.templateCard:nth-child(3) .templatePreview{background:#f3e4d8}
+.templateCard:nth-child(4) .templatePreview{background:#d9ddd4}
+.browserBar{display:flex;align-items:center;gap:6px;height:24px;padding-inline:12px;background:#fff;border:1px solid #0000001a;border-bottom:0;border-radius:10px 10px 0 0}
+.browserBar i{width:8px;height:8px;border-radius:50%;background:#c9cfca}
+.templatePreview .thumbnail{border-radius:0;box-shadow:0 -1px 0 #0000001a,0 12px 32px #0000001f}
+.previewLabel{position:absolute;bottom:1rem;right:1rem;background:#fff;color:var(--ink);border:1px solid var(--line-strong);border-radius:2rem;padding:.5rem 1rem;font-size:.9375rem;font-weight:600;box-shadow:0 4px 12px #0002;transition:background .15s,color .15s}
+.templatePreview:hover .previewLabel,.templatePreview:focus-visible .previewLabel{background:var(--ink);color:#fff}
+.cardBody{display:flex;flex-direction:column;flex:1;padding:1.5rem;gap:.25rem}
+.cardBody h3{margin-top:.25rem}
+.cardBody>p:last-of-type{margin-bottom:1rem}
+.cardBody>button,.cardBody>.actions{margin-top:auto}
+.cardBody>button{align-self:flex-start}
+
+/* Lienzo y miniaturas */
+.frameWrap{position:relative;width:100%;min-width:0;height:clamp(420px,72vh,960px);background:var(--canvas);border:1px solid var(--line);border-radius:.75rem;overflow:hidden}
+.frameWrap[data-device=tablet],.frameWrap[data-device=mobile]{background:radial-gradient(#cfd6d0 1px,transparent 1px) 0 0/16px 16px,var(--canvas)}
+.frame{display:block;position:absolute;top:0;transform-origin:top left;max-width:none;border:0;background:#fff}
+.frameWrap[data-device=tablet] .frame,.frameWrap[data-device=mobile] .frame{border-radius:20px;box-shadow:0 0 0 8px #1f2924,0 24px 48px #0000002e}
+.thumbnail{height:auto;aspect-ratio:16/10;border:0;border-radius:0;pointer-events:none;background:#fff}
+.projectThumb{padding:1rem 1rem 0;background:var(--canvas);border-bottom:1px solid var(--line)}
+.projectThumb .thumbnail{border-radius:8px 8px 0 0;box-shadow:0 8px 24px #0000001a}
+
+/* Mis páginas */
+.projects{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--line)}
+.projects>.field{max-width:28rem}
+.projectGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:1.5rem;margin-top:1.5rem}
+.project .cardBody p{font-size:.9375rem}
+.empty{border:1px dashed var(--line-strong);border-radius:1rem;padding:3rem 2rem;display:flex;align-items:center;flex-direction:column;text-align:center;background:#fff;margin-top:1rem}
+.empty h3{margin-top:1rem}
+.actions{display:flex;gap:.5rem;flex-wrap:wrap}
+
+/* Selector de dispositivo: control segmentado */
+.devices{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;background:#fff;border:1px solid var(--line);border-radius:.75rem}
+.root .devices button{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;padding:0 .875rem;border:0;border-radius:.5rem;background:transparent;color:var(--ink);font-size:.9375rem;font-weight:600;cursor:pointer}
+.root .devices button:hover{background:#f1f4f1}
+.root .devices button[aria-pressed=true]{border:0;background:var(--ink);color:#fff}
+.devices small{font-size:.75rem;font-weight:500;opacity:.8}
+
+/* Campos */
+.field{margin:1rem 0;min-width:0}
+.field input,.field select,.field textarea{font-size:1rem;min-height:48px;max-width:100%}
+.field input[type=color]{padding:.375rem;width:100%;cursor:pointer}
+.checkbox{display:flex;align-items:center;gap:.75rem;min-height:48px}
+.checkbox input{width:24px;height:24px}
+.item{border:1px solid var(--line-strong);border-radius:.5rem;padding:.75rem;margin:1rem 0;min-width:0}
+
+/* Editor: una columna en móvil, lienzo + paneles en tablet, tres columnas en ordenador */
+.editor{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;align-items:start;min-inline-size:0;border:0;padding:0;margin:0}
+.canvas{min-width:0;order:-1;display:flex;flex-direction:column;gap:.75rem}
+.canvasBar{display:flex;align-items:center;justify-content:space-between;gap:.5rem 1rem;flex-wrap:wrap}
+.canvasHint{font-size:.875rem!important;margin:0!important}
+.panel{border:1px solid var(--line);background:#fff;border-radius:.75rem;padding:1.25rem;min-width:0}
+.panel h2{font-size:1.125rem}
+.panel p{font-size:.9375rem}
+.panel details{margin:1rem 0 0;border-block-start:1px solid var(--line);padding-top:.25rem}
+.panel summary{font-weight:650;min-height:48px;display:flex;align-items:center;cursor:pointer;list-style:none;gap:.5rem}
+.panel summary::-webkit-details-marker{display:none}
+.panel summary::before{content:'▸';font-size:.875rem;transition:transform .15s}
+.panel details[open]>summary::before{transform:rotate(90deg)}
+.blockTools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;margin-top:.5rem}
+.blockTools button{justify-content:flex-start;white-space:normal;text-align:left;padding-inline:.75rem}
+.blockList{list-style:none;padding:0;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem}
+.blockList li{border:1px solid var(--line);border-radius:.5rem;padding:.5rem;background:#f7f9f7;cursor:grab}
+.blockList li>button{width:100%;justify-content:flex-start;text-align:left;overflow-wrap:anywhere}
+.blockList .actions{margin-top:.5rem}
+.blockList .actions button{padding-inline:.4rem;font-size:.875rem;flex:1}
+
+@container (min-width:560px){
+  .templates{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@container (min-width:860px){
+  .editor{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .canvas{grid-column:1/-1}
+}
+@container (min-width:1280px){
+  .editor{grid-template-columns:260px minmax(0,1fr) 320px}
+  .canvas{grid-column:auto;order:0}
+  .panel{position:sticky;top:1rem;max-height:calc(100vh - 2rem);overflow-y:auto}
+  .blockTools{grid-template-columns:minmax(0,1fr)}
+}
+@container (min-width:1440px){
+  .templates{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@container (max-width:559px){
+  .heading{align-items:stretch}
+  .heading>button{width:100%}
+  .toolbar{justify-content:stretch;width:100%}
+  .toolbar>button{flex:1 1 calc(50% - .5rem)}
+  .toolbar>.badge{order:-1;flex-basis:100%;justify-content:center;margin:0}
+  .toolbar>button:last-child{flex-basis:100%}
+  .devices{display:flex;width:100%}
+  .root .devices button{flex:1;justify-content:center;padding-inline:.5rem}
+  .devices small{display:none}
+  .frameWrap{height:clamp(420px,70vh,760px)}
+  .templatePreview{padding:1rem 1rem 0}
+}
+
+/* Avisos */
+.danger{color:#b91c1c!important;border-color:#b91c1c!important}
+.root .success{background:#edf4ef;border:1px solid var(--brand);border-radius:.5rem;padding:1rem;color:#244531;margin-bottom:1rem}
+.root .error{background:#fff5f5;border:1px solid #b91c1c;border-radius:.5rem;padding:1rem;color:#991b1b;margin-bottom:1rem}
+.error button{margin-left:1rem}
+.publication{border:1px solid var(--line-strong);border-radius:.75rem;background:#f4f5f1;padding:1rem;margin-top:2rem!important}
+
+/* Diálogos */
+.overlay{position:fixed;inset:0;background:#101b14a6;z-index:80;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.dialog{background:#fff;color:var(--ink);width:min(1400px,100%);max-height:94vh;overflow:auto;border:1px solid var(--line-strong);border-radius:1rem;padding:1.5rem;box-shadow:0 16px 80px #0003}
+.dialog:has(iframe){height:94vh;display:flex;flex-direction:column;overflow:hidden}
+.dialog:has(iframe) .frameWrap{flex:1;height:auto;min-height:280px}
+.dialog:has(form),.dialog:not(:has(iframe)){max-width:600px}
+.dialog h2{max-width:calc(100% - 70px);overflow-wrap:anywhere}
+.previewToolbar{margin:1rem 0}
+.previewToolbar>.devices{margin-right:auto}
+
+@media(max-width:760px){
+  .root{padding:1rem}
+  .overlay{padding:.5rem}
+  .dialog{padding:1rem}
+  .dialog:has(iframe){height:calc(100vh - 1rem)}
+  .previewToolbar{align-items:stretch}
+  .previewToolbar>button{flex:1}
+  .previewToolbar>.devices{display:flex;width:100%}
+  .root .previewToolbar .devices button{flex:1;justify-content:center;padding-inline:.5rem}
+  .previewToolbar .devices small{display:none}
+}
+@media(prefers-reduced-motion:reduce){.root *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media(forced-colors:active){.root button,.badge,.panel,.frameWrap,.templateCard,.project,.devices{border:1px solid ButtonText}.root button[aria-pressed=true],.root .devices button[aria-pressed=true]{border:3px solid Highlight}}

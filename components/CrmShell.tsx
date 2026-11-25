@@ -42,6 +42,7 @@ const NAV: { href: string; label: string; icon: IconName }[] = [
   { href: '/crm/ventas', label: 'Ventas', icon: 'trend' },
   { href: '/crm/facturas', label: 'Facturas', icon: 'archive' },
   { href: '/crm/rrhh', label: 'Recursos humanos', icon: 'guests' },
+  { href: '/crm/disenador-web', label: 'Diseñador Web', icon: 'design' },
 ];
 
 export default function CrmShell({
